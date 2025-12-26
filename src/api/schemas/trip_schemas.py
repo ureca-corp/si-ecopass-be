@@ -1,0 +1,235 @@
+"""
+Trip API Schemas
+
+여행 관리 관련 API 요청/응답 DTO (Data Transfer Objects)
+모든 스키마는 ~~Request, ~~Response 명명 규칙을 따름
+"""
+
+from datetime import datetime
+from typing import Optional
+from uuid import UUID
+
+from pydantic import Field, HttpUrl
+
+from src.domain.entities.trip import TripStatus
+from src.shared.schemas.base import BaseRequest, BaseResponse
+
+
+# ============================================================
+# Request Schemas (요청 스키마)
+# ============================================================
+
+
+class StartTripRequest(BaseRequest):
+    """
+    여행 시작 요청 스키마
+    출발 위치의 위도/경도를 받아 새로운 여행 시작
+    """
+
+    latitude: float = Field(
+        ...,
+        ge=-90.0,
+        le=90.0,
+        description="출발 위치 위도",
+        examples=[37.5665],
+    )
+    longitude: float = Field(
+        ...,
+        ge=-180.0,
+        le=180.0,
+        description="출발 위치 경도",
+        examples=[126.9780],
+    )
+
+
+class TransferTripRequest(BaseRequest):
+    """
+    환승 기록 요청 스키마
+    환승 위치와 증빙 이미지를 받아 환승 정보 기록
+    """
+
+    latitude: float = Field(
+        ...,
+        ge=-90.0,
+        le=90.0,
+        description="환승 위치 위도",
+        examples=[37.5172],
+    )
+    longitude: float = Field(
+        ...,
+        ge=-180.0,
+        le=180.0,
+        description="환승 위치 경도",
+        examples=[127.0473],
+    )
+    transfer_image_url: HttpUrl = Field(
+        ...,
+        description="환승 증빙 이미지 URL",
+        examples=["https://storage.supabase.co/transfers/image.jpg"],
+    )
+
+
+class ArrivalTripRequest(BaseRequest):
+    """
+    도착 기록 요청 스키마
+    도착 위치와 증빙 이미지를 받아 도착 정보 기록
+    """
+
+    latitude: float = Field(
+        ...,
+        ge=-90.0,
+        le=90.0,
+        description="도착 위치 위도",
+        examples=[37.4979],
+    )
+    longitude: float = Field(
+        ...,
+        ge=-180.0,
+        le=180.0,
+        description="도착 위치 경도",
+        examples=[127.0276],
+    )
+    arrival_image_url: HttpUrl = Field(
+        ...,
+        description="도착 증빙 이미지 URL",
+        examples=["https://storage.supabase.co/arrivals/image.jpg"],
+    )
+
+
+# ============================================================
+# Response Schemas (응답 스키마)
+# ============================================================
+
+
+class StartTripResponse(BaseResponse):
+    """
+    여행 시작 응답 스키마
+    생성된 여행 ID, 상태, 출발 시각 반환
+    """
+
+    trip_id: UUID = Field(..., description="생성된 여행 ID")
+    status: TripStatus = Field(..., description="여행 상태")
+
+    model_config = {
+        "json_schema_extra": {
+            "example": {
+                "trip_id": "550e8400-e29b-41d4-a716-446655440000",
+                "status": "DRIVING",
+            }
+        }
+    }
+
+
+class TransferTripResponse(BaseResponse):
+    """
+    환승 기록 응답 스키마
+    여행 ID, 상태, 환승 시각 반환
+    """
+
+    trip_id: UUID = Field(..., description="여행 ID")
+    status: TripStatus = Field(..., description="여행 상태")
+
+    model_config = {
+        "json_schema_extra": {
+            "example": {
+                "trip_id": "550e8400-e29b-41d4-a716-446655440000",
+                "status": "TRANSFERRED",
+            }
+        }
+    }
+
+
+class ArrivalTripResponse(BaseResponse):
+    """
+    도착 기록 응답 스키마
+    여행 ID, 상태, 도착 시각, 예상 포인트 반환
+    """
+
+    trip_id: UUID = Field(..., description="여행 ID")
+    status: TripStatus = Field(..., description="여행 상태")
+    estimated_points: int = Field(..., description="예상 포인트")
+
+    model_config = {
+        "json_schema_extra": {
+            "example": {
+                "trip_id": "550e8400-e29b-41d4-a716-446655440000",
+                "status": "COMPLETED",
+                "estimated_points": 100,
+            }
+        }
+    }
+
+
+class TripResponse(BaseResponse):
+    """
+    여행 상세 정보 응답 스키마
+    여행의 모든 정보를 클라이언트에 반환
+    """
+
+    id: UUID = Field(..., description="여행 ID")
+    user_id: UUID = Field(..., description="사용자 ID")
+    start_latitude: float = Field(..., description="출발 위치 위도")
+    start_longitude: float = Field(..., description="출발 위치 경도")
+    transfer_latitude: Optional[float] = Field(None, description="환승 위치 위도")
+    transfer_longitude: Optional[float] = Field(None, description="환승 위치 경도")
+    transfer_image_url: Optional[str] = Field(None, description="환승 증빙 이미지 URL")
+    arrival_latitude: Optional[float] = Field(None, description="도착 위치 위도")
+    arrival_longitude: Optional[float] = Field(None, description="도착 위치 경도")
+    arrival_image_url: Optional[str] = Field(None, description="도착 증빙 이미지 URL")
+    status: TripStatus = Field(..., description="여행 상태")
+    estimated_points: Optional[int] = Field(None, description="예상 포인트")
+    earned_points: Optional[int] = Field(None, description="실제 지급 포인트")
+    created_at: datetime = Field(..., description="레코드 생성 시각")
+    updated_at: datetime = Field(..., description="최종 수정 시각")
+
+    model_config = {
+        "json_schema_extra": {
+            "example": {
+                "id": "550e8400-e29b-41d4-a716-446655440000",
+                "user_id": "660e8400-e29b-41d4-a716-446655440001",
+                "start_latitude": 37.5665,
+                "start_longitude": 126.9780,
+                "transfer_latitude": 37.5172,
+                "transfer_longitude": 127.0473,
+                "transfer_image_url": "https://storage.supabase.co/transfers/image.jpg",
+                "arrival_latitude": 37.4979,
+                "arrival_longitude": 127.0276,
+                "arrival_image_url": "https://storage.supabase.co/arrivals/image.jpg",
+                "status": "COMPLETED",
+                "estimated_points": 100,
+                "earned_points": None,
+                "created_at": "2025-01-01T09:00:00Z",
+                "updated_at": "2025-01-01T10:00:00Z",
+            }
+        }
+    }
+
+
+class TripListResponse(BaseResponse):
+    """
+    여행 목록 응답 스키마
+    여행 목록과 총 개수를 반환
+    """
+
+    trips: list[TripResponse] = Field(..., description="여행 목록")
+    total_count: int = Field(..., description="전체 여행 개수")
+
+    model_config = {
+        "json_schema_extra": {
+            "example": {
+                "trips": [
+                    {
+                        "id": "550e8400-e29b-41d4-a716-446655440000",
+                        "user_id": "660e8400-e29b-41d4-a716-446655440001",
+                        "start_latitude": 37.5665,
+                        "start_longitude": 126.9780,
+                        "status": "COMPLETED",
+                        "estimated_points": 100,
+                        "created_at": "2025-01-01T09:00:00Z",
+                        "updated_at": "2025-01-01T10:00:00Z",
+                    }
+                ],
+                "total_count": 1,
+            }
+        }
+    }

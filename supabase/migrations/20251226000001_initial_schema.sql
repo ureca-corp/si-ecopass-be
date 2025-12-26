@@ -138,25 +138,25 @@ CREATE TABLE IF NOT EXISTS public.trips (
   id uuid PRIMARY KEY DEFAULT uuid_generate_v7(),
   user_id uuid NOT NULL REFERENCES public.users(id) ON DELETE CASCADE,
   
-  -- 출발 단계 (Start)
-  start_time timestamptz,
-  start_location geography(Point, 4326),
+  -- 출발 정보
+  start_latitude double precision NOT NULL,
+  start_longitude double precision NOT NULL,
   
-  -- 환승 단계 (Transfer)
-  transfer_time timestamptz,
-  transfer_location geography(Point, 4326),
+  -- 환승 정보
+  transfer_latitude double precision,
+  transfer_longitude double precision,
   transfer_image_url text,
   
-  -- 도착 단계 (Arrival)
-  arrival_time timestamptz,
-  arrival_location geography(Point, 4326),
+  -- 도착 정보
+  arrival_latitude double precision,
+  arrival_longitude double precision,
   arrival_image_url text,
   
   -- 여정 상태 및 포인트
   status text NOT NULL DEFAULT 'DRIVING' 
     CHECK (status IN ('DRIVING', 'TRANSFERRED', 'COMPLETED', 'APPROVED', 'REJECTED')),
-  estimated_points integer NOT NULL DEFAULT 0,
-  earned_points integer NOT NULL DEFAULT 0,
+  estimated_points integer DEFAULT 0,
+  earned_points integer DEFAULT 0,
   
   -- 관리자 메모
   admin_note text,
@@ -188,13 +188,13 @@ CREATE INDEX IF NOT EXISTS trips_status_idx
 CREATE INDEX IF NOT EXISTS trips_created_at_idx 
   ON public.trips (created_at DESC);
 
--- 공간 인덱스 (GPS 좌표 검색용)
-CREATE INDEX IF NOT EXISTS trips_start_location_idx 
-  ON public.trips USING GIST (start_location);
-CREATE INDEX IF NOT EXISTS trips_transfer_location_idx 
-  ON public.trips USING GIST (transfer_location);
-CREATE INDEX IF NOT EXISTS trips_arrival_location_idx 
-  ON public.trips USING GIST (arrival_location);
+-- 위치 기반 인덱스 (필요시 PostGIS 함수로 조회 가능)
+-- CREATE INDEX IF NOT EXISTS trips_start_location_idx 
+--   ON public.trips (start_latitude, start_longitude);
+-- CREATE INDEX IF NOT EXISTS trips_transfer_location_idx 
+--   ON public.trips (transfer_latitude, transfer_longitude);
+-- CREATE INDEX IF NOT EXISTS trips_arrival_location_idx 
+--   ON public.trips (arrival_latitude, arrival_longitude);
 
 -- ============================================================================
 -- 4. 트리거 설정

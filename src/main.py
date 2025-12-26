@@ -40,12 +40,87 @@ def create_application() -> FastAPI:
     """
 
     app = FastAPI(
-        title=settings.app_name,
+        title="SI-EcoPass Backend API",
         version=settings.app_version,
-        description="SI-EcoPass Backend API - DDD 아키텍처 기반",
+        description="""
+# SI-EcoPass Backend API
+
+대구 지하철 환승 주차장 이용 장려 플랫폼의 백엔드 API입니다.
+
+## 주요 기능
+
+- 🔐 **사용자 인증**: 회원가입, 로그인, 프로필 관리
+- 🚇 **역 조회**: 대구 지하철 역 및 주변 주차장 정보
+- 🚗 **여정 관리**: 출발 → 환승 → 도착 3단계 프로세스
+- 📷 **이미지 업로드**: Supabase Storage를 통한 인증 사진 저장
+- 👮 **관리자**: 여정 승인/반려 및 포인트 지급
+
+## 인증 방법
+
+대부분의 API는 JWT Bearer Token 인증이 필요합니다:
+
+1. `/api/v1/auth/login`으로 로그인
+2. 응답에서 `access_token` 추출
+3. 요청 헤더에 `Authorization: Bearer {access_token}` 추가
+
+## 에러 코드
+
+- `400 Bad Request`: 잘못된 요청 파라미터
+- `401 Unauthorized`: 인증 토큰 없음 또는 만료
+- `403 Forbidden`: 권한 없음 (관리자 전용 API 등)
+- `404 Not Found`: 리소스를 찾을 수 없음
+- `409 Conflict`: 리소스 충돌 (중복 이메일, 진행 중 여정 등)
+- `422 Unprocessable Entity`: 유효성 검증 실패
+- `500 Internal Server Error`: 서버 내부 오류
+
+## 표준 응답 형식
+
+모든 API는 다음 형식으로 응답합니다:
+
+```json
+{
+  "status": "success" | "error",
+  "message": "사람이 읽을 수 있는 메시지",
+  "data": { ... } | null
+}
+```
+        """,
+        contact={
+            "name": "SI-EcoPass Team",
+            "email": "support@siecopass.com",
+        },
+        license_info={
+            "name": "MIT License",
+        },
         docs_url="/docs",
         redoc_url="/redoc",
         openapi_url="/openapi.json",
+        openapi_tags=[
+            {
+                "name": "Authentication",
+                "description": "사용자 인증 및 프로필 관리 API",
+            },
+            {
+                "name": "Stations",
+                "description": "지하철 역 및 주차장 조회 API",
+            },
+            {
+                "name": "Trips",
+                "description": "여정 관리 API (출발, 환승, 도착)",
+            },
+            {
+                "name": "Storage",
+                "description": "이미지 업로드 및 저장 API",
+            },
+            {
+                "name": "Admin",
+                "description": "관리자 전용 API (승인, 반려)",
+            },
+            {
+                "name": "Health",
+                "description": "헬스체크 엔드포인트",
+            },
+        ],
         lifespan=lifespan,
     )
 
@@ -123,9 +198,19 @@ def create_application() -> FastAPI:
     # 라우터 등록
     # ============================================================
 
+    from src.api.routes.admin_routes import router as admin_router
+    from src.api.routes.auth_routes import router as auth_router
     from src.api.routes.ecopass_routes import router as ecopass_router
+    from src.api.routes.station_routes import router as station_router
+    from src.api.routes.storage_routes import router as storage_router
+    from src.api.routes.trip_routes import router as trip_router
 
+    app.include_router(admin_router, prefix=settings.api_prefix)
+    app.include_router(auth_router, prefix=settings.api_prefix)
     app.include_router(ecopass_router, prefix=settings.api_prefix)
+    app.include_router(station_router, prefix=settings.api_prefix)
+    app.include_router(storage_router, prefix=settings.api_prefix)
+    app.include_router(trip_router, prefix=settings.api_prefix)
 
     return app
 

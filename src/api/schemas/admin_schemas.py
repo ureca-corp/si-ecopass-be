@@ -1,0 +1,144 @@
+"""
+Admin API Schemas
+
+관리자 전용 API의 Request/Response 스키마
+여정 승인/반려 관련 데이터 전송 객체 (DTO) 정의
+"""
+
+from datetime import datetime
+from typing import Optional
+from uuid import UUID
+
+from pydantic import Field, HttpUrl
+
+from src.domain.entities.trip import TripStatus
+from src.shared.schemas.base import BaseRequest, BaseResponse
+
+
+class ApproveTripRequest(BaseRequest):
+    """
+    여정 승인 요청 스키마
+    earned_points 미입력 시 estimated_points를 사용
+    """
+
+    earned_points: Optional[int] = Field(
+        default=None,
+        ge=0,
+        description="승인 포인트 (미입력 시 estimated_points 사용)",
+        examples=[150, 200, 100],
+    )
+
+    class Config:
+        json_schema_extra = {
+            "example": {
+                "earned_points": 150,
+            }
+        }
+
+
+class RejectTripRequest(BaseRequest):
+    """
+    여정 반려 요청 스키마
+    반려 사유를 admin_note에 기록
+    """
+
+    admin_note: str = Field(
+        min_length=1,
+        max_length=500,
+        description="반려 사유 (필수)",
+        examples=["주차 인증 사진이 명확하지 않습니다", "GPS 좌표가 정확하지 않습니다"],
+    )
+
+    class Config:
+        json_schema_extra = {
+            "example": {
+                "admin_note": "주차 인증 사진이 명확하지 않습니다",
+            }
+        }
+
+
+class AdminTripResponse(BaseResponse):
+    """
+    관리자용 여정 상세 응답 스키마
+    모든 여정 정보 포함 (일반 사용자보다 더 많은 정보)
+    """
+
+    id: UUID
+    user_id: UUID
+
+    # 출발 정보
+    start_latitude: float
+    start_longitude: float
+
+    # 환승 정보
+    transfer_latitude: Optional[float] = None
+    transfer_longitude: Optional[float] = None
+    transfer_image_url: Optional[str] = None
+
+    # 도착 정보
+    arrival_latitude: Optional[float] = None
+    arrival_longitude: Optional[float] = None
+    arrival_image_url: Optional[str] = None
+
+    # 상태 및 포인트
+    status: TripStatus
+    estimated_points: Optional[int] = None
+    earned_points: Optional[int] = None
+
+    # 관리자 검토 정보
+    admin_note: Optional[str] = None
+
+    # 시간 정보
+    created_at: datetime
+    updated_at: datetime
+
+    class Config:
+        json_schema_extra = {
+            "example": {
+                "id": "550e8400-e29b-41d4-a716-446655440000",
+                "user_id": "660e8400-e29b-41d4-a716-446655440001",
+                "start_latitude": 37.5665,
+                "start_longitude": 126.9780,
+                "transfer_latitude": 37.5700,
+                "transfer_longitude": 126.9800,
+                "transfer_image_url": "https://storage.example.com/transfer_123.jpg",
+                "arrival_latitude": 37.5750,
+                "arrival_longitude": 126.9850,
+                "arrival_image_url": "https://storage.example.com/arrival_123.jpg",
+                "status": "COMPLETED",
+                "estimated_points": 150,
+                "earned_points": None,
+                "admin_note": None,
+                "created_at": "2025-01-01T09:00:00Z",
+                "updated_at": "2025-01-01T09:30:00Z",
+            }
+        }
+
+
+class AdminTripListResponse(BaseResponse):
+    """
+    관리자용 여정 목록 응답 스키마
+    페이지네이션 정보 포함
+    """
+
+    trips: list[AdminTripResponse]
+    total_count: int
+
+    class Config:
+        json_schema_extra = {
+            "example": {
+                "trips": [
+                    {
+                        "id": "550e8400-e29b-41d4-a716-446655440000",
+                        "user_id": "660e8400-e29b-41d4-a716-446655440001",
+                        "start_latitude": 37.5665,
+                        "start_longitude": 126.9780,
+                        "status": "COMPLETED",
+                        "estimated_points": 150,
+                        "created_at": "2025-01-01T09:00:00Z",
+                        "updated_at": "2025-01-01T09:30:00Z",
+                    }
+                ],
+                "total_count": 25,
+            }
+        }
