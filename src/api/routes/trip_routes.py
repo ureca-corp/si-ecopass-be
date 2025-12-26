@@ -53,6 +53,7 @@ async def start_trip(
     response_data = StartTripResponse(
         trip_id=trip.id,
         status=trip.status,
+        started_at=trip.created_at,
     )
 
     return SuccessResponse.create(
@@ -91,6 +92,7 @@ async def transfer_trip(
     response_data = TransferTripResponse(
         trip_id=trip.id,
         status=trip.status,
+        transferred_at=trip.updated_at,
     )
 
     return SuccessResponse.create(
@@ -129,6 +131,7 @@ async def arrive_trip(
     response_data = ArrivalTripResponse(
         trip_id=trip.id,
         status=trip.status,
+        arrived_at=trip.updated_at,
         estimated_points=trip.estimated_points,
     )
 

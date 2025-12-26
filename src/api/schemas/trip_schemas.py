@@ -109,12 +109,14 @@ class StartTripResponse(BaseResponse):
 
     trip_id: UUID = Field(..., description="생성된 여행 ID")
     status: TripStatus = Field(..., description="여행 상태")
+    started_at: datetime = Field(..., description="여행 시작 시각")
 
     model_config = {
         "json_schema_extra": {
             "example": {
                 "trip_id": "550e8400-e29b-41d4-a716-446655440000",
                 "status": "DRIVING",
+                "started_at": "2025-01-01T09:00:00Z",
             }
         }
     }
@@ -128,12 +130,14 @@ class TransferTripResponse(BaseResponse):
 
     trip_id: UUID = Field(..., description="여행 ID")
     status: TripStatus = Field(..., description="여행 상태")
+    transferred_at: datetime = Field(..., description="환승 시각")
 
     model_config = {
         "json_schema_extra": {
             "example": {
                 "trip_id": "550e8400-e29b-41d4-a716-446655440000",
                 "status": "TRANSFERRED",
+                "transferred_at": "2025-01-01T09:30:00Z",
             }
         }
     }
@@ -147,6 +151,7 @@ class ArrivalTripResponse(BaseResponse):
 
     trip_id: UUID = Field(..., description="여행 ID")
     status: TripStatus = Field(..., description="여행 상태")
+    arrived_at: datetime = Field(..., description="도착 시각")
     estimated_points: int = Field(..., description="예상 포인트")
 
     model_config = {
@@ -154,6 +159,7 @@ class ArrivalTripResponse(BaseResponse):
             "example": {
                 "trip_id": "550e8400-e29b-41d4-a716-446655440000",
                 "status": "COMPLETED",
+                "arrived_at": "2025-01-01T10:00:00Z",
                 "estimated_points": 100,
             }
         }

@@ -28,8 +28,21 @@ async def lifespan(app: FastAPI):
     print(f"🚀 Starting {settings.app_name} v{settings.app_version}")
     print(f"📝 Environment: {settings.environment}")
     print(f"📚 API Documentation: http://{settings.host}:{settings.port}/docs")
+
+    # SQLModel Database Engine 초기화
+    if settings.database_url:
+        from src.infrastructure.database.session import init_db
+        init_db()
+        print(f"✅ SQLModel Database Engine initialized")
+
     yield
+
     # 종료 시 실행
+    if settings.database_url:
+        from src.infrastructure.database.session import close_db
+        close_db()
+        print(f"🔒 SQLModel Database Engine closed")
+
     print(f"👋 Shutting down {settings.app_name}")
 
 

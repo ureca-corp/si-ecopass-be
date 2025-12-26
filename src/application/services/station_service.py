@@ -23,17 +23,24 @@ class StationService:
     def __init__(self, repository: IStationRepository):
         self.repository = repository
 
-    async def get_all_stations(self, line_number: Optional[int] = None) -> list[Station]:
+    async def get_all_stations(
+        self,
+        line_number: Optional[int] = None,
+        limit: Optional[int] = None,
+        offset: Optional[int] = None,
+    ) -> list[Station]:
         """
-        지하철 역 목록 조회 (선택적 노선 필터링)
+        지하철 역 목록 조회 (선택적 노선 필터링 및 페이지네이션)
 
         Args:
             line_number: 노선 번호 (1, 2, 3) - None이면 전체 조회
+            limit: 반환할 결과 수
+            offset: 건너뛸 결과 수
 
         Returns:
             Station 엔티티 리스트
         """
-        return await self.repository.get_all(line_number=line_number)
+        return await self.repository.get_all(line_number=line_number, limit=limit, offset=offset)
 
     async def get_station_by_id(self, station_id: UUID) -> Station:
         """

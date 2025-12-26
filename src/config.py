@@ -46,8 +46,14 @@ class Settings(BaseSettings):
         return [origin.strip() for origin in self.allowed_origins.split(",")]
 
     # Supabase 연결 정보
-    supabase_url: str = Field(default="", description="Supabase 프로젝트 URL")
-    supabase_key: str = Field(default="", description="Supabase anon/service 키")
+    supabase_url: str = Field(..., description="Supabase 프로젝트 URL")
+    supabase_key: str = Field(..., description="Supabase anon/service 키")
+
+    # Database 연결 정보 (SQLModel용)
+    database_url: str = Field(
+        ...,
+        description="PostgreSQL 연결 URL (SQLModel용, 비밀번호의 @ 문자는 %40으로 인코딩)",
+    )
 
     # Uvicorn 서버 설정
     host: str = Field(default="0.0.0.0", description="서버 바인딩 호스트")

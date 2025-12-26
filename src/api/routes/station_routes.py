@@ -28,24 +28,28 @@ router = APIRouter(prefix="/stations", tags=["Stations"])
     response_model=SuccessResponse[StationListResponse],
     status_code=status.HTTP_200_OK,
     summary="Get all stations",
-    description="Retrieve all subway stations, optionally filtered by line number",
+    description="Retrieve all subway stations, optionally filtered by line number with pagination",
 )
 async def get_all_stations(
     service: Annotated[StationService, Depends(get_station_service)],
-    line_number: Annotated[
-        Optional[int], Query(ge=1, le=3, description="Filter by line number (1, 2, 3)")
+    line: Annotated[
+        Optional[int], Query(ge=1, le=3, description="Filter by line number (1, 2, 3)", alias="line")
     ] = None,
+    limit: Annotated[Optional[int], Query(ge=1, le=100, description="Number of results to return")] = None,
+    offset: Annotated[Optional[int], Query(ge=0, description="Number of results to skip")] = None,
 ):
     """
-    지하철 역 목록 조회 (선택적 노선 필터링)
+    지하철 역 목록 조회 (선택적 노선 필터링 및 페이지네이션)
 
-    - **line_number**: 노선 번호 (1, 2, 3) - 미지정 시 전체 조회
+    - **line**: 노선 번호 (1, 2, 3) - 미지정 시 전체 조회
+    - **limit**: 반환할 결과 수 (최대 100)
+    - **offset**: 건너뛸 결과 수
     """
-    stations = await service.get_all_stations(line_number=line_number)
+    stations = await service.get_all_stations(line_number=line, limit=limit, offset=offset)
 
     return SuccessResponse.create(
         message=f"총 {len(stations)}개의 역을 조회했습니다"
-        + (f" (노선 {line_number})" if line_number else ""),
+        + (f" (노선 {line})" if line else ""),
         data=StationListResponse(
             stations=[StationResponse.model_validate(s) for s in stations],
             total_count=len(stations),

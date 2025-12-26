@@ -164,3 +164,30 @@ class SupbaseTripRepository(ITripRepository):
         query = self.db.table("trips").select("id", count="exact").eq("status", status.value)
         response = query.execute()
         return response.count or 0
+
+    async def get_all(
+        self,
+        limit: int = 10,
+        offset: int = 0,
+    ) -> list[Trip]:
+        """
+        전체 여행 목록 조회 (관리자용)
+        최신순으로 정렬하여 반환
+        """
+        query = (
+            self.db.table("trips")
+            .select("*")
+            .order("created_at", desc=True)
+            .range(offset, offset + limit - 1)
+        )
+        response = query.execute()
+
+        return [self._parse_trip_data(row) for row in response.data]
+
+    async def count_all(self) -> int:
+        """
+        전체 여행 개수 조회 (관리자용)
+        """
+        query = self.db.table("trips").select("id", count="exact")
+        response = query.execute()
+        return response.count or 0

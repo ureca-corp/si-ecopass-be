@@ -48,6 +48,11 @@ class User(SQLModel, table=True):
         max_length=20,
         description="차량 번호 (선택 사항)",
     )
+    role: str = Field(
+        default="user",
+        max_length=20,
+        description="사용자 역할 (user, admin)",
+    )
     total_points: int = Field(
         default=0,
         ge=0,
@@ -64,6 +69,13 @@ class User(SQLModel, table=True):
         description="최종 수정 시각",
     )
 
+    def is_admin(self) -> bool:
+        """
+        관리자 여부 확인
+        role이 'admin'인 경우 True 반환
+        """
+        return self.role == "admin"
+
     class Config:
         json_schema_extra = {
             "example": {
@@ -71,6 +83,7 @@ class User(SQLModel, table=True):
                 "email": "user@example.com",
                 "username": "에코유저",
                 "vehicle_number": "12가3456",
+                "role": "user",
                 "total_points": 500,
             }
         }

@@ -59,9 +59,14 @@ class SupabaseStationRepository(IStationRepository):
             updated_at=row.get("updated_at"),
         )
 
-    async def get_all(self, line_number: Optional[int] = None) -> list[Station]:
+    async def get_all(
+        self,
+        line_number: Optional[int] = None,
+        limit: Optional[int] = None,
+        offset: Optional[int] = None,
+    ) -> list[Station]:
         """
-        모든 지하철 역 조회 (선택적으로 노선별 필터링)
+        모든 지하철 역 조회 (선택적으로 노선별 필터링 및 페이지네이션)
 
         Supabase에 stations_view라는 View를 생성하여 사용하거나
         RPC 함수 get_stations_with_coords()를 호출
@@ -69,7 +74,13 @@ class SupabaseStationRepository(IStationRepository):
         # Supabase RPC 함수 호출 (PostGIS 좌표 변환 포함)
         try:
             # RPC 함수가 있다면 사용
-            params = {"p_line_number": line_number} if line_number else {}
+            params = {}
+            if line_number is not None:
+                params["p_line_number"] = line_number
+            if limit is not None:
+                params["p_limit"] = limit
+            if offset is not None:
+                params["p_offset"] = offset
             response = self.db.rpc("get_stations_with_coords", params).execute()
             return [self._parse_station_data(row) for row in response.data]
         except Exception:
@@ -80,6 +91,13 @@ class SupabaseStationRepository(IStationRepository):
                 query = query.eq("line_number", line_number)
 
             query = query.order("name")
+
+            if limit is not None:
+                query = query.limit(limit)
+
+            if offset is not None:
+                query = query.range(offset, offset + (limit or 100) - 1)
+
             response = query.execute()
 
             # 좌표 정보는 없지만 기본 데이터 반환

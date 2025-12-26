@@ -287,44 +287,140 @@ All API endpoints return responses in this format:
 - 인증 이미지 업로드 (`trips` 버킷)
 - JWT 인증 기반 접근 제어
 
-## 구현된 API 엔드포인트
+> **API 엔드포인트**: 전체 API 목록은 README.md 또는 http://localhost:8000/docs 참조
 
-### Authentication (`/api/v1/auth`)
+## Supabase MCP 워크플로우
 
-- `POST /signup` - 회원가입 (Supabase Auth 통합)
-- `POST /login` - 로그인 및 JWT 발급
-- `GET /profile` - 프로필 조회 (인증 필요)
-- `PUT /profile` - 프로필 수정 (인증 필요)
+이 프로젝트는 Supabase CLI 대신 **Supabase MCP**를 사용하여 데이터베이스를 관리합니다.
 
-### Stations (`/api/v1/stations`)
+### 마이그레이션 적용
 
-- `GET /` - 전체 역 목록 조회 (노선별 필터링)
-- `GET /{station_id}` - 역 상세 정보
-- `GET /{station_id}/parking-lots` - 역별 주차장 목록
-- `GET /nearby` - 주변 역 검색 (PostGIS 기반)
+```python
+# 1. 마이그레이션 파일 작성
+vim supabase/migrations/20251227_add_rewards_table.sql
 
-### Trips (`/api/v1/trips`)
+# 2. MCP로 적용
+mcp__supabase__apply_migration(
+    name="add_rewards_table",
+    query=open("supabase/migrations/20251227_add_rewards_table.sql").read()
+)
+```
 
-- `POST /start` - 여정 시작 (DRIVING 상태)
-- `POST /{trip_id}/transfer` - 환승 기록 (TRANSFERRED 상태)
-- `POST /{trip_id}/arrival` - 도착 기록 (COMPLETED 상태)
-- `GET /` - 내 여정 목록 조회 (상태별 필터링)
-- `GET /{trip_id}` - 여정 상세 정보
+### 브랜치 기반 개발 (권장)
 
-### Storage (`/api/v1/storage`)
+```python
+# 1. 개발용 브랜치 생성 (프로덕션과 격리된 환경)
+mcp__supabase__create_branch(
+    name="feature-new-api",
+    confirm_cost_id="..."  # 비용 확인 필요
+)
 
-- `POST /upload/transfer` - 환승 인증 이미지 업로드
-- `POST /upload/arrival` - 도착 인증 이미지 업로드
+# 2. 브랜치에서 마이그레이션 테스트
+mcp__supabase__apply_migration(...)  # 브랜치 DB에 적용
 
-### Admin (`/api/v1/admin`)
+# 3. 테스트 완료 후 프로덕션에 병합
+mcp__supabase__merge_branch(branch_id="...")
 
-- `GET /trips` - 전체 여정 목록 (관리자 전용)
-- `POST /trips/{trip_id}/approve` - 여정 승인 및 포인트 지급
-- `POST /trips/{trip_id}/reject` - 여정 반려
+# 4. 브랜치 삭제
+mcp__supabase__delete_branch(branch_id="...")
+```
 
-### EcoPass (`/api/v1/ecopasses`)
+### SQL 직접 실행
 
-- EcoPass 관리 API (추가 기능)
+```python
+# seed 데이터 삽입
+mcp__supabase__execute_sql(
+    query=open("supabase/seed.sql").read()
+)
+
+# 임시 쿼리 실행
+mcp__supabase__execute_sql(
+    query="SELECT * FROM stations WHERE line_number = 1"
+)
+```
+
+### 데이터베이스 정보 조회
+
+```python
+# 테이블 목록
+mcp__supabase__list_tables()
+
+# 마이그레이션 이력
+mcp__supabase__list_migrations()
+
+# 보안/성능 분석
+mcp__supabase__get_advisors(type="security")
+```
+
+## 개발 워크플로우
+
+### 시나리오 1: 새 API 기능 추가
+
+```bash
+# 1. 도메인 엔티티 정의
+vim src/domain/entities/reward.py
+
+# 2. 마이그레이션 파일 작성
+vim supabase/migrations/20251227_add_rewards.sql
+
+# 3. MCP로 브랜치 생성 및 마이그레이션 적용 (프로덕션 안전)
+# mcp__supabase__create_branch() → mcp__supabase__apply_migration()
+
+# 4. 레포지토리 인터페이스 정의
+vim src/domain/repositories/reward_repository.py
+
+# 5. 레포지토리 구현
+vim src/infrastructure/repositories/reward_repository_impl.py
+
+# 6. 애플리케이션 서비스 작성
+vim src/application/services/reward_service.py
+
+# 7. API 스키마 정의 (Request/Response 명명 규칙)
+vim src/api/schemas/reward_schemas.py
+
+# 8. API 라우터 구현
+vim src/api/routes/reward_routes.py
+
+# 9. main.py에 라우터 등록
+
+# 10. 테스트 작성
+vim tests/test_rewards.py
+
+# 11. 테스트 실행
+uv run pytest tests/test_rewards.py
+
+# 12. 성공하면 브랜치 병합 (mcp__supabase__merge_branch)
+```
+
+### 시나리오 2: 마이그레이션 안전 테스트
+
+```python
+# 1. 브랜치에서 새 마이그레이션 테스트
+mcp__supabase__create_branch(name="test-migration")
+mcp__supabase__apply_migration(...)
+
+# 2. 문제 발생 시 브랜치 삭제 (프로덕션 영향 없음)
+mcp__supabase__delete_branch(branch_id="...")
+
+# 3. 마이그레이션 수정 후 재시도
+```
+
+### 시나리오 3: 프로덕션 배포
+
+```bash
+# 1. 모든 변경사항 커밋
+git add .
+git commit -m "Add rewards API"
+
+# 2. 테스트 통과 확인
+uv run pytest
+
+# 3. 프로덕션 마이그레이션 적용 (브랜치에서 이미 검증됨)
+# mcp__supabase__apply_migration() 또는 merge_branch()
+
+# 4. 서버 배포
+git push origin main
+```
 
 ## 새로운 기능 추가 가이드 (DDD)
 
@@ -370,24 +466,6 @@ uv run pytest                           # 전체 테스트
 uv run pytest tests/test_auth.py        # 특정 모듈
 uv run pytest --cov=src --cov-report=html  # 커버리지
 ```
-
-## 주요 특징
-
-### 기술적 특징
-
-- **DDD 아키텍처**: Domain → Application → Infrastructure → API 계층 분리
-- **Supabase 완전 통합**: PostgreSQL + PostGIS + Auth + Storage
-- **SQLModel 엔티티**: Pydantic 검증 + SQLAlchemy ORM 통합
-- **표준 응답 형식**: 모든 API가 `{status, message, data}` 구조
-- **JWT 인증**: Supabase Auth 기반 토큰 인증
-- **PostGIS 지원**: 지리적 좌표 및 거리 계산
-
-### 비즈니스 특징
-
-- **3단계 여정**: 출발 (DRIVING) → 환승 (TRANSFERRED) → 도착 (COMPLETED)
-- **포인트 시스템**: 거리 기반 예상 포인트 계산
-- **관리자 승인**: 완료된 여정 검토 및 승인/반려
-- **대구 지하철 데이터**: 1/2/3호선 14개 역, 9개 주차장
 
 ## 체크리스트 (새 기능 추가 시)
 

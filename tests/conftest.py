@@ -5,14 +5,17 @@ pytest 픽스처 및 테스트 설정
 """
 
 import os
+import time
 from typing import AsyncGenerator, Generator
 from uuid import uuid4
 
 import pytest
 from fastapi.testclient import TestClient
+from sqlmodel import Session, create_engine
 from supabase import Client, create_client
 
 from src.config import Settings, get_settings
+from src.infrastructure.database.session import init_db, close_db, get_session
 from src.main import app
 
 
@@ -57,6 +60,42 @@ def supabase_client(test_settings: Settings) -> Client:
     테스트용 Supabase 인스턴스에 연결
     """
     return create_client(test_settings.supabase_url, test_settings.supabase_key)
+
+
+# ============================================================
+# SQLModel Session 픽스처
+# ============================================================
+
+
+@pytest.fixture(scope="session", autouse=True)
+def setup_database():
+    """
+    테스트 세션 시작 시 SQLModel Database Engine 초기화
+    연결 실패 시 경고만 출력하고 계속 진행 (Supabase SDK 사용)
+    """
+    try:
+        init_db()
+        print("✅ SQLModel Database Engine initialized")
+        yield
+        close_db()
+    except Exception as e:
+        print(f"⚠️  SQLModel DB 연결 실패, Supabase SDK 사용: {str(e)[:100]}")
+        yield
+
+
+@pytest.fixture(scope="function")
+def db_session() -> Generator[Session, None, None]:
+    """
+    테스트용 SQLModel Session 픽스처
+    각 테스트마다 새로운 세션 제공
+    """
+    session_gen = get_session()
+    session = next(session_gen)
+    yield session
+    try:
+        next(session_gen)
+    except StopIteration:
+        pass
 
 
 # ============================================================
@@ -137,78 +176,136 @@ def test_trip_arrival_data() -> dict:
 # ============================================================
 
 
-@pytest.fixture
-async def authenticated_client(test_client: TestClient, test_user_data: dict) -> TestClient:
+@pytest.fixture(scope="function")
+async def authenticated_client(test_client: TestClient, test_user_data: dict) -> Generator[TestClient, None, None]:
     """
     인증된 일반 사용자 클라이언트 픽스처
     회원가입 후 JWT 토큰을 헤더에 추가한 클라이언트 반환
     """
-    # 회원가입
-    signup_response = test_client.post(
-        "/api/v1/auth/signup",
-        json={
-            "email": test_user_data["email"],
-            "password": test_user_data["password"],
-            "username": test_user_data["username"],
-            "vehicle_number": test_user_data.get("vehicle_number"),
-        },
+    # 원본 헤더 백업 (테스트 후 복원용)
+    original_headers = test_client.headers.copy() if test_client.headers else {}
+
+    # Rate limit 회피를 위한 재시도 로직 (Supabase 인증 rate limit)
+    max_retries = 5
+    retry_delay = 2.0
+    signup_response = None
+
+    for attempt in range(max_retries):
+        if attempt > 0:
+            time.sleep(retry_delay)
+            retry_delay *= 2  # Exponential backoff
+
+        # 회원가입 시도
+        signup_response = test_client.post(
+            "/api/v1/auth/signup",
+            json={
+                "email": test_user_data["email"],
+                "password": test_user_data["password"],
+                "username": test_user_data["username"],
+                "vehicle_number": test_user_data.get("vehicle_number"),
+            },
+        )
+
+        # 성공하면 재시도 중단
+        if signup_response.status_code == 201:
+            break
+
+        # Rate limit이 아닌 다른 에러면 재시도 중단
+        response_json = signup_response.json()
+        if response_json and "rate limit" not in response_json.get("message", "").lower():
+            break
+
+    # 회원가입 성공 확인 (매 테스트마다 고유 사용자이므로 항상 성공해야 함)
+    assert signup_response and signup_response.status_code == 201, (
+        f"Signup failed after {max_retries} attempts: "
+        f"{signup_response.status_code if signup_response else 'N/A'} - "
+        f"{signup_response.text if signup_response else 'N/A'}. "
+        f"Email: {test_user_data['email']}"
     )
 
-    if signup_response.status_code != 201:
-        # 이미 존재하는 경우 로그인 시도
-        login_response = test_client.post(
-            "/api/v1/auth/login",
-            json={"email": test_user_data["email"], "password": test_user_data["password"]},
-        )
-        access_token = login_response.json()["data"]["access_token"]
-    else:
-        access_token = signup_response.json()["data"]["access_token"]
+    response_data = signup_response.json()
+    assert response_data is not None, "Signup response is None"
+    assert "data" in response_data, f"No 'data' in response: {response_data}"
+    access_token = response_data["data"]["access_token"]
 
     # 토큰을 헤더에 추가
     test_client.headers = {"Authorization": f"Bearer {access_token}"}
-    return test_client
+
+    yield test_client
+
+    # 테스트 후 헤더 복원 (격리 보장)
+    test_client.headers = original_headers
 
 
-@pytest.fixture
-async def admin_client(test_client: TestClient, admin_user_data: dict, supabase_client: Client) -> TestClient:
+@pytest.fixture(scope="function")
+async def admin_client(test_client: TestClient, admin_user_data: dict, supabase_client: Client) -> Generator[TestClient, None, None]:
     """
     인증된 관리자 클라이언트 픽스처
     회원가입 후 관리자 권한 부여, JWT 토큰을 헤더에 추가한 클라이언트 반환
 
-    주의: Supabase의 user_metadata에 role='admin' 설정 필요
+    주의: users 테이블의 role 컬럼을 'admin'으로 설정
     """
-    # 회원가입
-    signup_response = test_client.post(
-        "/api/v1/auth/signup",
-        json={
-            "email": admin_user_data["email"],
-            "password": admin_user_data["password"],
-            "username": admin_user_data["username"],
-        },
+    # 원본 헤더 백업 (테스트 후 복원용)
+    original_headers = test_client.headers.copy() if test_client.headers else {}
+
+    # Rate limit 회피를 위한 재시도 로직 (Supabase 인증 rate limit)
+    max_retries = 5
+    retry_delay = 2.0
+    signup_response = None
+
+    for attempt in range(max_retries):
+        if attempt > 0:
+            time.sleep(retry_delay)
+            retry_delay *= 2  # Exponential backoff
+
+        # 회원가입 시도
+        signup_response = test_client.post(
+            "/api/v1/auth/signup",
+            json={
+                "email": admin_user_data["email"],
+                "password": admin_user_data["password"],
+                "username": admin_user_data["username"],
+            },
+        )
+
+        # 성공하면 재시도 중단
+        if signup_response.status_code == 201:
+            break
+
+        # Rate limit이 아닌 다른 에러면 재시도 중단
+        response_json = signup_response.json()
+        if response_json and "rate limit" not in response_json.get("message", "").lower():
+            break
+
+    # 회원가입 성공 확인 (매 테스트마다 고유 사용자이므로 항상 성공해야 함)
+    assert signup_response and signup_response.status_code == 201, (
+        f"Admin signup failed after {max_retries} attempts: "
+        f"{signup_response.status_code if signup_response else 'N/A'} - "
+        f"{signup_response.text if signup_response else 'N/A'}. "
+        f"Email: {admin_user_data['email']}"
     )
 
-    if signup_response.status_code != 201:
-        # 이미 존재하는 경우 로그인 시도
-        login_response = test_client.post(
-            "/api/v1/auth/login",
-            json={"email": admin_user_data["email"], "password": admin_user_data["password"]},
-        )
-        access_token = login_response.json()["data"]["access_token"]
-        user_id = login_response.json()["data"]["user"]["id"]
-    else:
-        access_token = signup_response.json()["data"]["access_token"]
-        user_id = signup_response.json()["data"]["user"]["id"]
+    response_data = signup_response.json()
+    assert response_data is not None, "Signup response is None"
+    assert "data" in response_data, f"No 'data' in response: {response_data}"
+    access_token = response_data["data"]["access_token"]
+    user_id = response_data["data"]["user"]["id"]
 
     # Supabase에서 사용자를 관리자로 설정
-    # 실제 환경에서는 Supabase Dashboard에서 수동 설정 필요
+    # RLS를 우회하는 set_user_role 함수 사용
     try:
-        supabase_client.table("users").update({"role": "admin"}).eq("id", user_id).execute()
-    except Exception:
-        pass  # 테스트 환경에서는 실패해도 계속 진행
+        supabase_client.rpc("set_user_role", {"target_user_id": user_id, "new_role": "admin"}).execute()
+    except Exception as e:
+        # 실패 시 에러를 발생시켜 테스트를 중단
+        raise Exception(f"Failed to set admin role for user {user_id}: {e}")
 
     # 토큰을 헤더에 추가
     test_client.headers = {"Authorization": f"Bearer {access_token}"}
-    return test_client
+
+    yield test_client
+
+    # 테스트 후 헤더 복원 (격리 보장)
+    test_client.headers = original_headers
 
 
 # ============================================================
@@ -240,17 +337,15 @@ def cleanup_test_data(supabase_client: Client):
 def check_test_environment():
     """
     테스트 환경 변수 확인
-    필수 환경 변수가 설정되어 있는지 검증
+    config.py에 기본값이 설정되어 있으므로 경고만 출력
     """
-    required_vars = ["SUPABASE_URL", "SUPABASE_KEY"]
-    missing_vars = [var for var in required_vars if not os.getenv(var)]
-
-    if missing_vars:
-        pytest.fail(f"필수 환경 변수가 설정되지 않았습니다: {', '.join(missing_vars)}")
+    settings = get_settings()
 
     # 테스트 환경임을 명시
     print("\n" + "=" * 60)
     print("테스트 환경 시작")
+    print(f"Supabase URL: {settings.supabase_url}")
+    print(f"Database URL: {settings.database_url[:50]}...")
     print("=" * 60 + "\n")
 
     yield

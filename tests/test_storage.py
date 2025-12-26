@@ -33,9 +33,11 @@ class TestImageUpload:
         assert response.status_code == 201
         data = response.json()
         assert data["status"] == "success"
-        assert "url" in data["data"]
-        assert "file_path" in data["data"]
-        assert data["data"]["url"].startswith("http")
+        assert "image_url" in data["data"]
+        assert "uploaded_at" in data["data"]
+        assert "stage" in data["data"]
+        assert data["data"]["image_url"].startswith("http")
+        assert data["data"]["stage"] == "transfer"
 
     @pytest.mark.asyncio
     async def test_upload_arrival_image_success(self, authenticated_client: TestClient):
@@ -56,8 +58,11 @@ class TestImageUpload:
         assert response.status_code == 201
         data = response.json()
         assert data["status"] == "success"
-        assert "url" in data["data"]
-        assert "file_path" in data["data"]
+        assert "image_url" in data["data"]
+        assert "uploaded_at" in data["data"]
+        assert "stage" in data["data"]
+        assert data["data"]["image_url"].startswith("http")
+        assert data["data"]["stage"] == "arrival"
 
     def test_upload_image_unauthorized(self, test_client: TestClient):
         """
@@ -152,7 +157,7 @@ class TestImageRetrieval:
         upload_response = authenticated_client.post("/api/v1/storage/upload/transfer", files=files)
 
         assert upload_response.status_code == 201
-        image_url = upload_response.json()["data"]["url"]
+        image_url = upload_response.json()["data"]["image_url"]
 
         # URL이 유효한 형식인지 확인
         assert image_url.startswith("http")
@@ -185,7 +190,7 @@ class TestStorageIntegration:
         )
         files = {"file": ("transfer.png", io.BytesIO(image_data), "image/png")}
         upload_response = authenticated_client.post("/api/v1/storage/upload/transfer", files=files)
-        image_url = upload_response.json()["data"]["url"]
+        image_url = upload_response.json()["data"]["image_url"]
 
         # 3. 업로드된 이미지 URL로 환승 기록
         test_trip_transfer_data["transfer_image_url"] = image_url
@@ -219,7 +224,7 @@ class TestStorageIntegration:
             response = authenticated_client.post("/api/v1/storage/upload/transfer", files=files)
 
             assert response.status_code == 201
-            uploaded_urls.append(response.json()["data"]["url"])
+            uploaded_urls.append(response.json()["data"]["image_url"])
 
         # 모든 URL이 서로 다른지 확인 (고유한 파일명)
         assert len(set(uploaded_urls)) == 3

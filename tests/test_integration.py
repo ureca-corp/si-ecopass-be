@@ -98,7 +98,7 @@ class TestFullUserJourney:
             "/api/v1/storage/upload/transfer", files=transfer_files, headers=auth_headers
         )
         assert upload_transfer_response.status_code == 201
-        transfer_image_url = upload_transfer_response.json()["data"]["url"]
+        transfer_image_url = upload_transfer_response.json()["data"]["image_url"]
 
         # 3-2. 환승 기록 (중앙로역)
         transfer_data = {
@@ -133,7 +133,7 @@ class TestFullUserJourney:
             "/api/v1/storage/upload/arrival", files=arrival_files, headers=auth_headers
         )
         assert upload_arrival_response.status_code == 201
-        arrival_image_url = upload_arrival_response.json()["data"]["url"]
+        arrival_image_url = upload_arrival_response.json()["data"]["image_url"]
 
         # 4-2. 도착 기록 (반월당역)
         arrival_data = {
@@ -231,7 +231,7 @@ class TestMultipleTripsScenario:
         # 환승 이미지 업로드
         files1 = {"file": ("t1.png", io.BytesIO(image_data), "image/png")}
         upload1 = authenticated_client.post("/api/v1/storage/upload/transfer", files=files1)
-        image_url1 = upload1.json()["data"]["url"]
+        image_url1 = upload1.json()["data"]["image_url"]
 
         # 환승
         authenticated_client.post(
@@ -242,7 +242,7 @@ class TestMultipleTripsScenario:
         # 도착 이미지 업로드
         files2 = {"file": ("a1.png", io.BytesIO(image_data), "image/png")}
         upload2 = authenticated_client.post("/api/v1/storage/upload/arrival", files=files2)
-        image_url2 = upload2.json()["data"]["url"]
+        image_url2 = upload2.json()["data"]["image_url"]
 
         # 도착
         arrival1 = authenticated_client.post(
@@ -267,7 +267,7 @@ class TestMultipleTripsScenario:
         # 환승 이미지 업로드
         files3 = {"file": ("t2.png", io.BytesIO(image_data), "image/png")}
         upload3 = authenticated_client.post("/api/v1/storage/upload/transfer", files=files3)
-        image_url3 = upload3.json()["data"]["url"]
+        image_url3 = upload3.json()["data"]["image_url"]
 
         # 환승
         authenticated_client.post(
@@ -278,7 +278,7 @@ class TestMultipleTripsScenario:
         # 도착 이미지 업로드
         files4 = {"file": ("a2.png", io.BytesIO(image_data), "image/png")}
         upload4 = authenticated_client.post("/api/v1/storage/upload/arrival", files=files4)
-        image_url4 = upload4.json()["data"]["url"]
+        image_url4 = upload4.json()["data"]["image_url"]
 
         # 도착
         arrival2 = authenticated_client.post(
@@ -350,7 +350,7 @@ class TestRejectionScenario:
         transfer_upload = authenticated_client.post(
             "/api/v1/storage/upload/transfer", files=transfer_files
         )
-        transfer_image_url = transfer_upload.json()["data"]["url"]
+        transfer_image_url = transfer_upload.json()["data"]["image_url"]
 
         authenticated_client.post(
             f"/api/v1/trips/{trip_id}/transfer",
@@ -366,7 +366,7 @@ class TestRejectionScenario:
         arrival_upload = authenticated_client.post(
             "/api/v1/storage/upload/arrival", files=arrival_files
         )
-        arrival_image_url = arrival_upload.json()["data"]["url"]
+        arrival_image_url = arrival_upload.json()["data"]["image_url"]
 
         authenticated_client.post(
             f"/api/v1/trips/{trip_id}/arrival",

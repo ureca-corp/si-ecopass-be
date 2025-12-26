@@ -96,3 +96,23 @@ class ITripRepository(ABC):
         페이지네이션의 total_count 계산에 사용
         """
         pass
+
+    @abstractmethod
+    async def get_all(
+        self,
+        limit: int = 10,
+        offset: int = 0,
+    ) -> list[Trip]:
+        """
+        전체 여행 목록 조회 (관리자용)
+        페이지네이션 지원
+        """
+        pass
+
+    @abstractmethod
+    async def count_all(self) -> int:
+        """
+        전체 여행 개수 조회 (관리자용)
+        페이지네이션의 total_count 계산에 사용
+        """
+        pass
