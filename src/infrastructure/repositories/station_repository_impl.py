@@ -9,8 +9,8 @@ from typing import Optional
 from uuid import UUID
 
 from geoalchemy2.functions import ST_X, ST_Y
-from sqlalchemy import cast, func
-from sqlalchemy.types import Geometry
+from geoalchemy2.types import Geometry
+from sqlalchemy import cast
 from sqlmodel import Session, select
 
 from src.domain.entities.parking_lot import ParkingLot
