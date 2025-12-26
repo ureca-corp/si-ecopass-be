@@ -49,7 +49,7 @@ jobs:
             -p 8000:8000 \
             -d \
             --name test-container \
-            si-ecopass-api:${{ github.sha }}
+            si-ecopass-be:${{ github.sha }}
 
           # 컨테이너 시작 대기
           sleep 10
