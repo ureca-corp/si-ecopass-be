@@ -1,63 +1,32 @@
 """
-Station Repository Supabase Implementation
+Station Repository SQLModel Implementation
 
-Supabase를 사용한 지하철 역 및 주차장 데이터 접근 구현
-PostGIS 좌표 처리를 위해 Supabase RPC 함수 활용
+SQLModel/SQLAlchemy를 사용한 지하철 역 및 주차장 데이터 접근 구현
+PostGIS 좌표를 ORM으로 처리
 """
 
 from typing import Optional
 from uuid import UUID
 
-from supabase import Client
+from geoalchemy2.functions import ST_X, ST_Y
+from sqlalchemy import cast, func
+from sqlalchemy.types import Geometry
+from sqlmodel import Session, select
 
 from src.domain.entities.parking_lot import ParkingLot
 from src.domain.entities.station import Station
 from src.domain.repositories.station_repository import IStationRepository
 
 
-class SupabaseStationRepository(IStationRepository):
+class SQLModelStationRepository(IStationRepository):
     """
-    Supabase를 사용한 Station Repository 구현
+    SQLModel/SQLAlchemy를 사용한 Station Repository 구현
 
-    PostGIS geography(Point) 타입의 좌표를 처리하여 latitude/longitude 제공
-    Supabase의 database view 또는 RPC 함수를 통해 좌표 변환
+    PostGIS geography(Point) 타입의 좌표를 ORM으로 처리하여 latitude/longitude 제공
     """
 
-    def __init__(self, db: Client):
-        self.db = db
-
-    def _parse_station_data(self, row: dict) -> Station:
-        """
-        Supabase 응답 데이터를 Station 엔티티로 변환
-        좌표 데이터는 latitude/longitude 필드로 제공
-        """
-        return Station(
-            id=row.get("id"),
-            name=row.get("name"),
-            line_number=row.get("line_number"),
-            latitude=row.get("latitude"),
-            longitude=row.get("longitude"),
-            created_at=row.get("created_at"),
-            updated_at=row.get("updated_at"),
-        )
-
-    def _parse_parking_lot_data(self, row: dict) -> ParkingLot:
-        """
-        Supabase 응답 데이터를 ParkingLot 엔티티로 변환
-        좌표 데이터는 latitude/longitude 필드로 제공
-        """
-        return ParkingLot(
-            id=row.get("id"),
-            station_id=row.get("station_id"),
-            name=row.get("name"),
-            address=row.get("address"),
-            latitude=row.get("latitude"),
-            longitude=row.get("longitude"),
-            distance_to_station_m=row.get("distance_to_station_m"),
-            fee_info=row.get("fee_info"),
-            created_at=row.get("created_at"),
-            updated_at=row.get("updated_at"),
-        )
+    def __init__(self, session: Session):
+        self.session = session
 
     async def get_all(
         self,
@@ -67,84 +36,107 @@ class SupabaseStationRepository(IStationRepository):
     ) -> list[Station]:
         """
         모든 지하철 역 조회 (선택적으로 노선별 필터링 및 페이지네이션)
-
-        Supabase에 stations_view라는 View를 생성하여 사용하거나
-        RPC 함수 get_stations_with_coords()를 호출
+        PostGIS 좌표를 latitude/longitude로 변환하여 반환
         """
-        # Supabase RPC 함수 호출 (PostGIS 좌표 변환 포함)
-        try:
-            # RPC 함수가 있다면 사용
-            params = {}
-            if line_number is not None:
-                params["p_line_number"] = line_number
-            if limit is not None:
-                params["p_limit"] = limit
-            if offset is not None:
-                params["p_offset"] = offset
-            response = self.db.rpc("get_stations_with_coords", params).execute()
-            return [self._parse_station_data(row) for row in response.data]
-        except Exception:
-            # RPC 함수가 없으면 일반 테이블 조회 (좌표는 null)
-            query = self.db.table("stations").select("*")
+        # ORM 쿼리 - PostGIS ST_X(), ST_Y() 함수로 좌표 추출
+        stmt = select(
+            Station.id,
+            Station.name,
+            Station.line_number,
+            Station.created_at,
+            ST_Y(cast(Station.location, Geometry)).label("latitude"),
+            ST_X(cast(Station.location, Geometry)).label("longitude"),
+        )
 
-            if line_number is not None:
-                query = query.eq("line_number", line_number)
+        if line_number is not None:
+            stmt = stmt.where(Station.line_number == line_number)
 
-            query = query.order("name")
+        stmt = stmt.order_by(Station.name)
 
-            if limit is not None:
-                query = query.limit(limit)
+        if limit is not None:
+            stmt = stmt.limit(limit)
 
-            if offset is not None:
-                query = query.range(offset, offset + (limit or 100) - 1)
+        if offset is not None:
+            stmt = stmt.offset(offset)
 
-            response = query.execute()
+        result = self.session.exec(stmt)
+        rows = result.all()
 
-            # 좌표 정보는 없지만 기본 데이터 반환
-            return [self._parse_station_data(row) for row in response.data]
+        # 결과를 Station 엔티티로 변환
+        return [
+            Station(
+                id=row.id,
+                name=row.name,
+                line_number=row.line_number,
+                latitude=row.latitude,
+                longitude=row.longitude,
+                created_at=row.created_at,
+            )
+            for row in rows
+        ]
 
     async def get_by_id(self, station_id: UUID) -> Optional[Station]:
         """
         ID로 특정 역 조회
         """
-        try:
-            # RPC 함수 사용
-            response = self.db.rpc(
-                "get_station_by_id_with_coords", {"p_station_id": str(station_id)}
-            ).execute()
+        stmt = select(
+            Station.id,
+            Station.name,
+            Station.line_number,
+            Station.created_at,
+            ST_Y(cast(Station.location, Geometry)).label("latitude"),
+            ST_X(cast(Station.location, Geometry)).label("longitude"),
+        ).where(Station.id == station_id)
 
-            if not response.data:
-                return None
+        result = self.session.exec(stmt)
+        row = result.first()
 
-            return self._parse_station_data(response.data[0])
-        except Exception:
-            # RPC 함수가 없으면 일반 조회
-            response = self.db.table("stations").select("*").eq("id", str(station_id)).execute()
+        if not row:
+            return None
 
-            if not response.data:
-                return None
-
-            return self._parse_station_data(response.data[0])
+        return Station(
+            id=row.id,
+            name=row.name,
+            line_number=row.line_number,
+            latitude=row.latitude,
+            longitude=row.longitude,
+            created_at=row.created_at,
+        )
 
     async def get_parking_lots(self, station_id: UUID) -> list[ParkingLot]:
         """
         특정 역의 주차장 목록 조회
         """
-        try:
-            # RPC 함수 사용
-            response = self.db.rpc(
-                "get_parking_lots_with_coords", {"p_station_id": str(station_id)}
-            ).execute()
-
-            return [self._parse_parking_lot_data(row) for row in response.data]
-        except Exception:
-            # RPC 함수가 없으면 일반 조회
-            response = (
-                self.db.table("parking_lots")
-                .select("*")
-                .eq("station_id", str(station_id))
-                .order("distance_to_station_m")
-                .execute()
+        stmt = (
+            select(
+                ParkingLot.id,
+                ParkingLot.station_id,
+                ParkingLot.name,
+                ParkingLot.address,
+                ParkingLot.distance_to_station_m,
+                ParkingLot.fee_info,
+                ParkingLot.created_at,
+                ST_Y(cast(ParkingLot.location, Geometry)).label("latitude"),
+                ST_X(cast(ParkingLot.location, Geometry)).label("longitude"),
             )
+            .where(ParkingLot.station_id == station_id)
+            .order_by(ParkingLot.distance_to_station_m)
+        )
 
-            return [self._parse_parking_lot_data(row) for row in response.data]
+        result = self.session.exec(stmt)
+        rows = result.all()
+
+        return [
+            ParkingLot(
+                id=row.id,
+                station_id=row.station_id,
+                name=row.name,
+                address=row.address,
+                latitude=row.latitude,
+                longitude=row.longitude,
+                distance_to_station_m=row.distance_to_station_m,
+                fee_info=row.fee_info,
+                created_at=row.created_at,
+            )
+            for row in rows
+        ]

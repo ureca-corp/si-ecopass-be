@@ -6,9 +6,10 @@ PostGIS geography(Point) 타입의 좌표 데이터를 latitude/longitude로 변
 """
 
 from datetime import datetime, timezone
-from typing import Optional
+from typing import Any, Optional
 from uuid import UUID, uuid4
 
+from geoalchemy2 import Geography
 from sqlalchemy import Column, DateTime
 from sqlmodel import Field, SQLModel
 
@@ -45,8 +46,14 @@ class Station(SQLModel, table=True):
         le=3,
         description="노선 번호 (1, 2, 3호선)",
     )
-    # PostGIS geography(Point) 타입은 Supabase에서 조회 시 WKT 문자열로 변환됨
-    # 실제 좌표는 latitude, longitude 필드로 별도 제공
+    # PostGIS geography(Point) 타입 - DB에만 존재
+    location: Any = Field(
+        default=None,
+        sa_column=Column(Geography(geometry_type='POINT', srid=4326)),
+        description="GPS 좌표 (PostGIS geography)",
+        exclude=True,  # API 응답에서 제외
+    )
+    # 좌표는 latitude, longitude 필드로 별도 제공 (computed)
     latitude: Optional[float] = Field(
         default=None,
         description="위도 (PostGIS ST_Y 함수로 추출)",

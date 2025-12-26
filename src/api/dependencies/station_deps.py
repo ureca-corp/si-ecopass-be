@@ -7,22 +7,22 @@ FastAPI dependency injection for Station services
 from typing import Annotated
 
 from fastapi import Depends
-from supabase import Client
+from sqlmodel import Session
 
 from src.application.services.station_service import StationService
 from src.domain.repositories.station_repository import IStationRepository
-from src.infrastructure.database.supabase import get_db
-from src.infrastructure.repositories.station_repository_impl import SupabaseStationRepository
+from src.infrastructure.database.session import get_session
+from src.infrastructure.repositories.station_repository_impl import SQLModelStationRepository
 
 
 def get_station_repository(
-    db: Annotated[Client, Depends(get_db)],
+    session: Annotated[Session, Depends(get_session)],
 ) -> IStationRepository:
     """
     Station Repository 인스턴스 생성
-    Supabase 클라이언트를 의존성으로 주입받아 레포지토리 생성
+    SQLModel Session을 의존성으로 주입받아 레포지토리 생성
     """
-    return SupabaseStationRepository(db=db)
+    return SQLModelStationRepository(session=session)
 
 
 def get_station_service(
