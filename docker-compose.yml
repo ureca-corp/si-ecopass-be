@@ -1,0 +1,31 @@
+version: '3.8'
+
+services:
+  # FastAPI 백엔드 서비스
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: si-ecopass-api
+    ports:
+      - "8000:8000"
+    env_file:
+      - .env
+    environment:
+      # 환경 변수는 .env 파일에서 로드되지만
+      # 필요시 여기서 오버라이드 가능
+      - ENVIRONMENT=production
+      - DEBUG=False
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "python", "-c", "import httpx; httpx.get('http://localhost:8000/health', timeout=5.0)"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
+    networks:
+      - ecopass-network
+
+networks:
+  ecopass-network:
+    driver: bridge

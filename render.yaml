@@ -1,0 +1,84 @@
+# ========================================
+# Render.com Blueprint Configuration
+# ========================================
+# This file defines the infrastructure for SI-EcoPass Backend on Render
+# Docs: https://render.com/docs/infrastructure-as-code
+
+services:
+  # FastAPI 백엔드 웹 서비스
+  - type: web
+    name: si-ecopass-api
+    runtime: docker
+    plan: starter  # free, starter, standard, pro
+    region: singapore  # oregon, frankfurt, singapore
+
+    # Docker 설정
+    dockerfilePath: ./Dockerfile
+    dockerContext: .
+
+    # 환경 변수 (민감한 정보는 Render Dashboard에서 설정)
+    envVars:
+      - key: ENVIRONMENT
+        value: production
+
+      - key: DEBUG
+        value: false
+
+      - key: APP_NAME
+        value: SI-EcoPass Backend
+
+      - key: APP_VERSION
+        value: 0.1.0
+
+      - key: API_PREFIX
+        value: /api/v1
+
+      - key: HOST
+        value: 0.0.0.0
+
+      - key: PORT
+        value: 8000
+
+      # CORS 설정 (배포 후 실제 도메인으로 변경)
+      - key: ALLOWED_ORIGINS
+        value: https://si-ecopass-api.onrender.com
+
+      # ⚠️ 민감한 정보는 Render Dashboard에서 "Secret" 타입으로 추가
+      # Dashboard → Environment → Add Environment Variable → Type: Secret
+      # - SUPABASE_URL
+      # - SUPABASE_KEY
+      # - DATABASE_URL
+
+    # Health check 설정
+    healthCheckPath: /health
+
+    # 자동 배포 설정
+    autoDeploy: true  # main 브랜치 푸시 시 자동 배포
+
+    # 빌드 및 시작 설정 (Dockerfile 사용 시 선택사항)
+    # buildCommand: docker build -t app .
+    # startCommand: python main.py
+
+    # 리소스 제한 (plan에 따라 자동 설정됨)
+    # disk:
+    #   name: si-ecopass-data
+    #   mountPath: /app/data
+    #   sizeGB: 1
+
+# ========================================
+# 추가 설정 옵션
+# ========================================
+
+# 데이터베이스 서비스 (Supabase 사용으로 불필요)
+# databases:
+#   - name: si-ecopass-db
+#     databaseName: ecopass
+#     plan: starter
+
+# Cron 작업 (필요 시)
+# - type: cronjob
+#   name: daily-cleanup
+#   runtime: docker
+#   schedule: "0 0 * * *"  # 매일 자정
+#   dockerfilePath: ./Dockerfile
+#   dockerCommand: python scripts/cleanup.py
