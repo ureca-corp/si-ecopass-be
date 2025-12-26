@@ -39,9 +39,9 @@ services:
       - key: PORT
         value: 8000
 
-      # CORS 설정 (배포 후 실제 도메인으로 변경)
+      # CORS 설정 (실제 배포된 도메인)
       - key: ALLOWED_ORIGINS
-        value: https://si-ecopass-api.onrender.com
+        value: https://si-ecopass-be.onrender.com
 
       # ⚠️ 민감한 정보는 Render Dashboard에서 "Secret" 타입으로 추가
       # Dashboard → Environment → Add Environment Variable → Type: Secret
