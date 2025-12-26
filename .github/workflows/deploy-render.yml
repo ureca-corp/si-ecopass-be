@@ -7,7 +7,7 @@ on:
   workflow_dispatch:  # 수동 트리거 허용
 
 env:
-  RENDER_SERVICE_NAME: si-ecopass-api  # Render 서비스 이름
+  RENDER_SERVICE_NAME: si-ecopass-be  # Render 서비스 이름
 
 jobs:
   # ========================================
@@ -31,7 +31,7 @@ jobs:
           file: ./Dockerfile
           push: false
           load: true  # 로컬 Docker daemon에 이미지 로드
-          tags: si-ecopass-api:${{ github.sha }}
+          tags: si-ecopass-be:${{ github.sha }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
