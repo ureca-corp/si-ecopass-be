@@ -4,15 +4,34 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-**SI-EcoPass Backend** - A FastAPI backend service following Domain-Driven Design (DDD) principles with Supabase for data persistence.
+**SI-EcoPass Backend** - 대구 지하철 환승 주차장 이용 장려 플랫폼의 백엔드 API
 
 - **Language**: Python 3.12+
 - **Framework**: FastAPI with Uvicorn
 - **Package Manager**: `uv` (fast Python package installer and resolver)
-- **Database**: Supabase (PostgreSQL-based backend-as-a-service)
+- **Database**: Supabase (PostgreSQL + PostGIS)
 - **ORM**: SQLModel (Pydantic + SQLAlchemy integration)
 - **Architecture**: Domain-Driven Design (DDD)
 - **API Standard**: All responses follow `{status, message, data}` format
+
+### 구현된 주요 도메인
+
+1. **Authentication** - 사용자 회원가입, 로그인, 프로필 관리 (Supabase Auth 통합)
+2. **Stations** - 대구 지하철 1/2/3호선 역 및 주변 주차장 조회 (PostGIS 기반)
+3. **Trips** - 여정 3단계 관리 (출발 → 환승 → 도착)
+4. **Storage** - Supabase Storage를 통한 인증 이미지 업로드
+5. **Admin** - 관리자 여정 승인/반려 및 포인트 지급
+6. **EcoPass** - 에코패스 관리 (추가 기능)
+
+### 프로젝트 현황
+
+- ✅ 데이터베이스 스키마 완성 (Supabase migrations)
+- ✅ 5개 도메인 엔티티 정의 (User, Station, ParkingLot, Trip, EcoPass)
+- ✅ 6개 API 모듈 구현 (auth, admin, stations, trips, storage, ecopass)
+- ✅ JWT 인증 시스템
+- ✅ 테스트 코드 작성 (pytest)
+- ✅ Postman Collection
+- ✅ API 문서 자동 생성 (Swagger/ReDoc)
 
 ## 🔥 코딩 규칙 (Coding Standards)
 
@@ -78,77 +97,82 @@ def calculate_points(activities: list[Activity]) -> int:
 - 현재 사용하지 않는 함수, 클래스, 상수는 작성하지 않음
 - 필요할 때 추가하는 것이 리팩토링하기 더 쉬움
 
-## Development Commands
+## Quick Start
 
-### Package Management with uv
+### 기본 명령어
 
 ```bash
-# Install dependencies
+# 의존성 설치
 uv sync
 
-# Add a new dependency
-uv add <package-name>
-
-# Add a dev dependency
-uv add --dev <package-name>
-
-# Update dependencies
-uv lock --upgrade
-```
-
-### Running the Application
-
-```bash
-# Run the FastAPI application (with hot reload in debug mode)
+# 서버 실행 (개발 모드, 핫 리로드)
 uv run python main.py
 
-# Alternative: Run with uvicorn directly
-uv run uvicorn src.main:app --reload
+# 테스트 실행
+uv run pytest
 
-# Production mode (no reload)
-uv run uvicorn src.main:app --host 0.0.0.0 --port 8000
+# 테스트 커버리지
+uv run pytest --cov=src --cov-report=html
 ```
 
-### API Documentation
+### API 문서
 
-When the application is running, access:
+서버 실행 후 다음 URL에서 확인:
+
 - **Swagger UI**: http://localhost:8000/docs
 - **ReDoc**: http://localhost:8000/redoc
-- **OpenAPI JSON**: http://localhost:8000/openapi.json
 - **Health Check**: http://localhost:8000/health
 
 ## Project Structure (Domain-Driven Design)
 
 ```
 src/
-├── domain/                    # Domain Layer (Business Logic Core)
-│   ├── entities/             # Domain entities with business rules
-│   ├── value_objects/        # Immutable value objects
-│   └── repositories/         # Repository interfaces (contracts)
+├── domain/                    # Domain Layer (비즈니스 로직 핵심)
+│   ├── entities/             # 도메인 엔티티 (SQLModel)
+│   │   ├── user.py          # 사용자 엔티티
+│   │   ├── station.py       # 역 엔티티 (PostGIS)
+│   │   ├── parking_lot.py   # 주차장 엔티티
+│   │   ├── trip.py          # 여정 엔티티 (3단계 상태 관리)
+│   │   └── ecopass.py       # 에코패스 엔티티
+│   └── repositories/         # 레포지토리 인터페이스
 │
-├── application/              # Application Layer (Use Cases)
-│   ├── services/            # Application services (orchestration)
-│   └── use_cases/           # Specific use case implementations
+├── application/              # Application Layer (유스케이스)
+│   └── services/            # 애플리케이션 서비스
+│       ├── auth_service.py       # 인증 로직
+│       ├── station_service.py    # 역 조회 로직
+│       ├── trip_service.py       # 여정 관리 로직
+│       ├── storage_service.py    # 파일 업로드 로직
+│       ├── admin_service.py      # 관리자 로직
+│       └── ecopass_service.py    # 에코패스 로직
 │
-├── infrastructure/           # Infrastructure Layer (External Concerns)
-│   ├── database/            # Database implementations
-│   ├── external/            # External service integrations
-│   └── repositories/        # Repository implementations
+├── infrastructure/           # Infrastructure Layer (외부 시스템)
+│   ├── database/            # Supabase 클라이언트
+│   └── repositories/        # 레포지토리 구현체
 │
-├── api/                      # Presentation Layer (HTTP/REST)
-│   ├── routes/              # FastAPI routers (endpoints)
-│   ├── schemas/             # Request/Response DTOs
-│   └── dependencies/        # FastAPI dependency injection
+├── api/                      # API Layer (프레젠테이션)
+│   ├── routes/              # FastAPI 라우터 (6개 모듈)
+│   ├── schemas/             # Request/Response DTO
+│   └── dependencies/        # 의존성 주입
 │
 ├── shared/                   # Shared Kernel
-│   ├── schemas/             # Common schemas (response models)
-│   ├── utils/               # Utility functions
-│   └── exceptions.py        # Custom exception classes
+│   ├── schemas/             # 공통 스키마 (SuccessResponse, ErrorResponse)
+│   ├── utils/               # 유틸리티 함수
+│   └── exceptions.py        # 커스텀 예외 클래스
 │
-├── config.py                # Application configuration
-└── main.py                  # FastAPI application factory
+├── config.py                # 환경 설정 (pydantic-settings)
+└── main.py                  # FastAPI 앱 팩토리
 
-main.py                       # Application entry point
+tests/                        # 테스트 코드
+├── test_auth.py             # 인증 API 테스트
+├── test_stations.py         # 역 API 테스트
+├── test_trips.py            # 여정 API 테스트
+├── test_storage.py          # 스토리지 API 테스트
+├── test_admin.py            # 관리자 API 테스트
+└── test_integration.py      # 통합 테스트
+
+supabase/                     # Supabase 설정
+├── migrations/              # 데이터베이스 마이그레이션
+└── seed.sql                 # 샘플 데이터 (14개 역, 9개 주차장)
 ```
 
 ## Architecture Principles
@@ -156,16 +180,19 @@ main.py                       # Application entry point
 ### Domain-Driven Design (DDD)
 
 1. **Domain Layer**: Pure business logic, no external dependencies
+
    - Entities contain business rules and domain logic
    - Repositories define interfaces (contracts) for data access
    - No knowledge of FastAPI, Supabase, or HTTP
 
 2. **Application Layer**: Orchestrates domain objects
+
    - Services coordinate between domain and infrastructure
    - Implements use cases and business workflows
    - No direct knowledge of HTTP or database implementations
 
 3. **Infrastructure Layer**: External concerns
+
    - Repository implementations (Supabase, in-memory, etc.)
    - External API clients
    - Database connections and queries
@@ -178,6 +205,7 @@ main.py                       # Application entry point
 ### Dependency Rule
 
 Dependencies flow inward: `API → Application → Domain`
+
 - Domain has no dependencies on outer layers
 - Application depends only on Domain
 - Infrastructure implements Domain interfaces
@@ -196,6 +224,7 @@ All API endpoints return responses in this format:
 ```
 
 ### Success Response Example
+
 ```json
 {
   "status": "success",
@@ -210,6 +239,7 @@ All API endpoints return responses in this format:
 ```
 
 ### Error Response Example
+
 ```json
 {
   "status": "error",
@@ -228,215 +258,143 @@ All API endpoints return responses in this format:
 - **supabase** - Python client for Supabase (PostgreSQL backend, auth, storage, realtime)
 - **sqlmodel** - SQLAlchemy + Pydantic integration for type-safe DB models
 
-## SQLModel & Supabase Integration
+## 주요 기술 스택 & 통합
 
-### SQLModel 엔티티 정의
+### SQLModel 엔티티
 
-모든 도메인 엔티티는 `SQLModel`을 상속하여 정의합니다:
+모든 도메인 엔티티는 `SQLModel`을 사용하여 정의:
 
-```python
-from datetime import datetime
-from uuid import UUID, uuid4
-from sqlmodel import Field, SQLModel
-from sqlalchemy import Column, DateTime
+- `table=True` 설정으로 DB 테이블 매핑
+- `__tablename__` 명시 (Supabase 테이블명)
+- Pydantic 검증 + SQLAlchemy 통합
+- timezone-aware datetime 필드 사용
 
-class MyEntity(SQLModel, table=True):
-    """엔티티 설명"""
-    __tablename__ = "my_entities"  # Supabase 테이블명
+### Supabase 통합
 
-    id: UUID = Field(default_factory=uuid4, primary_key=True)
-    name: str = Field(min_length=1, max_length=200)
-    created_at: datetime = Field(
-        default_factory=utc_now,
-        sa_column=Column(DateTime(timezone=True))
-    )
-```
+**Database**: PostgreSQL 15+ with PostGIS
 
-**핵심 포인트**:
-- `table=True`: 실제 DB 테이블 매핑
-- `__tablename__`: Supabase 테이블명 명시
-- `Field()`: Pydantic 검증 + SQLAlchemy 매핑 통합
-- `sa_column`: SQLAlchemy 고급 설정 (timezone-aware datetime 등)
+- UUID v7 사용 (시간 기반 정렬 가능)
+- PostGIS로 지리적 좌표 및 거리 계산
+- RLS (Row Level Security) 정책 적용
 
-### Supabase 클라이언트 사용
+**Authentication**: Supabase Auth
 
-Supabase 클라이언트는 `src/infrastructure/database/supabase.py`에서 관리:
+- JWT 토큰 기반 인증
+- 회원가입/로그인 통합
 
-```python
-from src.infrastructure.database.supabase import get_db
+**Storage**: Supabase Storage
 
-# FastAPI 의존성 주입
-def some_repository(db: Client = Depends(get_db)):
-    # Supabase 클라이언트 사용
-    result = db.table("ecopasses").select("*").execute()
-    return result.data
-```
+- 인증 이미지 업로드 (`trips` 버킷)
+- JWT 인증 기반 접근 제어
 
-**주요 메서드**:
-- `.table(name).select("*")` - 조회
-- `.table(name).insert(data)` - 삽입
-- `.table(name).update(data).eq("id", id)` - 수정
-- `.table(name).delete().eq("id", id)` - 삭제
+## 구현된 API 엔드포인트
 
-## Development Patterns
+### Authentication (`/api/v1/auth`)
 
-### Adding a New Feature (DDD Approach)
+- `POST /signup` - 회원가입 (Supabase Auth 통합)
+- `POST /login` - 로그인 및 JWT 발급
+- `GET /profile` - 프로필 조회 (인증 필요)
+- `PUT /profile` - 프로필 수정 (인증 필요)
 
-1. **Define the Domain Entity** in `src/domain/entities/`
-   - SQLModel 기반으로 작성 (`table=True`)
-   - 비즈니스 로직 메서드 추가 (예: `add_points()`, `activate()`)
-   - 외부 의존성 없이 순수한 도메인 로직만 포함
+### Stations (`/api/v1/stations`)
 
-2. **Create Repository Interface** in `src/domain/repositories/`
-   - 데이터 접근 계약(인터페이스) 정의
-   - 구현 세부사항은 포함하지 않음
+- `GET /` - 전체 역 목록 조회 (노선별 필터링)
+- `GET /{station_id}` - 역 상세 정보
+- `GET /{station_id}/parking-lots` - 역별 주차장 목록
+- `GET /nearby` - 주변 역 검색 (PostGIS 기반)
 
-3. **Implement Repository** in `src/infrastructure/repositories/`
-   - Supabase 클라이언트를 사용한 구현
-   - 도메인 인터페이스를 구현
-   - SQLModel 엔티티와 Supabase 데이터 변환
+### Trips (`/api/v1/trips`)
 
-4. **Create Application Service** in `src/application/services/`
-   - 도메인 객체들을 조율
-   - 유스케이스 구현 (예: `create_ecopass()`, `add_points()`)
+- `POST /start` - 여정 시작 (DRIVING 상태)
+- `POST /{trip_id}/transfer` - 환승 기록 (TRANSFERRED 상태)
+- `POST /{trip_id}/arrival` - 도착 기록 (COMPLETED 상태)
+- `GET /` - 내 여정 목록 조회 (상태별 필터링)
+- `GET /{trip_id}` - 여정 상세 정보
 
-5. **Define API Schemas** in `src/api/schemas/`
-   - **Request 스키마**: `~~Request` (BaseRequest 상속)
-   - **Response 스키마**: `~~Response` (BaseResponse 상속)
-   - 한글 주석 필수
+### Storage (`/api/v1/storage`)
 
-6. **Create API Routes** in `src/api/routes/`
-   - FastAPI 엔드포인트 작성
-   - 의존성 주입으로 서비스 사용
-   - 표준 응답 형식 반환 (`SuccessResponse.create()`)
+- `POST /upload/transfer` - 환승 인증 이미지 업로드
+- `POST /upload/arrival` - 도착 인증 이미지 업로드
 
-7. **Register Router** in `src/main.py`
-   - API 접두사와 함께 라우터 등록
+### Admin (`/api/v1/admin`)
+
+- `GET /trips` - 전체 여정 목록 (관리자 전용)
+- `POST /trips/{trip_id}/approve` - 여정 승인 및 포인트 지급
+- `POST /trips/{trip_id}/reject` - 여정 반려
+
+### EcoPass (`/api/v1/ecopasses`)
+
+- EcoPass 관리 API (추가 기능)
+
+## 새로운 기능 추가 가이드 (DDD)
+
+1. **Domain Entity** 정의 (`src/domain/entities/`)
+2. **Application Service** 작성 (`src/application/services/`)
+3. **API Schemas** 정의 (`src/api/schemas/`) - Request/Response 명명 규칙 준수
+4. **API Routes** 구현 (`src/api/routes/`)
+5. **Router 등록** (`src/main.py`)
+6. **테스트 작성** (`tests/`)
 
 ### Custom Exceptions
 
-`src/shared/exceptions.py`에서 제공하는 커스텀 예외를 사용:
+모든 예외는 `BaseAppException`을 상속하며 자동으로 표준 에러 응답으로 변환:
 
-- `NotFoundError` - 리소스를 찾을 수 없음 (404)
-- `ValidationError` - 유효성 검증 실패 (422)
-- `UnauthorizedError` - 인증 필요 (401)
-- `ForbiddenError` - 권한 없음 (403)
-- `ConflictError` - 리소스 충돌 (409)
-- `InternalServerError` - 서버 내부 오류 (500)
-
-**사용 예시**:
-```python
-from src.shared.exceptions import NotFoundError
-
-if not ecopass:
-    raise NotFoundError(f"EcoPass {id}를 찾을 수 없습니다")
-```
-
-예외는 자동으로 표준 에러 응답 형식으로 변환됩니다.
+- `NotFoundError` (404) - 리소스를 찾을 수 없음
+- `ValidationError` (422) - 유효성 검증 실패
+- `UnauthorizedError` (401) - 인증 필요
+- `ForbiddenError` (403) - 권한 없음
+- `ConflictError` (409) - 리소스 충돌
+- `InternalServerError` (500) - 서버 내부 오류
 
 ### Environment Configuration
 
-`.env.example`을 복사하여 `.env` 파일 생성:
-```bash
-cp .env.example .env
-```
+`.env` 파일에서 환경 변수 관리:
 
-**주요 환경 변수**:
-- `DEBUG=true` - 핫 리로드 및 상세 에러 활성화
-- `SUPABASE_URL` - Supabase 프로젝트 URL
-- `SUPABASE_KEY` - Supabase API 키 (anon 또는 service key)
+- `DEBUG` - 디버그 모드 활성화
+- `SUPABASE_URL`, `SUPABASE_KEY` - Supabase 연결 정보
 - `API_PREFIX=/api/v1` - API 경로 접두사
+- `ALLOWED_ORIGINS` - CORS 설정
 
-## 코드 예시 (Code Examples)
+## 테스트 전략
 
-### 완전한 기능 추가 예시
+프로젝트에는 포괄적인 테스트 스위트가 구현되어 있습니다:
 
-**1. Entity (도메인 엔티티)**
-```python
-# src/domain/entities/activity.py
-from sqlmodel import Field, SQLModel
+- **API 테스트**: FastAPI TestClient 사용 (6개 테스트 파일)
+- **통합 테스트**: 실제 Supabase 인스턴스 연동 테스트
+- **커버리지**: `pytest-cov`로 코드 커버리지 측정
 
-class Activity(SQLModel, table=True):
-    """사용자 활동 엔티티"""
-    __tablename__ = "activities"
+**테스트 실행**:
 
-    id: UUID = Field(default_factory=uuid4, primary_key=True)
-    user_id: str = Field(index=True)
-    activity_type: str = Field(max_length=50)
-    points: int = Field(ge=0)
+```bash
+uv run pytest                           # 전체 테스트
+uv run pytest tests/test_auth.py        # 특정 모듈
+uv run pytest --cov=src --cov-report=html  # 커버리지
 ```
 
-**2. Request/Response Schemas**
-```python
-# src/api/schemas/activity_schemas.py
-from src.shared.schemas.base import BaseRequest, BaseResponse
+## 주요 특징
 
-class CreateActivityRequest(BaseRequest):
-    """활동 생성 요청"""
-    user_id: str
-    activity_type: str
+### 기술적 특징
 
-class ActivityResponse(BaseResponse):
-    """활동 응답"""
-    id: UUID
-    user_id: str
-    activity_type: str
-    points: int
-```
+- **DDD 아키텍처**: Domain → Application → Infrastructure → API 계층 분리
+- **Supabase 완전 통합**: PostgreSQL + PostGIS + Auth + Storage
+- **SQLModel 엔티티**: Pydantic 검증 + SQLAlchemy ORM 통합
+- **표준 응답 형식**: 모든 API가 `{status, message, data}` 구조
+- **JWT 인증**: Supabase Auth 기반 토큰 인증
+- **PostGIS 지원**: 지리적 좌표 및 거리 계산
 
-**3. API Route**
-```python
-# src/api/routes/activity_routes.py
-from fastapi import APIRouter
-from src.shared.schemas.response import SuccessResponse
+### 비즈니스 특징
 
-router = APIRouter(prefix="/activities", tags=["Activities"])
+- **3단계 여정**: 출발 (DRIVING) → 환승 (TRANSFERRED) → 도착 (COMPLETED)
+- **포인트 시스템**: 거리 기반 예상 포인트 계산
+- **관리자 승인**: 완료된 여정 검토 및 승인/반려
+- **대구 지하철 데이터**: 1/2/3호선 14개 역, 9개 주차장
 
-@router.post("", response_model=SuccessResponse[ActivityResponse])
-async def create_activity(request: CreateActivityRequest):
-    """활동 생성 엔드포인트"""
-    # 서비스 호출
-    activity = await activity_service.create(request)
-    return SuccessResponse.create(
-        message="활동이 생성되었습니다",
-        data=ActivityResponse.model_validate(activity)
-    )
-```
+## 체크리스트 (새 기능 추가 시)
 
-## Development Notes
-
-### uv 패키지 매니저
-
-이 프로젝트는 pip/poetry/pipenv 대신 `uv`를 사용합니다:
-- 훨씬 빠른 의존성 해결 및 설치
-- 표준 `pyproject.toml` 형식과 호환
-- 가상 환경 자동 생성 및 관리
-- Python 명령어 실행 시 항상 `uv run` 접두사 사용
-
-### Repository Pattern
-
-현재는 데모용 인메모리 레포지토리(`InMemoryEcoPassRepository`)를 사용 중입니다.
-Supabase 프로덕션 사용 시:
-1. `SupabaseEcoPassRepository` 생성하여 `IEcoPassRepository` 구현
-2. `src/api/dependencies/`에서 의존성 주입 업데이트
-3. 도메인, 애플리케이션, API 계층은 변경 불필요 (DDD의 이점)
-
-### Testing Strategy
-
-향후 테스트 추가 시:
-- **단위 테스트**: 도메인 엔티티와 서비스
-- **통합 테스트**: 레포지토리 (테스트용 Supabase 인스턴스 사용)
-- **API 테스트**: 엔드포인트 (FastAPI TestClient 사용)
-
-## 체크리스트 (Checklist)
-
-새로운 기능을 추가할 때 다음을 확인하세요:
-
-- [ ] SQLModel 엔티티에 `table=True` 설정
-- [ ] Request 스키마는 `~~Request`, Response는 `~~Response` 명명
+- [ ] SQLModel 엔티티에 `table=True` 및 `__tablename__` 설정
+- [ ] Request는 `~Request`, Response는 `~Response` 명명 규칙
 - [ ] BaseRequest, BaseResponse 상속
-- [ ] 모든 클래스와 함수에 한글 주석 1-2줄
-- [ ] 커스텀 예외는 BaseAppException 계열 사용
-- [ ] 표준 응답 형식 사용 (`SuccessResponse.create()`)
-- [ ] 불필요한 try-catch 제거
-- [ ] 미래를 위한 코드 작성 금지 (YAGNI)
+- [ ] 한글 주석 1-2줄 필수
+- [ ] BaseAppException 계열 예외 사용
+- [ ] `SuccessResponse.create()` 표준 응답 형식
+- [ ] YAGNI 원칙 준수 (미래를 위한 코드 작성 금지)
