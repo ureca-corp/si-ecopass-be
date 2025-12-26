@@ -41,7 +41,7 @@ services:
 
       # CORS 설정 (실제 배포된 도메인)
       - key: ALLOWED_ORIGINS
-        value: *
+        value: "*"
 
       # ⚠️ 민감한 정보는 Render Dashboard에서 "Secret" 타입으로 추가
       # Dashboard → Environment → Add Environment Variable → Type: Secret
