@@ -17,7 +17,7 @@ from src.api.schemas.ecopass_schemas import (
     EcoPassResponse,
 )
 from src.application.services.ecopass_service import EcoPassService
-from src.shared.schemas.response import SuccessResponse
+from src.shared.schemas.response import SuccessResponse, SuccessResponseNoData
 
 router = APIRouter(prefix="/ecopasses", tags=["EcoPasses"])
 
@@ -145,7 +145,7 @@ async def deactivate_ecopass(
 
 @router.delete(
     "/{ecopass_id}",
-    response_model=SuccessResponse[None],
+    response_model=SuccessResponseNoData,
     status_code=status.HTTP_200_OK,
     summary="Delete an EcoPass",
     description="Permanently delete an EcoPass",
@@ -156,7 +156,6 @@ async def delete_ecopass(
 ):
     """Delete an EcoPass"""
     await service.delete_ecopass(ecopass_id)
-    return SuccessResponse.create(
+    return SuccessResponseNoData.create(
         message="EcoPass deleted successfully",
-        data=None,
     )

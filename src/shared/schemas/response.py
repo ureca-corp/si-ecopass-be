@@ -64,6 +64,27 @@ class SuccessResponse(BaseResponse[DataT], Generic[DataT]):
         return cls(status="success", message=message, data=data)
 
 
+class SuccessResponseNoData(BaseModel):
+    """
+    데이터 없는 성공 응답 모델
+    DELETE 등 응답 본문이 필요 없는 엔드포인트에서 사용
+    """
+
+    status: Literal["success"] = "success"
+    message: str = Field(
+        ...,
+        description="사람이 읽을 수 있는 응답 메시지",
+        examples=["삭제가 완료되었습니다"],
+    )
+
+    @classmethod
+    def create(cls, message: str) -> "SuccessResponseNoData":
+        """
+        데이터 없는 성공 응답 생성 팩토리 메서드
+        """
+        return cls(status="success", message=message)
+
+
 class ErrorResponse(BaseResponse[None]):
     """
     에러 응답 모델

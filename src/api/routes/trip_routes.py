@@ -152,7 +152,7 @@ async def get_trips(
     current_user: CurrentUser,
     trip_service: TripService = Depends(get_trip_service),
     status_filter: Optional[TripStatus] = Query(
-        None,
+        default=None,
         alias="status",
         description="필터링할 여행 상태",
     ),
