@@ -288,16 +288,29 @@ async def admin_client(test_client: TestClient, admin_user_data: dict, supabase_
     response_data = signup_response.json()
     assert response_data is not None, "Signup response is None"
     assert "data" in response_data, f"No 'data' in response: {response_data}"
-    access_token = response_data["data"]["access_token"]
     user_id = response_data["data"]["user"]["id"]
 
-    # Supabase에서 사용자를 관리자로 설정
-    # RLS를 우회하는 set_user_role 함수 사용
+    # Supabase Admin API로 user_metadata 업데이트 (role="admin" 추가)
     try:
-        supabase_client.rpc("set_user_role", {"target_user_id": user_id, "new_role": "admin"}).execute()
+        # Update user metadata using Supabase admin API
+        supabase_client.auth.admin.update_user_by_id(
+            user_id,
+            {"user_metadata": {"role": "admin"}}
+        )
     except Exception as e:
-        # 실패 시 에러를 발생시켜 테스트를 중단
-        raise Exception(f"Failed to set admin role for user {user_id}: {e}")
+        raise Exception(f"Failed to set admin role in user_metadata for user {user_id}: {e}")
+
+    # 새 토큰 발급을 위해 다시 로그인
+    login_response = test_client.post(
+        "/api/v1/auth/login",
+        json={
+            "email": admin_user_data["email"],
+            "password": admin_user_data["password"],
+        },
+    )
+    assert login_response.status_code == 200, f"Admin login failed: {login_response.text}"
+    login_data = login_response.json()
+    access_token = login_data["data"]["access_token"]
 
     # 토큰을 헤더에 추가
     test_client.headers = {"Authorization": f"Bearer {access_token}"}

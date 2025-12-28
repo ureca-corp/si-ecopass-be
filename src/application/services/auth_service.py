@@ -39,14 +39,15 @@ class AuthService:
         password: str,
         username: str,
         vehicle_number: Optional[str] = None,
+        role: str = "user",
     ) -> tuple[User, str]:
         """
         회원가입 처리
-        1. Supabase Auth에 사용자 생성
+        1. Supabase Auth에 사용자 생성 (user_metadata에 role 포함)
         2. users 테이블에 추가 정보 저장
         """
         try:
-            # Supabase Auth에 사용자 등록 (user_metadata로 username 전달)
+            # Supabase Auth에 사용자 등록 (user_metadata로 role 포함)
             auth_response = self.db.auth.sign_up(
                 {
                     "email": email,
@@ -55,6 +56,7 @@ class AuthService:
                         "data": {
                             "username": username,
                             "vehicle_number": vehicle_number,
+                            "role": role,  # JWT 토큰에 포함됨
                         }
                     },
                 }
@@ -66,10 +68,11 @@ class AuthService:
             user_id = auth_response.user.id
             access_token = auth_response.session.access_token if auth_response.session else ""
 
-            # 트리거가 자동으로 users 레코드를 생성했으므로, username과 vehicle_number를 업데이트
+            # 트리거가 자동으로 users 레코드를 생성했으므로, username, vehicle_number, role을 업데이트
             update_data = {
                 "username": username,
                 "vehicle_number": vehicle_number,
+                "role": role,  # DB에도 role 저장 (source of truth)
             }
             self.db.table("users").update(update_data).eq("id", user_id).execute()
 
@@ -79,6 +82,7 @@ class AuthService:
                 email=email,
                 username=username,
                 vehicle_number=vehicle_number,
+                role=role,
                 total_points=0,
             )
 

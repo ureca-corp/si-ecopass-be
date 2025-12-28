@@ -166,7 +166,7 @@ class TestProfile:
 
         assert response.status_code == 401
         data = response.json()
-        assert data["status"] == "error"
+        assert "detail" in data  # HTTPBearer returns {'detail': 'Not authenticated'}
 
     @pytest.mark.asyncio
     async def test_update_profile_success(self, authenticated_client: TestClient):
@@ -211,4 +211,4 @@ class TestProfile:
 
         assert response.status_code == 401
         data = response.json()
-        assert data["status"] == "error"
+        assert "detail" in data  # HTTPBearer returns {'detail': 'Not authenticated'}

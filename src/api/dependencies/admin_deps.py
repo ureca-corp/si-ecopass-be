@@ -27,7 +27,7 @@ async def get_admin_user(
 ) -> User:
     """
     관리자 권한 검증 후 현재 사용자 반환
-    HTTPBearer를 통해 토큰을 추출하고 users 테이블의 role이 'admin'인지 확인
+    JWT 토큰의 user_metadata에서 role을 읽어 'admin' 여부 확인 (DB 쿼리 불필요)
     """
     token = credentials.credentials
 
@@ -37,14 +37,23 @@ async def get_admin_user(
         if not user_response or not user_response.user:
             raise UnauthorizedError("유효하지 않은 토큰입니다")
 
-        # users 테이블에서 사용자 정보 조회 (role 포함)
         user_id = UUID(user_response.user.id)
-        user = await auth_service.get_user_by_id(user_id)
+        user_email = user_response.user.email
 
-        # 데이터베이스의 role 필드로 관리자 여부 확인
-        if not user.is_admin():
+        # JWT 토큰의 user_metadata에서 role 추출 (성능 향상!)
+        user_metadata = user_response.user.user_metadata or {}
+        role = user_metadata.get("role", "user")
+
+        # JWT에서 바로 관리자 여부 확인 (DB 쿼리 불필요)
+        if role != "admin":
             raise ForbiddenError("관리자 권한이 필요합니다")
 
+        # users 테이블에서 나머지 사용자 정보 조회
+        user = await auth_service.get_user_by_id(user_id)
+
+        # JWT에서 가져온 정보로 설정
+        user.email = user_email
+        user.role = role
         return user
 
     except ForbiddenError:

@@ -56,7 +56,7 @@ class TestTripStart:
 
         assert response.status_code == 401
         data = response.json()
-        assert data["status"] == "error"
+        assert "detail" in data  # HTTPBearer returns {'detail': 'Not authenticated'}
 
     @pytest.mark.asyncio
     async def test_start_trip_invalid_coordinates(self, authenticated_client: TestClient):
@@ -144,7 +144,7 @@ class TestTripTransfer:
 
         assert response.status_code == 401
         data = response.json()
-        assert data["status"] == "error"
+        assert "detail" in data  # HTTPBearer returns {'detail': 'Not authenticated'}
 
     @pytest.mark.asyncio
     async def test_transfer_invalid_state(

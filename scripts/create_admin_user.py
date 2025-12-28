@@ -40,13 +40,14 @@ async def create_admin_user():
     print(f"📝 관리자 계정 생성 중... (email: {email})")
 
     try:
-        # Supabase Auth에 사용자 등록
+        # Supabase Auth에 사용자 등록 (user_metadata에 role 포함)
         auth_response = db.auth.sign_up({
             "email": email,
             "password": password,
             "options": {
                 "data": {
                     "username": username,
+                    "role": "admin",  # JWT 토큰에 포함됨
                 }
             }
         })

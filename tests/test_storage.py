@@ -76,7 +76,7 @@ class TestImageUpload:
 
         assert response.status_code == 401
         data = response.json()
-        assert data["status"] == "error"
+        assert "detail" in data  # HTTPBearer returns {'detail': 'Not authenticated'}
 
     @pytest.mark.asyncio
     async def test_upload_invalid_file_type(self, authenticated_client: TestClient):

@@ -36,7 +36,7 @@ async def get_current_user(
 ) -> User:
     """
     JWT 토큰에서 현재 사용자 조회
-    HTTPBearer를 통해 Authorization 헤더에서 토큰을 추출하여 Supabase Auth로 검증
+    HTTPBearer를 통해 토큰을 추출하고 user_metadata에서 role 정보 읽기
     """
     token = credentials.credentials
 
@@ -49,11 +49,16 @@ async def get_current_user(
         user_id = UUID(user_response.user.id)
         user_email = user_response.user.email
 
+        # JWT 토큰의 user_metadata에서 role 추출 (DB 쿼리 불필요!)
+        user_metadata = user_response.user.user_metadata or {}
+        role = user_metadata.get("role", "user")
+
         # users 테이블에서 사용자 정보 조회
         user = await auth_service.get_user_by_id(user_id)
 
-        # auth.users에서 가져온 email 설정
+        # JWT에서 가져온 정보로 설정
         user.email = user_email
+        user.role = role  # JWT의 role 사용 (성능 향상)
         return user
 
     except Exception as e:
