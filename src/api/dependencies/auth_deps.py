@@ -8,13 +8,17 @@ JWT 토큰 검증 및 현재 사용자 조회 기능 제공
 from typing import Annotated
 from uuid import UUID
 
-from fastapi import Depends, Header
+from fastapi import Depends
+from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from supabase import Client
 
 from src.application.services.auth_service import AuthService
 from src.domain.entities.user import User
 from src.infrastructure.database.supabase import get_db
 from src.shared.exceptions import UnauthorizedError
+
+# HTTPBearer 스키마 정의 (Swagger UI Authorize 버튼 활성화)
+security = HTTPBearer()
 
 
 def get_auth_service(db: Client = Depends(get_db)) -> AuthService:
@@ -26,23 +30,15 @@ def get_auth_service(db: Client = Depends(get_db)) -> AuthService:
 
 
 async def get_current_user(
-    authorization: Annotated[str | None, Header()] = None,
+    credentials: HTTPAuthorizationCredentials = Depends(security),
     db: Client = Depends(get_db),
     auth_service: AuthService = Depends(get_auth_service),
 ) -> User:
     """
     JWT 토큰에서 현재 사용자 조회
-    Authorization 헤더에서 Bearer 토큰을 추출하여 Supabase Auth로 검증
+    HTTPBearer를 통해 Authorization 헤더에서 토큰을 추출하여 Supabase Auth로 검증
     """
-    if not authorization:
-        raise UnauthorizedError("인증 토큰이 필요합니다")
-
-    # Bearer 토큰 추출
-    parts = authorization.split()
-    if len(parts) != 2 or parts[0].lower() != "bearer":
-        raise UnauthorizedError("올바르지 않은 인증 형식입니다 (Bearer 토큰 필요)")
-
-    token = parts[1]
+    token = credentials.credentials
 
     # Supabase Auth로 토큰 검증
     try:
@@ -55,7 +51,7 @@ async def get_current_user(
 
         # users 테이블에서 사용자 정보 조회
         user = await auth_service.get_user_by_id(user_id)
-        
+
         # auth.users에서 가져온 email 설정
         user.email = user_email
         return user

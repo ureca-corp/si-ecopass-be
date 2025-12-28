@@ -55,6 +55,9 @@ def create_application() -> FastAPI:
     app = FastAPI(
         title="SI-EcoPass Backend API",
         version=settings.app_version,
+        swagger_ui_parameters={
+            "persistAuthorization": True,  # 새로고침 시 토큰 유지
+        },
         description="""
 # SI-EcoPass Backend API
 
