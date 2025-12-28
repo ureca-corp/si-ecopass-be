@@ -72,9 +72,9 @@ class StorageService:
         except Exception as e:
             raise ValidationError(f"이미지 업로드에 실패했습니다: {str(e)}")
 
-        # 5. 공개 URL 생성 및 반환
-        public_url = self.storage.get_public_url(file_path)
-        return public_url
+        # 5. Signed URL 생성 및 반환 (24시간 유효)
+        signed_url_response = self.storage.create_signed_url(file_path, expires_in=86400)
+        return signed_url_response["signedURL"]
 
     async def upload_trip_image(
         self,
@@ -135,10 +135,10 @@ class StorageService:
         except Exception as e:
             raise ValidationError(f"이미지 업로드 실패: {str(e)}")
 
-        # 8. 공개 URL 가져오기
-        public_url = self.storage.get_public_url(file_path)
+        # 8. Signed URL 생성 (24시간 유효)
+        signed_url_response = self.storage.create_signed_url(file_path, expires_in=86400)
 
-        return public_url
+        return signed_url_response["signedURL"]
 
     def get_upload_timestamp(self) -> datetime:
         """
