@@ -144,7 +144,7 @@ def create_application() -> FastAPI:
     app.add_middleware(
         CORSMiddleware,
         allow_origins=settings.origins_list,
-        allow_credentials=True,
+        allow_credentials=False,  # allow_origins=["*"]와 함께 사용하기 위해 False로 설정
         allow_methods=["*"],
         allow_headers=["*"],
     )
