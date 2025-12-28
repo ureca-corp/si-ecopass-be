@@ -29,13 +29,13 @@
 
 | 항목 | 기술 | 버전 | 비고 |
 |------|------|------|------|
-| **Framework** | Next.js (App Router) | 14+ | React Server Components 활용 |
+| **Framework** | Next.js (App Router) | latest | React Server Components 활용 |
 | **UI Library** | shadcn/ui | latest | Radix UI + Tailwind 기반, 테마 시스템 내장 |
-| **스타일링** | Tailwind CSS | 3.4+ | CSS 변수 기반 테마 |
+| **스타일링** | Tailwind CSS | latest | CSS 변수 기반 테마 |
 | **아이콘** | lucide-react | latest | Tree-shakeable, 일관된 디자인 |
-| **지도** | Kakao Map JavaScript API | v3 | 대구 지역 최적화 |
+| **지도** | Kakao Map JavaScript API | latest | 대구 지역 최적화 |
 | **상태 관리** | TanStack Query (React Query) | v5 | 서버 상태 관리 |
-| **폼 관리** | React Hook Form | v7 | 승인/반려 폼 (선택) |
+| **폼 관리** | React Hook Form | latest | 승인/반려 폼 (선택) |
 | **인증** | JWT (Supabase Auth) | - | 백엔드 API 인증 |
 
 ---
@@ -46,100 +46,131 @@
 
 ### CSS 변수 기반 색상 팔레트
 
-**`app/globals.css`에 정의할 CSS 변수:**
+**`app/globals.css`에 정의할 CSS 변수 (tweakcn 테마):**
 
 ```css
 @layer base {
   :root {
     /* Background & Foreground */
-    --background: 0 0% 100%;           /* White */
-    --foreground: 222.2 84% 4.9%;      /* 거의 검정 */
+    --background: hsl(223.8136 -172.5242% 100.0000%);
+    --foreground: hsl(223.8136 0.0000% 3.9388%);
 
     /* Card */
-    --card: 0 0% 100%;
-    --card-foreground: 222.2 84% 4.9%;
+    --card: hsl(223.8136 -172.5242% 100.0000%);
+    --card-foreground: hsl(223.8136 0.0000% 3.9388%);
 
     /* Popover */
-    --popover: 0 0% 100%;
-    --popover-foreground: 222.2 84% 4.9%;
+    --popover: hsl(223.8136 -172.5242% 100.0000%);
+    --popover-foreground: hsl(223.8136 0.0000% 3.9388%);
 
-    /* Primary (Blue) */
-    --primary: 221.2 83.2% 53.3%;      /* #3B82F6 (Blue-500) */
-    --primary-foreground: 210 40% 98%;
+    /* Primary (Dark Gray) */
+    --primary: hsl(223.8136 0.0000% 9.0527%);
+    --primary-foreground: hsl(223.8136 0.0004% 98.0256%);
 
-    /* Secondary (Neutral) */
-    --secondary: 210 40% 96.1%;
-    --secondary-foreground: 222.2 47.4% 11.2%;
+    /* Secondary (Light Gray) */
+    --secondary: hsl(223.8136 0.0002% 96.0587%);
+    --secondary-foreground: hsl(223.8136 0.0000% 9.0527%);
 
     /* Muted */
-    --muted: 210 40% 96.1%;
-    --muted-foreground: 215.4 16.3% 46.9%;
+    --muted: hsl(223.8136 0.0002% 96.0587%);
+    --muted-foreground: hsl(223.8136 0.0000% 45.1519%);
 
-    /* Accent (Indigo) */
-    --accent: 217.2 91.2% 59.8%;       /* #6366F1 (Indigo-500) */
-    --accent-foreground: 210 40% 98%;
+    /* Accent (Medium Gray) */
+    --accent: hsl(223.8136 0.0002% 96.0587%);
+    --accent-foreground: hsl(223.8136 0.0000% 9.0527%);
 
     /* Destructive (Red) */
-    --destructive: 0 84.2% 60.2%;      /* #EF4444 (Red-500) */
-    --destructive-foreground: 210 40% 98%;
+    --destructive: hsl(351.7303 123.6748% 40.5257%);
+    --destructive-foreground: hsl(223.8136 -172.5242% 100.0000%);
 
-    /* Success (Green) - Custom */
-    --success: 142.1 76.2% 36.3%;      /* #10B981 (Emerald-500) */
-    --success-foreground: 0 0% 100%;
-
-    /* Warning (Yellow) - Custom */
-    --warning: 38.7 92.1% 50.2%;       /* #F59E0B (Amber-500) */
-    --warning-foreground: 0 0% 100%;
-
-    /* Border */
-    --border: 214.3 31.8% 91.4%;
-    --input: 214.3 31.8% 91.4%;
+    /* Border & Input */
+    --border: hsl(223.8136 0.0001% 89.8161%);
+    --input: hsl(223.8136 0.0001% 89.8161%);
 
     /* Ring (Focus) */
-    --ring: 221.2 83.2% 53.3%;         /* Primary와 동일 */
+    --ring: hsl(223.8136 0.0000% 63.0163%);
+
+    /* Sidebar */
+    --sidebar: hsl(223.8136 0.0004% 98.0256%);
+    --sidebar-foreground: hsl(223.8136 0.0000% 3.9388%);
+    --sidebar-primary: hsl(223.8136 0.0000% 9.0527%);
+    --sidebar-primary-foreground: hsl(223.8136 0.0004% 98.0256%);
+    --sidebar-accent: hsl(223.8136 0.0002% 96.0587%);
+    --sidebar-accent-foreground: hsl(223.8136 0.0000% 9.0527%);
+    --sidebar-border: hsl(223.8136 0.0001% 89.8161%);
+    --sidebar-ring: hsl(223.8136 0.0000% 63.0163%);
 
     /* Radius */
-    --radius: 0.5rem;                  /* 8px */
+    --radius: 0.625rem;                /* 10px */
+
+    /* Spacing */
+    --spacing: 0.25rem;
+
+    /* Shadows */
+    --shadow-2xs: 0 1px 3px 0px hsl(0 0% 0% / 0.05);
+    --shadow-xs: 0 1px 3px 0px hsl(0 0% 0% / 0.05);
+    --shadow-sm: 0 1px 3px 0px hsl(0 0% 0% / 0.10), 0 1px 2px -1px hsl(0 0% 0% / 0.10);
+    --shadow: 0 1px 3px 0px hsl(0 0% 0% / 0.10), 0 1px 2px -1px hsl(0 0% 0% / 0.10);
+    --shadow-md: 0 1px 3px 0px hsl(0 0% 0% / 0.10), 0 2px 4px -1px hsl(0 0% 0% / 0.10);
+    --shadow-lg: 0 1px 3px 0px hsl(0 0% 0% / 0.10), 0 4px 6px -1px hsl(0 0% 0% / 0.10);
+    --shadow-xl: 0 1px 3px 0px hsl(0 0% 0% / 0.10), 0 8px 10px -1px hsl(0 0% 0% / 0.10);
+    --shadow-2xl: 0 1px 3px 0px hsl(0 0% 0% / 0.25);
   }
 
   .dark {
-    --background: 222.2 84% 4.9%;
-    --foreground: 210 40% 98%;
+    /* Background & Foreground */
+    --background: hsl(223.8136 0.0000% 3.9388%);
+    --foreground: hsl(223.8136 0.0004% 98.0256%);
 
-    --card: 222.2 84% 4.9%;
-    --card-foreground: 210 40% 98%;
+    /* Card */
+    --card: hsl(223.8136 0.0000% 9.0527%);
+    --card-foreground: hsl(223.8136 0.0004% 98.0256%);
 
-    --popover: 222.2 84% 4.9%;
-    --popover-foreground: 210 40% 98%;
+    /* Popover */
+    --popover: hsl(223.8136 0.0000% 14.9382%);
+    --popover-foreground: hsl(223.8136 0.0004% 98.0256%);
 
-    --primary: 217.2 91.2% 59.8%;      /* 다크모드에서 더 밝은 Blue */
-    --primary-foreground: 222.2 47.4% 11.2%;
+    /* Primary (Light Gray in dark mode) */
+    --primary: hsl(223.8136 0.0001% 89.8161%);
+    --primary-foreground: hsl(223.8136 0.0000% 9.0527%);
 
-    --secondary: 217.2 32.6% 17.5%;
-    --secondary-foreground: 210 40% 98%;
+    /* Secondary (Dark Gray) */
+    --secondary: hsl(223.8136 0.0000% 14.9382%);
+    --secondary-foreground: hsl(223.8136 0.0004% 98.0256%);
 
-    --muted: 217.2 32.6% 17.5%;
-    --muted-foreground: 215 20.2% 65.1%;
+    /* Muted */
+    --muted: hsl(223.8136 0.0000% 14.9382%);
+    --muted-foreground: hsl(223.8136 0.0000% 63.0163%);
 
-    --accent: 217.2 91.2% 59.8%;
-    --accent-foreground: 210 40% 98%;
+    /* Accent (Medium Dark Gray) */
+    --accent: hsl(223.8136 0.0000% 25.0471%);
+    --accent-foreground: hsl(223.8136 0.0004% 98.0256%);
 
-    --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 210 40% 98%;
+    /* Destructive (Lighter Red for dark mode) */
+    --destructive: hsl(358.7594 101.8439% 69.8357%);
+    --destructive-foreground: hsl(223.8136 0.0004% 98.0256%);
 
-    --success: 142.1 70.6% 45.3%;
-    --success-foreground: 0 0% 100%;
+    /* Border & Input */
+    --border: hsl(223.8136 0.0000% 15.5096%);
+    --input: hsl(223.8136 0.0000% 20.3885%);
 
-    --warning: 38.7 92.1% 50.2%;
-    --warning-foreground: 0 0% 100%;
+    /* Ring (Focus) */
+    --ring: hsl(223.8136 0.0000% 45.1519%);
 
-    --border: 217.2 32.6% 17.5%;
-    --input: 217.2 32.6% 17.5%;
-
-    --ring: 224.3 76.3% 48%;
+    /* Sidebar */
+    --sidebar: hsl(223.8136 0.0000% 9.0527%);
+    --sidebar-foreground: hsl(223.8136 0.0004% 98.0256%);
+    --sidebar-primary: hsl(225.3451 84.0953% 48.9841%);
+    --sidebar-primary-foreground: hsl(223.8136 0.0004% 98.0256%);
+    --sidebar-accent: hsl(223.8136 0.0000% 14.9382%);
+    --sidebar-accent-foreground: hsl(223.8136 0.0004% 98.0256%);
+    --sidebar-border: hsl(223.8136 0.0000% 15.5096%);
+    --sidebar-ring: hsl(223.8136 0.0000% 32.1993%);
   }
 }
 ```
+
+> **테마 특징**: 중립적인 회색 톤의 미니멀 디자인. 상태 구분은 회색 농도와 아이콘으로 처리하며, destructive(반려)만 붉은 색상 사용.
 
 ### Tailwind Config 확장
 
@@ -167,14 +198,6 @@ export default {
           DEFAULT: "hsl(var(--destructive))",
           foreground: "hsl(var(--destructive-foreground))",
         },
-        success: {
-          DEFAULT: "hsl(var(--success))",
-          foreground: "hsl(var(--success-foreground))",
-        },
-        warning: {
-          DEFAULT: "hsl(var(--warning))",
-          foreground: "hsl(var(--warning-foreground))",
-        },
         muted: {
           DEFAULT: "hsl(var(--muted))",
           foreground: "hsl(var(--muted-foreground))",
@@ -187,11 +210,35 @@ export default {
           DEFAULT: "hsl(var(--card))",
           foreground: "hsl(var(--card-foreground))",
         },
+        popover: {
+          DEFAULT: "hsl(var(--popover))",
+          foreground: "hsl(var(--popover-foreground))",
+        },
+        sidebar: {
+          DEFAULT: "hsl(var(--sidebar))",
+          foreground: "hsl(var(--sidebar-foreground))",
+          primary: "hsl(var(--sidebar-primary))",
+          "primary-foreground": "hsl(var(--sidebar-primary-foreground))",
+          accent: "hsl(var(--sidebar-accent))",
+          "accent-foreground": "hsl(var(--sidebar-accent-foreground))",
+          border: "hsl(var(--sidebar-border))",
+          ring: "hsl(var(--sidebar-ring))",
+        },
       },
       borderRadius: {
         lg: "var(--radius)",
         md: "calc(var(--radius) - 2px)",
         sm: "calc(var(--radius) - 4px)",
+      },
+      boxShadow: {
+        "2xs": "var(--shadow-2xs)",
+        xs: "var(--shadow-xs)",
+        sm: "var(--shadow-sm)",
+        DEFAULT: "var(--shadow)",
+        md: "var(--shadow-md)",
+        lg: "var(--shadow-lg)",
+        xl: "var(--shadow-xl)",
+        "2xl": "var(--shadow-2xl)",
       },
     },
   },
@@ -260,9 +307,11 @@ export function Providers({ children }: { children: React.ReactNode }) {
    - 버튼 아이콘: `size={16}` (1rem)
    - 테이블 아이콘: `size={18}` (1.125rem)
 
-2. **색상**:
-   - 테마 변수 사용: `className="text-muted-foreground"`
-   - 상태별 색상: `text-success`, `text-destructive`, `text-warning`
+2. **색상 (회색 톤 미니멀 디자인)**:
+   - 기본: `className="text-muted-foreground"` (회색)
+   - 강조: `className="text-foreground"` (진한 회색)
+   - 반려만 빨강: `className="text-destructive"`
+   - **승인 대기, 승인 완료는 회색 농도로만 구분** (아이콘과 텍스트로 차별화)
 
 3. **Stroke Width**:
    - 기본: `strokeWidth={2}`
@@ -399,10 +448,11 @@ export function Providers({ children }: { children: React.ReactNode }) {
 </Card>
 ```
 
-**색상 매핑 (테마 변수 사용):**
-- 승인 대기: `text-warning` (Yellow)
-- 승인 완료: `text-success` (Green)
-- 총 여정/사용자: `text-muted-foreground` (Gray)
+**색상 매핑 (회색 톤 미니멀 디자인):**
+- 승인 대기: `text-muted-foreground` (회색) - Clock 아이콘
+- 승인 완료: `text-foreground` (진한 회색) - CheckCircle2 아이콘
+- 총 여정/사용자: `text-muted-foreground` (회색) - Route/Users 아이콘
+- **아이콘으로 의미 구분, 색상은 통일**
 
 **2) 테이블 (Table)**
 
@@ -439,7 +489,7 @@ export function Providers({ children }: { children: React.ReactNode }) {
           {formatRelativeTime(trip.completed_at)}
         </TableCell>
         <TableCell>
-          <Badge variant="warning" className="gap-1">
+          <Badge variant="pending" className="gap-1">
             <Clock className="h-3 w-3" />
             승인 대기
           </Badge>
@@ -455,14 +505,23 @@ export function Providers({ children }: { children: React.ReactNode }) {
 </Table>
 ```
 
-**Badge variant 커스텀 (필요 시):**
+**Badge variant 커스텀 (회색 톤 상태 구분):**
 ```tsx
 // components/ui/badge.tsx에 추가
 {
-  warning: "bg-warning/10 text-warning border-warning/20 hover:bg-warning/20",
-  success: "bg-success/10 text-success border-success/20 hover:bg-success/20",
+  // 승인 대기 - 중간 회색
+  pending: "bg-muted text-muted-foreground border-border hover:bg-muted/80",
+  // 승인 완료 - 진한 회색
+  approved: "bg-primary/10 text-primary border-primary/20 hover:bg-primary/20",
+  // 반려 - 붉은색 (유일한 색상)
+  destructive: "bg-destructive/10 text-destructive border-destructive/20 hover:bg-destructive/20",
 }
 ```
+
+> **상태별 Badge 사용**:
+> - 승인 대기: `<Badge variant="pending">` + Clock 아이콘
+> - 승인 완료: `<Badge variant="approved">` + CheckCircle2 아이콘
+> - 반려: `<Badge variant="destructive">` + XCircle 아이콘
 
 ---
 
@@ -644,12 +703,16 @@ export function Providers({ children }: { children: React.ReactNode }) {
           <Badge
             variant={
               trip.status === "APPROVED"
-                ? "success"
+                ? "approved"
                 : trip.status === "REJECTED"
                 ? "destructive"
-                : "warning"
+                : "pending"
             }
+            className="gap-1"
           >
+            {trip.status === "COMPLETED" && <Clock className="h-3 w-3" />}
+            {trip.status === "APPROVED" && <CheckCircle2 className="h-3 w-3" />}
+            {trip.status === "REJECTED" && <XCircle className="h-3 w-3" />}
             {getStatusLabel(trip.status)}
           </Badge>
         </TableCell>
@@ -850,7 +913,7 @@ export function Providers({ children }: { children: React.ReactNode }) {
 │  │   │         150pt                                          │ │  │
 │  │   │       </dd>                                            │ │  │
 │  │   │     </div>                                             │ │  │
-│  │   │     <Badge variant="warning" class="text-base px-4    │ │  │
+│  │   │     <Badge variant="pending" class="text-base px-4   │ │  │
 │  │   │                                          py-1">        │ │  │
 │  │   │       <Clock class="h-4 w-4 mr-1" />                  │ │  │
 │  │   │       승인 대기                                        │ │  │
@@ -919,23 +982,25 @@ export function Providers({ children }: { children: React.ReactNode }) {
 </Dialog>
 ```
 
-**승인/반려 버튼 색상 (테마 변수 사용):**
+**승인/반려 버튼 색상 (회색 톤 미니멀 디자인):**
 ```tsx
-{/* 승인 버튼 - success 색상 */}
-<Button
-  className="bg-success text-success-foreground hover:bg-success/90"
-  onClick={handleApprove}
->
+{/* 승인 버튼 - primary (진한 회색) */}
+<Button variant="default" onClick={handleApprove}>
   <CheckCircle2 className="h-4 w-4 mr-2" />
   승인하기
 </Button>
 
-{/* 반려 버튼 - destructive variant */}
+{/* 반려 버튼 - destructive (붉은색, 유일한 색상) */}
 <Button variant="destructive" onClick={handleReject}>
   <XCircle className="h-4 w-4 mr-2" />
   반려하기
 </Button>
 ```
+
+> **버튼 시각적 위계**:
+> - 승인 버튼: `variant="default"` (진한 회색, primary 색상)
+> - 반려 버튼: `variant="destructive"` (붉은색으로 경고 의미 강조)
+> - 취소 버튼: `variant="ghost"` (회색 텍스트만)
 
 ---
 
@@ -1197,7 +1262,7 @@ npx shadcn-ui@latest add separator
 npx shadcn-ui@latest add alert
 ```
 
-### 커스텀 Badge Variant 추가
+### 커스텀 Badge Variant 추가 (회색 톤)
 
 ```typescript
 // components/ui/badge.tsx
@@ -1210,14 +1275,19 @@ const badgeVariants = cva(
         destructive: "...",
         outline: "...",
         secondary: "...",
-        // 커스텀 추가
-        success: "bg-success/10 text-success border-success/20 hover:bg-success/20",
-        warning: "bg-warning/10 text-warning border-warning/20 hover:bg-warning/20",
+        // 회색 톤 커스텀 추가
+        pending: "bg-muted text-muted-foreground border-border hover:bg-muted/80",
+        approved: "bg-primary/10 text-primary border-primary/20 hover:bg-primary/20",
       },
     },
   }
 )
 ```
+
+> **사용법**:
+> - 승인 대기: `<Badge variant="pending">` (중간 회색 + Clock 아이콘)
+> - 승인 완료: `<Badge variant="approved">` (진한 회색 + CheckCircle2 아이콘)
+> - 반려: `<Badge variant="destructive">` (붉은색 + XCircle 아이콘)
 
 ### 환경 변수
 
@@ -1235,10 +1305,10 @@ NEXT_PUBLIC_KAKAO_MAP_APP_KEY=your_kakao_map_key
 
 **테마 설정**
 - [ ] shadcn/ui 초기 설정 (`npx shadcn-ui@latest init`)
-- [ ] `globals.css`에 CSS 변수 정의 (light + dark 테마)
-- [ ] `tailwind.config.ts` 확장
+- [ ] `globals.css`에 tweakcn CSS 변수 정의 (light + dark 테마)
+- [ ] `tailwind.config.ts` 확장 (sidebar, shadow 포함)
 - [ ] `next-themes` Provider 설정
-- [ ] 커스텀 Badge variant (success, warning) 추가
+- [ ] 커스텀 Badge variant (pending, approved) 추가 (회색 톤)
 
 **공통 레이아웃**
 - [ ] Header 컴포넌트 (타이틀, 테마 토글, 프로필)
@@ -1262,7 +1332,7 @@ NEXT_PUBLIC_KAKAO_MAP_APP_KEY=your_kakao_map_key
   - [ ] lucide-react 아이콘
   - [ ] 테마 변수 스타일
 - [ ] 여정 목록 테이블
-  - [ ] Badge variant (success, warning, destructive)
+  - [ ] Badge variant (pending, approved, destructive) - 회색 톤 + 아이콘
   - [ ] 로딩 상태 (Skeleton, Loader2)
   - [ ] 빈 상태 (AlertTriangle 아이콘)
 - [ ] 페이지네이션 (Pagination 컴포넌트)
