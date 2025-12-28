@@ -191,3 +191,67 @@ class SupbaseTripRepository(ITripRepository):
         query = self.db.table("trips").select("id", count="exact")
         response = query.execute()
         return response.count or 0
+
+    async def get_with_filters(
+        self,
+        status: Optional[TripStatus] = None,
+        user_id: Optional[UUID] = None,
+        start_date: Optional[str] = None,
+        end_date: Optional[str] = None,
+        limit: int = 10,
+        offset: int = 0,
+    ) -> list[Trip]:
+        """
+        필터를 적용하여 여행 목록 조회
+        상태, 사용자, 날짜 범위로 필터링 지원
+        """
+        query = self.db.table("trips").select("*")
+
+        # 상태 필터
+        if status is not None:
+            query = query.eq("status", status.value)
+
+        # 사용자 필터
+        if user_id is not None:
+            query = query.eq("user_id", str(user_id))
+
+        # 날짜 범위 필터
+        if start_date:
+            query = query.gte("created_at", start_date)
+        if end_date:
+            query = query.lte("created_at", end_date)
+
+        # 정렬 및 페이지네이션
+        query = query.order("created_at", desc=True).range(offset, offset + limit - 1)
+        response = query.execute()
+
+        return [self._parse_trip_data(row) for row in response.data]
+
+    async def count_with_filters(
+        self,
+        status: Optional[TripStatus] = None,
+        user_id: Optional[UUID] = None,
+        start_date: Optional[str] = None,
+        end_date: Optional[str] = None,
+    ) -> int:
+        """
+        필터를 적용하여 여행 개수 조회
+        """
+        query = self.db.table("trips").select("id", count="exact")
+
+        # 상태 필터
+        if status is not None:
+            query = query.eq("status", status.value)
+
+        # 사용자 필터
+        if user_id is not None:
+            query = query.eq("user_id", str(user_id))
+
+        # 날짜 범위 필터
+        if start_date:
+            query = query.gte("created_at", start_date)
+        if end_date:
+            query = query.lte("created_at", end_date)
+
+        response = query.execute()
+        return response.count or 0

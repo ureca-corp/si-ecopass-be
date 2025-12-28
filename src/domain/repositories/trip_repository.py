@@ -116,3 +116,33 @@ class ITripRepository(ABC):
         페이지네이션의 total_count 계산에 사용
         """
         pass
+
+    @abstractmethod
+    async def get_with_filters(
+        self,
+        status: Optional[TripStatus] = None,
+        user_id: Optional[UUID] = None,
+        start_date: Optional[str] = None,
+        end_date: Optional[str] = None,
+        limit: int = 10,
+        offset: int = 0,
+    ) -> list[Trip]:
+        """
+        필터를 적용하여 여행 목록 조회 (관리자용)
+        상태, 사용자, 날짜 범위로 필터링 지원
+        """
+        pass
+
+    @abstractmethod
+    async def count_with_filters(
+        self,
+        status: Optional[TripStatus] = None,
+        user_id: Optional[UUID] = None,
+        start_date: Optional[str] = None,
+        end_date: Optional[str] = None,
+    ) -> int:
+        """
+        필터를 적용하여 여행 개수 조회 (관리자용)
+        페이지네이션의 total_count 계산에 사용
+        """
+        pass

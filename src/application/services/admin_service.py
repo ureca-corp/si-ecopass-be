@@ -29,28 +29,41 @@ class AdminService:
         self.auth_service = auth_service
 
     async def get_all_trips(
-        self, status: Optional[str] = None, limit: int = 10, offset: int = 0
+        self,
+        status: Optional[str] = None,
+        user_id: Optional[UUID] = None,
+        start_date: Optional[str] = None,
+        end_date: Optional[str] = None,
+        limit: int = 10,
+        offset: int = 0,
     ) -> tuple[list[Trip], int]:
         """
-        전체 여정 목록 조회 (상태별 필터링 가능)
-        status가 주어지면 해당 상태의 여정만, 없으면 전체 여정 반환
+        전체 여정 목록 조회 (필터링 가능)
+        상태, 사용자, 날짜 범위로 필터링 지원
         """
+        trip_status = None
         if status:
             try:
                 trip_status = TripStatus(status)
-                trips = await self.trip_repository.get_by_status(
-                    status=trip_status,
-                    limit=limit,
-                    offset=offset,
-                )
-                total_count = await self.trip_repository.count_by_status(trip_status)
             except ValueError:
                 # 잘못된 상태값이면 빈 목록 반환
                 return [], 0
-        else:
-            # 전체 여정 조회
-            trips = await self.trip_repository.get_all(limit=limit, offset=offset)
-            total_count = await self.trip_repository.count_all()
+
+        # 필터링된 조회
+        trips = await self.trip_repository.get_with_filters(
+            status=trip_status,
+            user_id=user_id,
+            start_date=start_date,
+            end_date=end_date,
+            limit=limit,
+            offset=offset,
+        )
+        total_count = await self.trip_repository.count_with_filters(
+            status=trip_status,
+            user_id=user_id,
+            start_date=start_date,
+            end_date=end_date,
+        )
 
         return trips, total_count
 
@@ -135,3 +148,52 @@ class AdminService:
         페이지네이션을 위한 헬퍼 메서드
         """
         return await self.trip_repository.count_by_status(status)
+
+    async def get_trip_detail(self, trip_id: UUID) -> tuple[Trip, dict]:
+        """
+        여정 상세 조회 (사용자 정보 포함)
+        관리자가 여정 검토 시 사용자 정보도 함께 제공
+        """
+        # 여정 조회
+        trip = await self.trip_repository.get_by_id(trip_id)
+        if not trip:
+            raise NotFoundError(f"여정을 찾을 수 없습니다 (ID: {trip_id})")
+
+        # 사용자 정보 조회
+        user = await self.auth_service.get_user_by_id(trip.user_id)
+
+        # 사용자 정보를 딕셔너리로 반환 (email 제외)
+        user_info = {
+            "id": user.id,
+            "username": user.username,
+            "vehicle_number": user.vehicle_number,
+            "total_points": user.total_points,
+        }
+
+        return trip, user_info
+
+    async def get_dashboard_stats(self) -> dict:
+        """
+        대시보드 통계 조회
+        상태별 여정 개수를 집계하여 반환
+        """
+        # 전체 여정 수
+        total_trips = await self.trip_repository.count_all()
+
+        # 상태별 카운트
+        pending_count = await self.trip_repository.count_by_status(TripStatus.COMPLETED)
+        approved_count = await self.trip_repository.count_by_status(TripStatus.APPROVED)
+        rejected_count = await self.trip_repository.count_by_status(TripStatus.REJECTED)
+
+        # 진행 중 (DRIVING + TRANSFERRED)
+        driving_count = await self.trip_repository.count_by_status(TripStatus.DRIVING)
+        transferred_count = await self.trip_repository.count_by_status(TripStatus.TRANSFERRED)
+        in_progress_count = driving_count + transferred_count
+
+        return {
+            "total_trips": total_trips,
+            "pending_count": pending_count,
+            "approved_count": approved_count,
+            "rejected_count": rejected_count,
+            "in_progress_count": in_progress_count,
+        }
