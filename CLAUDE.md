@@ -32,6 +32,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - ✅ 테스트 코드 작성 (pytest)
 - ✅ Postman Collection
 - ✅ API 문서 자동 생성 (Swagger/ReDoc)
+- ✅ 유틸리티 스크립트 (데이터 마이그레이션 도구)
 
 ## 🔥 코딩 규칙 (Coding Standards)
 
@@ -169,6 +170,10 @@ tests/                        # 테스트 코드
 ├── test_storage.py          # 스토리지 API 테스트
 ├── test_admin.py            # 관리자 API 테스트
 └── test_integration.py      # 통합 테스트
+
+scripts/                      # 유틸리티 스크립트
+├── migrate_image_urls_to_signed.py  # public URL → Signed URL 마이그레이션
+└── README.md                # 스크립트 사용 가이드
 
 supabase/                     # Supabase 설정
 ├── migrations/              # 데이터베이스 마이그레이션
