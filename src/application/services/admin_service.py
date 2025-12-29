@@ -86,6 +86,7 @@ class AdminService:
             return {
                 "id": user.id,
                 "username": user.username,
+                "email": user.email,
                 "vehicle_number": user.vehicle_number,
                 "total_points": user.total_points,
             }
@@ -196,10 +197,11 @@ class AdminService:
         # 사용자 정보 조회
         user = await self.auth_service.get_user_by_id(trip.user_id)
 
-        # 사용자 정보를 딕셔너리로 반환 (email 제외)
+        # 사용자 정보를 딕셔너리로 반환
         user_info = {
             "id": user.id,
             "username": user.username,
+            "email": user.email,
             "vehicle_number": user.vehicle_number,
             "total_points": user.total_points,
         }

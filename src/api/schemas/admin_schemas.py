@@ -119,6 +119,7 @@ class AdminTripWithUserResponse(BaseResponse):
                 "user": {
                     "id": "660e8400-e29b-41d4-a716-446655440001",
                     "username": "에코유저",
+                    "email": "user@example.com",
                     "vehicle_number": "12가3456",
                     "total_points": 500,
                 },
@@ -151,6 +152,7 @@ class AdminTripListResponse(BaseResponse):
                         "user": {
                             "id": "660e8400-e29b-41d4-a716-446655440001",
                             "username": "에코유저",
+                            "email": "user@example.com",
                             "vehicle_number": "12가3456",
                             "total_points": 500,
                         },
@@ -174,6 +176,7 @@ class UserInfoResponse(BaseResponse):
 
     id: UUID
     username: str
+    email: str
     vehicle_number: Optional[str] = None
     total_points: int
 
@@ -182,6 +185,7 @@ class UserInfoResponse(BaseResponse):
             "example": {
                 "id": "660e8400-e29b-41d4-a716-446655440001",
                 "username": "에코유저",
+                "email": "user@example.com",
                 "vehicle_number": "12가3456",
                 "total_points": 500,
             }
@@ -221,6 +225,7 @@ class AdminTripDetailResponse(BaseResponse):
                 "user": {
                     "id": "660e8400-e29b-41d4-a716-446655440001",
                     "username": "에코유저",
+                    "email": "user@example.com",
                     "vehicle_number": "12가3456",
                     "total_points": 500,
                 },
