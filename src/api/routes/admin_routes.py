@@ -418,9 +418,9 @@ async def delete_parking_lot(
     description="관리자 전용: 네이버 Maps API로 주소를 검색합니다. 주차장 등록 시 정확한 주소 입력을 위해 사용.",
 )
 async def search_address(
+    admin_user: AdminUser,
     query: str = Query(..., min_length=2, description="검색 키워드 (예: '대구 중구')"),
     limit: int = Query(10, ge=1, le=20, description="최대 결과 개수"),
-    admin_user: AdminUser,
 ):
     """
     주소 검색 API (자동완성용)
