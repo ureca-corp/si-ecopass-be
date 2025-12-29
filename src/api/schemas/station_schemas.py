@@ -7,7 +7,61 @@ Station API Schemas
 from typing import Optional
 from uuid import UUID
 
-from src.shared.schemas.base import BaseResponse
+from pydantic import Field
+
+from src.shared.schemas.base import BaseRequest, BaseResponse
+
+
+# ============================================================================
+# Request Schemas (Admin용)
+# ============================================================================
+
+
+class CreateStationRequest(BaseRequest):
+    """역 생성 요청 스키마"""
+
+    name: str = Field(..., min_length=1, max_length=50, description="역 이름")
+    line_number: int = Field(..., ge=1, le=4, description="노선 번호 (1=1호선, 2=2호선, 3=3호선, 4=대경선)")
+    latitude: float = Field(..., ge=33, le=43, description="위도 (한국 범위)")
+    longitude: float = Field(..., ge=124, le=132, description="경도 (한국 범위)")
+
+
+class UpdateStationRequest(BaseRequest):
+    """역 수정 요청 스키마"""
+
+    name: Optional[str] = Field(None, min_length=1, max_length=50, description="역 이름")
+    line_number: Optional[int] = Field(None, ge=1, le=4, description="노선 번호")
+    latitude: Optional[float] = Field(None, ge=33, le=43, description="위도")
+    longitude: Optional[float] = Field(None, ge=124, le=132, description="경도")
+
+
+class CreateParkingLotRequest(BaseRequest):
+    """주차장 생성 요청 스키마"""
+
+    station_id: UUID = Field(..., description="연계 역 ID")
+    name: str = Field(..., min_length=1, max_length=100, description="주차장 이름")
+    address: str = Field(..., min_length=1, max_length=200, description="주소")
+    latitude: float = Field(..., ge=33, le=43, description="위도")
+    longitude: float = Field(..., ge=124, le=132, description="경도")
+    distance_to_station_m: Optional[int] = Field(None, ge=0, description="역까지 거리 (미터)")
+    fee_info: Optional[str] = Field(None, max_length=200, description="요금 정보")
+
+
+class UpdateParkingLotRequest(BaseRequest):
+    """주차장 수정 요청 스키마"""
+
+    station_id: Optional[UUID] = Field(None, description="연계 역 ID")
+    name: Optional[str] = Field(None, min_length=1, max_length=100, description="주차장 이름")
+    address: Optional[str] = Field(None, min_length=1, max_length=200, description="주소")
+    latitude: Optional[float] = Field(None, ge=33, le=43, description="위도")
+    longitude: Optional[float] = Field(None, ge=124, le=132, description="경도")
+    distance_to_station_m: Optional[int] = Field(None, ge=0, description="역까지 거리 (미터)")
+    fee_info: Optional[str] = Field(None, max_length=200, description="요금 정보")
+
+
+# ============================================================================
+# Response Schemas
+# ============================================================================
 
 
 class StationResponse(BaseResponse):

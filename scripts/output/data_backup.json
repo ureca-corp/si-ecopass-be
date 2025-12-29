@@ -1,0 +1,1223 @@
+{
+  "stations": [
+    {
+      "name": "하양역",
+      "line_number": 1,
+      "latitude": 35.9094550115444,
+      "longitude": 128.817219925794,
+      "address": "경북 경산시 하양읍 하양역길 3"
+    },
+    {
+      "name": "부호역",
+      "line_number": 1,
+      "latitude": 35.9002058183569,
+      "longitude": 128.803132220432,
+      "address": "경북 경산시 하양읍 대경로 528"
+    },
+    {
+      "name": "대구한의대병원역",
+      "line_number": 1,
+      "latitude": 35.8716771563369,
+      "longitude": 128.750970436245,
+      "address": "대구광역시 동구 안심로 610"
+    },
+    {
+      "name": "안심역",
+      "line_number": 1,
+      "latitude": 35.8712130165849,
+      "longitude": 128.733769742803,
+      "address": "대구광역시 동구 안심로 455"
+    },
+    {
+      "name": "각산역",
+      "line_number": 1,
+      "latitude": 35.86799440106771,
+      "longitude": 128.72424172030216,
+      "address": "대구광역시 동구 안심로 363"
+    },
+    {
+      "name": "반야월역",
+      "line_number": 1,
+      "latitude": 35.86596683682594,
+      "longitude": 128.71360316643197,
+      "address": "대구광역시 동구 안심로 261"
+    },
+    {
+      "name": "신기역",
+      "line_number": 1,
+      "latitude": 35.866697748321876,
+      "longitude": 128.7018717008197,
+      "address": "대구광역시 동구 안심로 159"
+    },
+    {
+      "name": "율하역",
+      "line_number": 1,
+      "latitude": 35.8698017965623,
+      "longitude": 128.692713541869,
+      "address": "대구광역시 동구 안심로 57"
+    },
+    {
+      "name": "용계역",
+      "line_number": 1,
+      "latitude": 35.8761013615665,
+      "longitude": 128.682019041156,
+      "address": "대구광역시 동구 동촌로 383"
+    },
+    {
+      "name": "방촌역",
+      "line_number": 1,
+      "latitude": 35.879640495861686,
+      "longitude": 128.67017529155623,
+      "address": "대구광역시 동구 동촌로 275"
+    },
+    {
+      "name": "해안역",
+      "line_number": 1,
+      "latitude": 35.883546382084,
+      "longitude": 128.659618182185,
+      "address": "대구광역시 동구 동촌로 167"
+    },
+    {
+      "name": "동촌역",
+      "line_number": 1,
+      "latitude": 35.8860685418711,
+      "longitude": 128.650275999718,
+      "address": "대구광역시 동구 해동로 197"
+    },
+    {
+      "name": "아양교역",
+      "line_number": 1,
+      "latitude": 35.8872016497293,
+      "longitude": 128.639921198411,
+      "address": "대구광역시 동구 아양로 245"
+    },
+    {
+      "name": "동구청역",
+      "line_number": 1,
+      "latitude": 35.8840411124294,
+      "longitude": 128.631936380127,
+      "address": "대구광역시 동구 신암남로 169"
+    },
+    {
+      "name": "동대구역",
+      "line_number": 1,
+      "latitude": 35.8793239931795,
+      "longitude": 128.628393775388,
+      "address": "대구광역시 동구 동대구로 530"
+    },
+    {
+      "name": "신천역",
+      "line_number": 1,
+      "latitude": 35.8746867238902,
+      "longitude": 128.617860126635,
+      "address": "대구광역시 동구 동부로 41"
+    },
+    {
+      "name": "칠성시장역",
+      "line_number": 1,
+      "latitude": 35.8761010648655,
+      "longitude": 128.605133646666,
+      "address": "대구광역시 북구 칠성남로 222"
+    },
+    {
+      "name": "대구역",
+      "line_number": 1,
+      "latitude": 35.87616902052544,
+      "longitude": 128.59584204595706,
+      "address": "대구광역시 북구 칠성남로30길 24"
+    },
+    {
+      "name": "중앙로역",
+      "line_number": 1,
+      "latitude": 35.87085454444516,
+      "longitude": 128.59397506943253,
+      "address": "대구광역시 중구 중앙대로 424 "
+    },
+    {
+      "name": "반월당역",
+      "line_number": 1,
+      "latitude": 35.865457605444135,
+      "longitude": 128.59356694578094,
+      "address": "대구광역시 중구 달구벌대로 2100"
+    },
+    {
+      "name": "명덕역",
+      "line_number": 1,
+      "latitude": 35.857826850760546,
+      "longitude": 128.59110945231205,
+      "address": "대구광역시 중구 명덕로 185"
+    },
+    {
+      "name": "교대역",
+      "line_number": 1,
+      "latitude": 35.8506517193906,
+      "longitude": 128.590580870154,
+      "address": "대구광역시 남구 중앙대로 194"
+    },
+    {
+      "name": "영대병원역",
+      "line_number": 1,
+      "latitude": 35.8441641859564,
+      "longitude": 128.588073922024,
+      "address": "대구광역시 남구 대명로 292"
+    },
+    {
+      "name": "현충로역",
+      "line_number": 1,
+      "latitude": 35.8409494737259,
+      "longitude": 128.581471198973,
+      "address": "대구광역시 남구 대명로 222"
+    },
+    {
+      "name": "안지랑역",
+      "line_number": 1,
+      "latitude": 35.8392307420216,
+      "longitude": 128.573734314089,
+      "address": "대구광역시 남구 대명로 141"
+    },
+    {
+      "name": "대명역",
+      "line_number": 1,
+      "latitude": 35.8393253088268,
+      "longitude": 128.565944864274,
+      "address": "대구광역시 남구 대명로 71"
+    },
+    {
+      "name": "서부정류장역",
+      "line_number": 1,
+      "latitude": 35.8371825987976,
+      "longitude": 128.557190858302,
+      "address": "대구광역시 남구 월배로 501"
+    },
+    {
+      "name": "송현역",
+      "line_number": 1,
+      "latitude": 35.8310389735877,
+      "longitude": 128.551723656305,
+      "address": "대구광역시 달서구 월배로 412"
+    },
+    {
+      "name": "월촌역",
+      "line_number": 1,
+      "latitude": 35.8237433070314,
+      "longitude": 128.545283364225,
+      "address": "대구광역시 달서구 월배로 311"
+    },
+    {
+      "name": "상인역",
+      "line_number": 1,
+      "latitude": 35.8189266589744,
+      "longitude": 128.537763550346,
+      "address": "대구광역시 달서구 월배로 223"
+    },
+    {
+      "name": "월배역",
+      "line_number": 1,
+      "latitude": 35.8138797140673,
+      "longitude": 128.523079769978,
+      "address": "대구광역시 달서구 월배로 143"
+    },
+    {
+      "name": "진천역",
+      "line_number": 1,
+      "latitude": 35.8138797140673,
+      "longitude": 128.523079769978,
+      "address": "대구광역시 달서구 월배로 76"
+    },
+    {
+      "name": "대곡역",
+      "line_number": 1,
+      "latitude": 35.8095726496598,
+      "longitude": 128.512766290689,
+      "address": "대구광역시 달서구 비슬로 2718"
+    },
+    {
+      "name": "화원역",
+      "line_number": 1,
+      "latitude": 35.8095726496598,
+      "longitude": 128.512766290689,
+      "address": "대구광역시 달성군 화원읍 비슬로 2600"
+    },
+    {
+      "name": "설화명곡역",
+      "line_number": 1,
+      "latitude": 35.79871751927962,
+      "longitude": 128.48936186250194,
+      "address": "대구광역시 달성군 화원읍 비슬로 2476"
+    },
+    {
+      "name": "영남대역",
+      "line_number": 2,
+      "latitude": 35.8439503304723,
+      "longitude": 128.587618090559,
+      "address": "경북 경산시 대학로 270"
+    },
+    {
+      "name": "임당역",
+      "line_number": 2,
+      "latitude": 35.83412938415609,
+      "longitude": 128.74084813804066,
+      "address": "경북 경산시 대학로 170"
+    },
+    {
+      "name": "정평역",
+      "line_number": 2,
+      "latitude": 35.8340447735875,
+      "longitude": 128.728671269463,
+      "address": "경북 경산시 대학로 60"
+    },
+    {
+      "name": "사월역",
+      "line_number": 2,
+      "latitude": 35.83703160646826,
+      "longitude": 128.71530783739777,
+      "address": "대구광역시 수성구 달구벌대로 3290"
+    },
+    {
+      "name": "신매역",
+      "line_number": 2,
+      "latitude": 35.8408117112752,
+      "longitude": 128.705125542668,
+      "address": "대구광역시 수성구 달구벌대로 3180"
+    },
+    {
+      "name": "고산역",
+      "line_number": 2,
+      "latitude": 35.8429442127885,
+      "longitude": 128.693244868779,
+      "address": "대구광역시 수성구 달구벌대로 3080"
+    },
+    {
+      "name": "수성알파시티역",
+      "line_number": 2,
+      "latitude": 35.8429442127885,
+      "longitude": 128.693244868779,
+      "address": "대구광역시 수성구 달구벌대로 2950"
+    },
+    {
+      "name": "연호역",
+      "line_number": 2,
+      "latitude": 35.8465875965262,
+      "longitude": 128.67168212651,
+      "address": "대구광역시 수성구 달구벌대로 2870"
+    },
+    {
+      "name": "담티역",
+      "line_number": 2,
+      "latitude": 35.8547807171623,
+      "longitude": 128.653975174296,
+      "address": "대구광역시 수성구 달구벌대로 2672"
+    },
+    {
+      "name": "만촌역",
+      "line_number": 2,
+      "latitude": 35.8588579996533,
+      "longitude": 128.644747980508,
+      "address": "대구광역시 수성구 달구벌대로 2584"
+    },
+    {
+      "name": "수성구청역",
+      "line_number": 2,
+      "latitude": 35.8588057624788,
+      "longitude": 128.635638667651,
+      "address": "대구광역시 수성구 달구벌대로 2500"
+    },
+    {
+      "name": "범어역",
+      "line_number": 2,
+      "latitude": 35.859019444441,
+      "longitude": 128.626804891905,
+      "address": "대구광역시 수성구 달구벌대로 2396"
+    },
+    {
+      "name": "대구은행역",
+      "line_number": 2,
+      "latitude": 35.8597628015782,
+      "longitude": 128.61411950785075,
+      "address": "대구광역시 수성구 달구벌대로 2300"
+    },
+    {
+      "name": "경대병원역",
+      "line_number": 2,
+      "latitude": 35.863145404232455,
+      "longitude": 128.6029028791839,
+      "address": "대구광역시 중구 달구벌대로 2190"
+    },
+    {
+      "name": "반월당역",
+      "line_number": 2,
+      "latitude": 35.865457605444135,
+      "longitude": 128.59356694578094,
+      "address": "대구광역시 중구 달구벌대로 2100"
+    },
+    {
+      "name": "청라언덕역",
+      "line_number": 2,
+      "latitude": 35.864197913328,
+      "longitude": 128.582380299872,
+      "address": "대구광역시 중구 달구벌대로 2000"
+    },
+    {
+      "name": "반고개역",
+      "line_number": 2,
+      "latitude": 35.8622521621908,
+      "longitude": 128.572719232126,
+      "address": "대구광역시 달서구 달구벌대로 1900"
+    },
+    {
+      "name": "내당역",
+      "line_number": 2,
+      "latitude": 35.8601228229147,
+      "longitude": 128.564640260301,
+      "address": "대구광역시 서구 달구벌대로 1827"
+    },
+    {
+      "name": "두류역",
+      "line_number": 2,
+      "latitude": 35.8572148462546,
+      "longitude": 128.555687477795,
+      "address": "대구광역시 서구 달구벌대로 1760"
+    },
+    {
+      "name": "감삼역",
+      "line_number": 2,
+      "latitude": 35.85430901539491,
+      "longitude": 128.548124584983,
+      "address": "대구광역시 달서구 달구벌대로 1665"
+    },
+    {
+      "name": "죽전역",
+      "line_number": 2,
+      "latitude": 37.3243773830569,
+      "longitude": 127.107505020642,
+      "address": "대구광역시 달서구 달구벌대로 1560"
+    },
+    {
+      "name": "용산역",
+      "line_number": 2,
+      "latitude": 35.8490710634655,
+      "longitude": 128.528808727588,
+      "address": "대구광역시 달서구 달구벌대로 1476"
+    },
+    {
+      "name": "이곡역",
+      "line_number": 2,
+      "latitude": 35.85059490342399,
+      "longitude": 128.5157955477842,
+      "address": "대구광역시 달서구 달구벌대로 1357"
+    },
+    {
+      "name": "성서산업단지역",
+      "line_number": 2,
+      "latitude": 35.8517148505664,
+      "longitude": 128.507000383565,
+      "address": "대구광역시 달서구 달구벌대로 1280"
+    },
+    {
+      "name": "계명대역",
+      "line_number": 2,
+      "latitude": 35.8515182536424,
+      "longitude": 128.491849809882,
+      "address": "대구광역시 달서구 달구벌대로 1140"
+    },
+    {
+      "name": "강창역",
+      "line_number": 2,
+      "latitude": 35.8530815302455,
+      "longitude": 128.47852956757,
+      "address": "대구광역시 달서구 달구벌대로 1014"
+    },
+    {
+      "name": "대실역",
+      "line_number": 2,
+      "latitude": 35.8576058595846,
+      "longitude": 128.465249990912,
+      "address": "대구광역시 달성군 다사읍 달구벌대로 888"
+    },
+    {
+      "name": "다사역",
+      "line_number": 2,
+      "latitude": 35.8648265376596,
+      "longitude": 128.458390514465,
+      "address": "대구광역시 달성군 다사읍 다사역로 30"
+    },
+    {
+      "name": "문양역",
+      "line_number": 2,
+      "latitude": 35.8641579148789,
+      "longitude": 128.437002637504,
+      "address": "대구광역시 달성군 다사읍 문양역길 71"
+    },
+    {
+      "name": "칠곡경대병원역",
+      "line_number": 3,
+      "latitude": 35.9583910233172,
+      "longitude": 128.559895264986,
+      "address": "대구광역시 북구 팔거천동로 386"
+    },
+    {
+      "name": "학정역",
+      "line_number": 3,
+      "latitude": 35.9515586052486,
+      "longitude": 128.559202329079,
+      "address": "대구광역시 북구 팔거천동로 310"
+    },
+    {
+      "name": "팔거역",
+      "line_number": 3,
+      "latitude": 35.9440507618416,
+      "longitude": 128.558336690689,
+      "address": "대구광역시 북구 팔거천동로 226"
+    },
+    {
+      "name": "동천역",
+      "line_number": 3,
+      "latitude": 35.9377101876855,
+      "longitude": 128.556683022262,
+      "address": "대구광역시 북구 팔거천동로 147"
+    },
+    {
+      "name": "칠곡운암역",
+      "line_number": 3,
+      "latitude": 35.9314624364377,
+      "longitude": 128.554539499622,
+      "address": "대구광역시 북구 팔거천동로 79"
+    },
+    {
+      "name": "구암역",
+      "line_number": 3,
+      "latitude": 35.9257457718174,
+      "longitude": 128.550345968157,
+      "address": "대구광역시 북구 팔거천동로 1"
+    },
+    {
+      "name": "태전역",
+      "line_number": 3,
+      "latitude": 35.9257457718174,
+      "longitude": 128.550345968157,
+      "address": "대구광역시 북구 칠곡중앙대로 262"
+    },
+    {
+      "name": "매천역",
+      "line_number": 3,
+      "latitude": 35.9043687510623,
+      "longitude": 128.545741973708,
+      "address": "대구광역시 북구 학정로 6"
+    },
+    {
+      "name": "매천시장역",
+      "line_number": 3,
+      "latitude": 35.9043687510623,
+      "longitude": 128.545741973708,
+      "address": "대구광역시 북구 매천로18길 39"
+    },
+    {
+      "name": "팔달역",
+      "line_number": 3,
+      "latitude": 35.8978386982277,
+      "longitude": 128.546749099511,
+      "address": "대구광역시 북구 매천로2길 43"
+    },
+    {
+      "name": "공단역",
+      "line_number": 3,
+      "latitude": 35.8919827045671,
+      "longitude": 128.553616577774,
+      "address": "대구광역시 서구 팔달로 28"
+    },
+    {
+      "name": "만평역",
+      "line_number": 3,
+      "latitude": 35.88983602273649,
+      "longitude": 128.56106304973693,
+      "address": "대구광역시 북구 팔달로 105"
+    },
+    {
+      "name": "팔달시장역",
+      "line_number": 3,
+      "latitude": 35.8888415481729,
+      "longitude": 128.567880684049,
+      "address": "대구광역시 북구 팔달로 163-1"
+    },
+    {
+      "name": "원대역",
+      "line_number": 3,
+      "latitude": 35.883744587012295,
+      "longitude": 128.5814259287805,
+      "address": "대구광역시 서구 팔달로 224-2"
+    },
+    {
+      "name": "북구청역",
+      "line_number": 3,
+      "latitude": 35.883744587012295,
+      "longitude": 128.5814259287805,
+      "address": "대구광역시 서구 원대로 71"
+    },
+    {
+      "name": "달성공원역",
+      "line_number": 3,
+      "latitude": 35.87702599679564,
+      "longitude": 128.58256346739415,
+      "address": "대구광역시 중구 달성로 116"
+    },
+    {
+      "name": "서문시장역",
+      "line_number": 3,
+      "latitude": 35.8696678378541,
+      "longitude": 128.582245500572,
+      "address": "대구광역시 중구 달성로 50"
+    },
+    {
+      "name": "청라언덕역",
+      "line_number": 3,
+      "latitude": 35.864197913328,
+      "longitude": 128.582380299872,
+      "address": "대구광역시 중구 남산로 80"
+    },
+    {
+      "name": "남산역",
+      "line_number": 3,
+      "latitude": 35.8566969364077,
+      "longitude": 128.583462127899,
+      "address": "대구광역시 중구 남산로 2"
+    },
+    {
+      "name": "명덕역",
+      "line_number": 3,
+      "latitude": 35.857826850760546,
+      "longitude": 128.59110945231205,
+      "address": "대구광역시 중구 명덕로 185"
+    },
+    {
+      "name": "건들바위역",
+      "line_number": 3,
+      "latitude": 35.8553896143222,
+      "longitude": 128.599699303506,
+      "address": "대구광역시 남구 명덕로 260"
+    },
+    {
+      "name": "대봉교역",
+      "line_number": 3,
+      "latitude": 35.855001346752566,
+      "longitude": 128.60637516764342,
+      "address": "대구광역시 남구 명덕로 330"
+    },
+    {
+      "name": "수성시장역",
+      "line_number": 3,
+      "latitude": 35.8543238441176,
+      "longitude": 128.616038217575,
+      "address": "대구광역시 수성구 명덕로 420"
+    },
+    {
+      "name": "수성구민운동장역",
+      "line_number": 3,
+      "latitude": 35.8524169408054,
+      "longitude": 128.625129180117,
+      "address": "대구광역시 수성구 동대구로 248"
+    },
+    {
+      "name": "어린이세상역",
+      "line_number": 3,
+      "latitude": 35.84517079454568,
+      "longitude": 128.62446775125383,
+      "address": "대구광역시 수성구 동대구로 166"
+    },
+    {
+      "name": "황금역",
+      "line_number": 3,
+      "latitude": 35.8390783843098,
+      "longitude": 128.623918523675,
+      "address": "대구광역시 수성구 동대구로 100"
+    },
+    {
+      "name": "수성못역",
+      "line_number": 3,
+      "latitude": 35.8313560544497,
+      "longitude": 128.623216677973,
+      "address": "대구광역시 수성구 동대구로 14"
+    },
+    {
+      "name": "지산역",
+      "line_number": 3,
+      "latitude": 35.825153218139,
+      "longitude": 128.631951304556,
+      "address": "대구광역시 수성구 지범로 100"
+    },
+    {
+      "name": "범물역",
+      "line_number": 3,
+      "latitude": 35.8182678027764,
+      "longitude": 128.646534534337,
+      "address": "대구광역시 수성구 지범로 194"
+    },
+    {
+      "name": "용지역",
+      "line_number": 3,
+      "latitude": 35.8182678027764,
+      "longitude": 128.646534534337,
+      "address": "대구광역시 수성구 범안로 83"
+    },
+    {
+      "name": "구미역",
+      "line_number": 4,
+      "latitude": 36.1283301167004,
+      "longitude": 128.330939456358,
+      "address": "경북 구미시 구미중앙로 76"
+    },
+    {
+      "name": "사곡역",
+      "line_number": 4,
+      "latitude": 36.0983351972795,
+      "longitude": 128.356669299878,
+      "address": "경북 구미시 상사서로 177"
+    },
+    {
+      "name": "왜관역",
+      "line_number": 4,
+      "latitude": 35.9918930703993,
+      "longitude": 128.40001139933,
+      "address": "경북 칠곡군 왜관읍 중앙로8길 10"
+    },
+    {
+      "name": "서대구역",
+      "line_number": 4,
+      "latitude": 35.88134694739473,
+      "longitude": 128.54000702442872,
+      "address": "대구광역시 서구 와룡로 527"
+    },
+    {
+      "name": "대구역",
+      "line_number": 4,
+      "latitude": 35.87616902052544,
+      "longitude": 128.59584204595706,
+      "address": "대구광역시 북구 태평로 161"
+    },
+    {
+      "name": "동대구역",
+      "line_number": 4,
+      "latitude": 35.8793239931795,
+      "longitude": 128.628393775388,
+      "address": "대구광역시 북구 동대구로 550"
+    },
+    {
+      "name": "경산역",
+      "line_number": 4,
+      "latitude": 35.9094550115444,
+      "longitude": 128.817219925794,
+      "address": "경북 경산시 중앙로 1"
+    }
+  ],
+  "parking_lots": [
+    {
+      "station_id": "칠곡경대병원역",
+      "station_name": "칠곡경대병원역",
+      "name": "대구도시철도공사 칠곡가량기지환승주차장",
+      "address": "대구 북구 동호동136-1",
+      "latitude": 35.9607357165524,
+      "longitude": 128.55905409649,
+      "distance_to_station_m": 310,
+      "fee_info": null
+    },
+    {
+      "station_id": "팔거역",
+      "station_name": "팔거역",
+      "name": "동천주차빌딩주차장",
+      "address": "대구 북구 동천로 135-7",
+      "latitude": 35.94368177206926,
+      "longitude": 128.55989529964097,
+      "distance_to_station_m": 70,
+      "fee_info": null
+    },
+    {
+      "station_id": "동천역",
+      "station_name": "동천역",
+      "name": "동천동복합청사 공영 주차장",
+      "address": "대구 북구 대천로 77",
+      "latitude": 35.9373449227825,
+      "longitude": 128.557873149198,
+      "distance_to_station_m": 150,
+      "fee_info": null
+    },
+    {
+      "station_id": "매천역",
+      "station_name": "매천역",
+      "name": "매천역 환승 공영주차장",
+      "address": "대구 북구 태전동 686-10",
+      "latitude": 35.913876537511,
+      "longitude": 128.54302461095,
+      "distance_to_station_m": 120,
+      "fee_info": "무료 (운영: 24시)"
+    },
+    {
+      "station_id": "만평역",
+      "station_name": "만평역",
+      "name": "서대구고속버스터미널 안 유료민영주차장",
+      "address": "대구 북구 팔달로 103",
+      "latitude": 35.8902436064382,
+      "longitude": 128.561423768983,
+      "distance_to_station_m": 40,
+      "fee_info": "유료 (운영: 24시)"
+    },
+    {
+      "station_id": "팔달시장역",
+      "station_name": "팔달시장역",
+      "name": "제일민영주차장",
+      "address": "대구 서구 팔달로 164",
+      "latitude": 35.8722550306273,
+      "longitude": 128.56608785271,
+      "distance_to_station_m": 40,
+      "fee_info": "유료 (운영: 09:30-20:00)"
+    },
+    {
+      "station_id": "원대역",
+      "station_name": "원대역",
+      "name": "드림유료주차장",
+      "address": "대구 북구 팔달로 217-1",
+      "latitude": 35.8882513761614,
+      "longitude": 128.574080908864,
+      "distance_to_station_m": 60,
+      "fee_info": "유료 (운영: 24시)"
+    },
+    {
+      "station_id": "달성공원역",
+      "station_name": "달성공원역",
+      "name": "달성파크푸르지오힐스테이트 상가 주차장",
+      "address": "대구 중구 달성로 123",
+      "latitude": 35.8779018501669,
+      "longitude": 128.578493787624,
+      "distance_to_station_m": 90,
+      "fee_info": "유료 (운영: 24시)"
+    },
+    {
+      "station_id": "서문시장역",
+      "station_name": "서문시장역",
+      "name": "계명대학교동산병원주차장",
+      "address": "대구 달서구 달구벌대로 1035",
+      "latitude": 35.867969362247,
+      "longitude": 128.583394129382,
+      "distance_to_station_m": 20,
+      "fee_info": null
+    },
+    {
+      "station_id": "청라언덕역",
+      "station_name": "청라언덕역",
+      "name": "척탑병원주차장",
+      "address": "대구 중구 달구벌대로 1999",
+      "latitude": 35.865456902865,
+      "longitude": 128.582701809564,
+      "distance_to_station_m": 10,
+      "fee_info": null
+    },
+    {
+      "station_id": "남산역",
+      "station_name": "남산역",
+      "name": "계명유료주차장",
+      "address": "대구 중구 남산로 2",
+      "latitude": 35.8566863588604,
+      "longitude": 128.583444206126,
+      "distance_to_station_m": 10,
+      "fee_info": "유료"
+    },
+    {
+      "station_id": "대봉교역",
+      "station_name": "대봉교역",
+      "name": "성지교회민영주차장",
+      "address": "대구 중구 명덕로65길 10",
+      "latitude": 35.855702085764,
+      "longitude": 128.605295868779,
+      "distance_to_station_m": 90,
+      "fee_info": "유료 (운영: 08:00-20:00)"
+    },
+    {
+      "station_id": "수성시장역",
+      "station_name": "수성시장역",
+      "name": "에이콘유료주차장",
+      "address": "대구 수성구 명덕로 423",
+      "latitude": 35.8545094664364,
+      "longitude": 128.616561575849,
+      "distance_to_station_m": 10,
+      "fee_info": "유료 (운영: 24시)"
+    },
+    {
+      "station_id": "수성시장역",
+      "station_name": "수성시장역",
+      "name": "진명유료주차장",
+      "address": "대구 수성구 명덕로 418",
+      "latitude": 35.854022609012,
+      "longitude": 128.615856103057,
+      "distance_to_station_m": 10,
+      "fee_info": "유료"
+    },
+    {
+      "station_id": "수성구민운동장역",
+      "station_name": "수성구민운동장역",
+      "name": "양정빌딩주차장",
+      "address": "대구 수성구 범어천로 52-1",
+      "latitude": 35.8515546790151,
+      "longitude": 128.624086718493,
+      "distance_to_station_m": 220,
+      "fee_info": "무료"
+    },
+    {
+      "station_id": "어린이세상역",
+      "station_name": "어린이세상역",
+      "name": "대구한의사신협 유료주차장",
+      "address": "대구 수성구 동대구로 159",
+      "latitude": 35.8447527631777,
+      "longitude": 128.623980538922,
+      "distance_to_station_m": 180,
+      "fee_info": "유료"
+    },
+    {
+      "station_id": "황금역",
+      "station_name": "황금역",
+      "name": "에이케이빌딩 주차장",
+      "address": "대구 수성구 동대구로 102",
+      "latitude": 35.8392738351518,
+      "longitude": 128.624685585603,
+      "distance_to_station_m": 80,
+      "fee_info": "정보없음 (운영: 08:30-19:00)"
+    },
+    {
+      "station_id": "수성못역",
+      "station_name": "수성못역",
+      "name": "광평빌딩주차장",
+      "address": "대구 수성구 동대구로 13",
+      "latitude": 35.8315621961079,
+      "longitude": 128.622759312722,
+      "distance_to_station_m": 60,
+      "fee_info": "유료 (운영: 24시)"
+    },
+    {
+      "station_id": "범물역",
+      "station_name": "범물역",
+      "name": "우리은행 범물동점 주차장",
+      "address": "대구 수성구 지범로 196",
+      "latitude": 35.8202845942006,
+      "longitude": 128.640140006649,
+      "distance_to_station_m": 60,
+      "fee_info": "유료 (운영: 24시)"
+    },
+    {
+      "station_id": "설화명곡역",
+      "station_name": "설화명곡역",
+      "name": "설화명곡역 임시공영주차장",
+      "address": "대구 달성군 화암로 18",
+      "latitude": 35.7962840727236,
+      "longitude": 128.488949199597,
+      "distance_to_station_m": 300,
+      "fee_info": "무료 (운영: 24시)"
+    },
+    {
+      "station_id": "상인역",
+      "station_name": "상인역",
+      "name": "상인공영주차장",
+      "address": "대구 달서구 상인서로 103-5",
+      "latitude": 35.8180638501001,
+      "longitude": 128.539835849229,
+      "distance_to_station_m": 50,
+      "fee_info": "유료 (운영: 06-23시)"
+    },
+    {
+      "station_id": "상인역",
+      "station_name": "상인역",
+      "name": "대구교통공사주차장",
+      "address": "대구 달서구 월배로 250",
+      "latitude": 35.81949610446565,
+      "longitude": 128.5411469969618,
+      "distance_to_station_m": 50,
+      "fee_info": "유료 (운영: 06-22시)"
+    },
+    {
+      "station_id": "서부정류장역",
+      "station_name": "서부정류장",
+      "name": "관문시장 공영주차장",
+      "address": "대구 남구 관문시장 1길 36",
+      "latitude": 35.8360239045496,
+      "longitude": 128.558983161339,
+      "distance_to_station_m": 180,
+      "fee_info": "유료 (운영: 24시)"
+    },
+    {
+      "station_id": "명덕역",
+      "station_name": "명덕역",
+      "name": "남산공영주차장",
+      "address": "대구 중구 명덕로 35길 44",
+      "latitude": 35.8587023436223,
+      "longitude": 128.589098950867,
+      "distance_to_station_m": 300,
+      "fee_info": "유료 (운영: 08-22시)"
+    },
+    {
+      "station_id": "반월당역",
+      "station_name": "반월당역",
+      "name": "메트로센터",
+      "address": "대구 중구 달구벌대로 2100",
+      "latitude": 35.8654399293326,
+      "longitude": 128.593404958054,
+      "distance_to_station_m": 1,
+      "fee_info": "유료 (운영: 06-24시)"
+    },
+    {
+      "station_id": "중앙로역",
+      "station_name": "중앙로역",
+      "name": "경상감영주차장",
+      "address": "대구 중구 경상감영길 99",
+      "latitude": 35.872717975731014,
+      "longitude": 128.59276239357132,
+      "distance_to_station_m": 50,
+      "fee_info": "유료 (운영: 07-23시)"
+    },
+    {
+      "station_id": "대구역",
+      "station_name": "대구역",
+      "name": "교동공영주차장",
+      "address": "대구 중구 교동2길 11",
+      "latitude": 35.8736753941233,
+      "longitude": 128.598361823771,
+      "distance_to_station_m": null,
+      "fee_info": "유료 (운영: 08-22시)"
+    },
+    {
+      "station_id": "칠성시장역",
+      "station_name": "칠성시장역",
+      "name": "신천둔치주차장",
+      "address": "대구 북구 칠성동1가 276-1",
+      "latitude": 35.87691892751881,
+      "longitude": 128.60468953830022,
+      "distance_to_station_m": 20,
+      "fee_info": "유료 (운영: 24시)"
+    },
+    {
+      "station_id": "칠성시장역",
+      "station_name": "칠성시장역",
+      "name": "칠성공영주차장",
+      "address": "대구 북구 칠성남로 196",
+      "latitude": 35.87615925500532,
+      "longitude": 128.6016525880039,
+      "distance_to_station_m": 90,
+      "fee_info": "유료 (운영: 24시)"
+    },
+    {
+      "station_id": "동대구역",
+      "station_name": "동대구역",
+      "name": "신세계 동대구복합환승센터 주차장",
+      "address": "대구 동구 동부로 149",
+      "latitude": 35.8780625683005,
+      "longitude": 128.629975678965,
+      "distance_to_station_m": 200,
+      "fee_info": "유료 (운영: 24시)"
+    },
+    {
+      "station_id": "동대구역",
+      "station_name": "동대구역",
+      "name": "1주차장",
+      "address": "대구 동구 동대구로 550",
+      "latitude": 35.88041402190937,
+      "longitude": 128.62901734648625,
+      "distance_to_station_m": 320,
+      "fee_info": "유료 (운영: 24시)"
+    },
+    {
+      "station_id": "동대구역",
+      "station_name": "동대구역",
+      "name": "2주차장",
+      "address": "대구 동구 동대구로 550",
+      "latitude": 35.879988540372,
+      "longitude": 128.627499413207,
+      "distance_to_station_m": 250,
+      "fee_info": "유료 (운영: 24시)"
+    },
+    {
+      "station_id": "동대구역",
+      "station_name": "동대구역",
+      "name": "맞이주차방",
+      "address": "대구 동구 동대구로 550",
+      "latitude": 35.8794361440597,
+      "longitude": 128.628775532684,
+      "distance_to_station_m": 120,
+      "fee_info": "유료 (운영: 24시)"
+    },
+    {
+      "station_id": "아양교역",
+      "station_name": "아양교역",
+      "name": "아양교공영주차장",
+      "address": "대구 동구 효목동 5-24",
+      "latitude": 35.8867926172105,
+      "longitude": 128.642038470026,
+      "distance_to_station_m": 150,
+      "fee_info": "무료"
+    },
+    {
+      "station_id": "해안역",
+      "station_name": "해안역",
+      "name": "방촌천복개주차장",
+      "address": "대구 동구 검사동 957-11",
+      "latitude": 35.88471224246946,
+      "longitude": 128.65754521499832,
+      "distance_to_station_m": 80,
+      "fee_info": "무료"
+    },
+    {
+      "station_id": "안심역",
+      "station_name": "안심역",
+      "name": "안심공영주차장",
+      "address": "대구 동구 괴전동 175-9",
+      "latitude": 35.8692482371084,
+      "longitude": 128.7352901664,
+      "distance_to_station_m": 480,
+      "fee_info": "유료 (운영: 24시)"
+    },
+    {
+      "station_id": "대구한의대병원역",
+      "station_name": "대구한의대병원",
+      "name": "대구한의대병원역 환승주차장",
+      "address": "대구 동구 사복동 610",
+      "latitude": 35.8715842941753,
+      "longitude": 128.75039256992,
+      "distance_to_station_m": 10,
+      "fee_info": "유료 (운영: 24시)"
+    },
+    {
+      "station_id": "하양역",
+      "station_name": "하양역",
+      "name": "하양역 환승주차장",
+      "address": "경북 경산시 하양읍 금락리 133-126",
+      "latitude": 35.9095595454958,
+      "longitude": 128.817421916295,
+      "distance_to_station_m": 10,
+      "fee_info": "유료 (운영: 24시)"
+    },
+    {
+      "station_id": "문양역",
+      "station_name": "문양역",
+      "name": "문양역 환승주차장",
+      "address": "대구 달성군 문양리 1069-14",
+      "latitude": 35.8632915286604,
+      "longitude": 128.437402369951,
+      "distance_to_station_m": 10,
+      "fee_info": "유료 (운영: 24시)"
+    },
+    {
+      "station_id": "문양역",
+      "station_name": "문양역",
+      "name": "달성군주차장",
+      "address": "대구 달성군 문양리 470",
+      "latitude": 35.7816495291295,
+      "longitude": 128.480156077089,
+      "distance_to_station_m": 250,
+      "fee_info": "무료"
+    },
+    {
+      "station_id": "성서산업단지역",
+      "station_name": "성서산업단지역",
+      "name": "성서행정타운 임시환승주차장",
+      "address": "대구 달서구 성서로 400",
+      "latitude": 35.8524238292505,
+      "longitude": 128.507952465076,
+      "distance_to_station_m": 10,
+      "fee_info": "무료 (운영: 24시)"
+    },
+    {
+      "station_id": "용산역",
+      "station_name": "용산역",
+      "name": "용산환승주차장",
+      "address": "대구 달서구 장기동 810-4",
+      "latitude": 35.8486022853142,
+      "longitude": 128.529955286555,
+      "distance_to_station_m": 10,
+      "fee_info": "유료 (운영: 07-18시)"
+    },
+    {
+      "station_id": "용산역",
+      "station_name": "용산역",
+      "name": "홈플러스주차장",
+      "address": "대구 달서구 달구벌대로 1467",
+      "latitude": 35.8494530018007,
+      "longitude": 128.527403695401,
+      "distance_to_station_m": 10,
+      "fee_info": "유료 (운영: 05-23:30)"
+    },
+    {
+      "station_id": "두류역",
+      "station_name": "두류역",
+      "name": "두류네거리 유료주차장",
+      "address": "대구 달서구 달구벌대로 1764",
+      "latitude": 35.8558891324795,
+      "longitude": 128.55116733631,
+      "distance_to_station_m": 40,
+      "fee_info": "유료 (운영: 24시)"
+    },
+    {
+      "station_id": "반고개역",
+      "station_name": "반고개역",
+      "name": "두류공원2공영주차장",
+      "address": "대구 달서구 두류동 산154",
+      "latitude": 35.8522460951731,
+      "longitude": 128.559280029728,
+      "distance_to_station_m": 780,
+      "fee_info": "유료 (운영: 24시)"
+    },
+    {
+      "station_id": "청라언덕역",
+      "station_name": "청라언덕역",
+      "name": "서문주차빌딩",
+      "address": "대구 중구 큰장로 26길45",
+      "latitude": 35.8689090985327,
+      "longitude": 128.580738000716,
+      "distance_to_station_m": 500,
+      "fee_info": "유료 (운영: 07-22시)"
+    },
+    {
+      "station_id": "신매역",
+      "station_name": "신매역",
+      "name": "시지근린공원주차장",
+      "address": "대구 수성구 달구벌대로 637길 5",
+      "latitude": 35.8414876102646,
+      "longitude": 128.706264447444,
+      "distance_to_station_m": 150,
+      "fee_info": "유료 (운영: 08-22시)"
+    },
+    {
+      "station_id": "임당역",
+      "station_name": "임당역",
+      "name": "계양주차장",
+      "address": "경북 경산시 계양동 732",
+      "latitude": 35.83292282725,
+      "longitude": 128.742429777758,
+      "distance_to_station_m": 100,
+      "fee_info": "무료"
+    },
+    {
+      "station_id": "임당역",
+      "station_name": "임당역",
+      "name": "임당환승주차장",
+      "address": "경북 경산시 임당동 875",
+      "latitude": 35.8353678885239,
+      "longitude": 128.741613216749,
+      "distance_to_station_m": 20,
+      "fee_info": "무료"
+    },
+    {
+      "station_id": "구미역",
+      "station_name": "구미역",
+      "name": "구미역사타워주차장",
+      "address": "경북 구미시 구미중앙로 76",
+      "latitude": 36.1283301167004,
+      "longitude": 128.330939456358,
+      "distance_to_station_m": 10,
+      "fee_info": "유료"
+    },
+    {
+      "station_id": "경산역",
+      "station_name": "경산역",
+      "name": "경산역전마을공영주차장",
+      "address": "경북 경산시 사정동 84-28",
+      "latitude": 35.8218091628794,
+      "longitude": 128.727090958241,
+      "distance_to_station_m": 10,
+      "fee_info": "유료 (운영: 24시)"
+    }
+  ]
+}

@@ -33,7 +33,7 @@ router = APIRouter(prefix="/stations", tags=["Stations"])
 async def get_all_stations(
     service: Annotated[StationService, Depends(get_station_service)],
     line: Annotated[
-        Optional[int], Query(ge=1, le=3, description="Filter by line number (1, 2, 3)", alias="line")
+        Optional[int], Query(ge=1, le=4, description="Filter by line number (1=1호선, 2=2호선, 3=3호선, 4=대경선)", alias="line")
     ] = None,
     limit: Annotated[Optional[int], Query(ge=1, le=100, description="Number of results to return")] = None,
     offset: Annotated[Optional[int], Query(ge=0, description="Number of results to skip")] = None,

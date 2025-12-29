@@ -2,7 +2,7 @@
 Admin API Routes
 
 관리자 전용 API 엔드포인트 정의
-여정 승인/반려 및 승인 대기 목록 조회 기능 제공
+여정 승인/반려, 역/주차장 CRUD 기능 제공
 """
 
 from uuid import UUID
@@ -11,6 +11,7 @@ from fastapi import APIRouter, Depends, Query, status
 
 from src.api.dependencies.admin_deps import AdminUser
 from src.api.dependencies.admin_service_deps import get_admin_service
+from src.api.dependencies.station_deps import get_station_service
 from src.api.schemas.admin_schemas import (
     AdminTripDetailResponse,
     AdminTripListResponse,
@@ -20,7 +21,16 @@ from src.api.schemas.admin_schemas import (
     RejectTripRequest,
     UserInfoResponse,
 )
+from src.api.schemas.station_schemas import (
+    CreateParkingLotRequest,
+    CreateStationRequest,
+    ParkingLotResponse,
+    StationResponse,
+    UpdateParkingLotRequest,
+    UpdateStationRequest,
+)
 from src.application.services.admin_service import AdminService
+from src.application.services.station_service import StationService
 from src.shared.schemas.response import SuccessResponse
 
 router = APIRouter(prefix="/admin", tags=["Admin"])
@@ -240,3 +250,157 @@ async def reject_trip(
         message="여정이 반려되었습니다",
         data=AdminTripResponse.model_validate(trip),
     )
+
+
+# ============================================================================
+# 역(Station) 관리 API
+# ============================================================================
+
+
+@router.post(
+    "/stations",
+    response_model=SuccessResponse[StationResponse],
+    status_code=status.HTTP_201_CREATED,
+    summary="역 생성",
+    description="관리자 전용: 새로운 지하철 역을 생성합니다.",
+)
+async def create_station(
+    request: CreateStationRequest,
+    admin_user: AdminUser,
+    station_service: StationService = Depends(get_station_service),
+):
+    """새 역 생성"""
+    station = await station_service.create_station(
+        name=request.name,
+        line_number=request.line_number,
+        latitude=request.latitude,
+        longitude=request.longitude,
+    )
+    return SuccessResponse.create(
+        message=f"'{station.name}' 역이 생성되었습니다",
+        data=StationResponse.model_validate(station),
+    )
+
+
+@router.put(
+    "/stations/{station_id}",
+    response_model=SuccessResponse[StationResponse],
+    status_code=status.HTTP_200_OK,
+    summary="역 수정",
+    description="관리자 전용: 기존 역 정보를 수정합니다.",
+)
+async def update_station(
+    station_id: UUID,
+    request: UpdateStationRequest,
+    admin_user: AdminUser,
+    station_service: StationService = Depends(get_station_service),
+):
+    """역 정보 수정"""
+    station = await station_service.update_station(
+        station_id=station_id,
+        name=request.name,
+        line_number=request.line_number,
+        latitude=request.latitude,
+        longitude=request.longitude,
+    )
+    return SuccessResponse.create(
+        message=f"'{station.name}' 역 정보가 수정되었습니다",
+        data=StationResponse.model_validate(station),
+    )
+
+
+@router.delete(
+    "/stations/{station_id}",
+    response_model=SuccessResponse,
+    status_code=status.HTTP_200_OK,
+    summary="역 삭제",
+    description="관리자 전용: 역을 삭제합니다. 연결된 주차장도 함께 삭제됩니다.",
+)
+async def delete_station(
+    station_id: UUID,
+    admin_user: AdminUser,
+    station_service: StationService = Depends(get_station_service),
+):
+    """역 삭제 (연결된 주차장도 함께 삭제)"""
+    await station_service.delete_station(station_id)
+    return SuccessResponse.create(message="역이 삭제되었습니다", data=None)
+
+
+# ============================================================================
+# 주차장(Parking Lot) 관리 API
+# ============================================================================
+
+
+@router.post(
+    "/parking-lots",
+    response_model=SuccessResponse[ParkingLotResponse],
+    status_code=status.HTTP_201_CREATED,
+    summary="주차장 생성",
+    description="관리자 전용: 새로운 주차장을 생성합니다.",
+)
+async def create_parking_lot(
+    request: CreateParkingLotRequest,
+    admin_user: AdminUser,
+    station_service: StationService = Depends(get_station_service),
+):
+    """새 주차장 생성"""
+    parking_lot = await station_service.create_parking_lot(
+        station_id=request.station_id,
+        name=request.name,
+        address=request.address,
+        latitude=request.latitude,
+        longitude=request.longitude,
+        distance_to_station_m=request.distance_to_station_m,
+        fee_info=request.fee_info,
+    )
+    return SuccessResponse.create(
+        message=f"'{parking_lot.name}' 주차장이 생성되었습니다",
+        data=ParkingLotResponse.model_validate(parking_lot),
+    )
+
+
+@router.put(
+    "/parking-lots/{parking_lot_id}",
+    response_model=SuccessResponse[ParkingLotResponse],
+    status_code=status.HTTP_200_OK,
+    summary="주차장 수정",
+    description="관리자 전용: 기존 주차장 정보를 수정합니다.",
+)
+async def update_parking_lot(
+    parking_lot_id: UUID,
+    request: UpdateParkingLotRequest,
+    admin_user: AdminUser,
+    station_service: StationService = Depends(get_station_service),
+):
+    """주차장 정보 수정"""
+    parking_lot = await station_service.update_parking_lot(
+        parking_lot_id=parking_lot_id,
+        station_id=request.station_id,
+        name=request.name,
+        address=request.address,
+        latitude=request.latitude,
+        longitude=request.longitude,
+        distance_to_station_m=request.distance_to_station_m,
+        fee_info=request.fee_info,
+    )
+    return SuccessResponse.create(
+        message=f"'{parking_lot.name}' 주차장 정보가 수정되었습니다",
+        data=ParkingLotResponse.model_validate(parking_lot),
+    )
+
+
+@router.delete(
+    "/parking-lots/{parking_lot_id}",
+    response_model=SuccessResponse,
+    status_code=status.HTTP_200_OK,
+    summary="주차장 삭제",
+    description="관리자 전용: 주차장을 삭제합니다.",
+)
+async def delete_parking_lot(
+    parking_lot_id: UUID,
+    admin_user: AdminUser,
+    station_service: StationService = Depends(get_station_service),
+):
+    """주차장 삭제"""
+    await station_service.delete_parking_lot(parking_lot_id)
+    return SuccessResponse.create(message="주차장이 삭제되었습니다", data=None)

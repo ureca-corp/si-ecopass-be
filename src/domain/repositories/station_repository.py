@@ -64,3 +64,65 @@ class IStationRepository(ABC):
             ParkingLot 엔티티 리스트
         """
         pass
+
+    # ========================================================================
+    # 관리자용 CRUD 메서드
+    # ========================================================================
+
+    @abstractmethod
+    async def create_station(
+        self, name: str, line_number: int, latitude: float, longitude: float
+    ) -> Station:
+        """새 역 생성"""
+        pass
+
+    @abstractmethod
+    async def update_station(
+        self,
+        station_id: UUID,
+        name: Optional[str] = None,
+        line_number: Optional[int] = None,
+        latitude: Optional[float] = None,
+        longitude: Optional[float] = None,
+    ) -> Station:
+        """역 정보 수정"""
+        pass
+
+    @abstractmethod
+    async def delete_station(self, station_id: UUID) -> None:
+        """역 삭제"""
+        pass
+
+    @abstractmethod
+    async def create_parking_lot(
+        self,
+        station_id: UUID,
+        name: str,
+        address: str,
+        latitude: float,
+        longitude: float,
+        distance_to_station_m: Optional[int] = None,
+        fee_info: Optional[str] = None,
+    ) -> ParkingLot:
+        """새 주차장 생성"""
+        pass
+
+    @abstractmethod
+    async def update_parking_lot(
+        self,
+        parking_lot_id: UUID,
+        station_id: Optional[UUID] = None,
+        name: Optional[str] = None,
+        address: Optional[str] = None,
+        latitude: Optional[float] = None,
+        longitude: Optional[float] = None,
+        distance_to_station_m: Optional[int] = None,
+        fee_info: Optional[str] = None,
+    ) -> ParkingLot:
+        """주차장 정보 수정"""
+        pass
+
+    @abstractmethod
+    async def delete_parking_lot(self, parking_lot_id: UUID) -> None:
+        """주차장 삭제"""
+        pass
