@@ -62,4 +62,4 @@ config.local.py
 settings.local.py
 local_settings.py
 
-uv.lock
+uv.lock*.xlsx
