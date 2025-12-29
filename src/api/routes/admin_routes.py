@@ -336,7 +336,7 @@ async def delete_station(
 )
 async def create_parking_lot(
     request: CreateParkingLotRequest,
-    admin_user: AdminUser = Depends(get_admin_user),
+    admin_user: AdminUser,
     station_service: StationService = Depends(get_station_service),
 ):
     """
