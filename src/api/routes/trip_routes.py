@@ -86,7 +86,7 @@ async def transfer_trip(
         user_id=current_user.id,
         latitude=request.latitude,
         longitude=request.longitude,
-        image_url=str(request.transfer_image_url),
+        image_url=request.transfer_image_url,
     )
 
     response_data = TransferTripResponse(
@@ -125,7 +125,7 @@ async def arrive_trip(
         user_id=current_user.id,
         latitude=request.latitude,
         longitude=request.longitude,
-        image_url=str(request.arrival_image_url),
+        image_url=request.arrival_image_url,
     )
 
     response_data = ArrivalTripResponse(

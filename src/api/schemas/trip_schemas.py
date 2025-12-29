@@ -9,7 +9,7 @@ from datetime import datetime
 from typing import Optional
 from uuid import UUID
 
-from pydantic import Field, HttpUrl
+from pydantic import Field, field_validator
 
 from src.domain.entities.trip import TripStatus
 from src.shared.schemas.base import BaseRequest, BaseResponse
@@ -62,11 +62,19 @@ class TransferTripRequest(BaseRequest):
         description="환승 위치 경도",
         examples=[127.0473],
     )
-    transfer_image_url: HttpUrl = Field(
+    transfer_image_url: str = Field(
         ...,
-        description="환승 증빙 이미지 URL",
+        description="환승 증빙 이미지 URL (Supabase Signed URL 지원)",
         examples=["https://storage.supabase.co/transfers/image.jpg"],
     )
+
+    @field_validator("transfer_image_url")
+    @classmethod
+    def validate_url(cls, v: str) -> str:
+        """URL 형식 기본 검증 (https:// 시작)"""
+        if not v.startswith("https://"):
+            raise ValueError("URL은 https://로 시작해야 합니다")
+        return v
 
 
 class ArrivalTripRequest(BaseRequest):
@@ -89,11 +97,19 @@ class ArrivalTripRequest(BaseRequest):
         description="도착 위치 경도",
         examples=[127.0276],
     )
-    arrival_image_url: HttpUrl = Field(
+    arrival_image_url: str = Field(
         ...,
-        description="도착 증빙 이미지 URL",
+        description="도착 증빙 이미지 URL (Supabase Signed URL 지원)",
         examples=["https://storage.supabase.co/arrivals/image.jpg"],
     )
+
+    @field_validator("arrival_image_url")
+    @classmethod
+    def validate_url(cls, v: str) -> str:
+        """URL 형식 기본 검증 (https:// 시작)"""
+        if not v.startswith("https://"):
+            raise ValueError("URL은 https://로 시작해야 합니다")
+        return v
 
 
 # ============================================================

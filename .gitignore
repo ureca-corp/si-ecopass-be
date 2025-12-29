@@ -63,3 +63,6 @@ settings.local.py
 local_settings.py
 
 uv.lock*.xlsx
+
+# Excel files
+*.xlsx
