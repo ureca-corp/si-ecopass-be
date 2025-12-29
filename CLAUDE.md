@@ -26,7 +26,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 - ✅ 데이터베이스 스키마 완성 (Supabase migrations)
 - ✅ 4개 도메인 엔티티 정의 (User, Station, ParkingLot, Trip)
-- ✅ 5개 API 모듈 구현 (auth, admin, stations, trips, storage)
+- ✅ 6개 API 모듈 구현 (auth, admin, stations, parking-lots, trips, storage)
 - ✅ JWT 인증 시스템
 - ✅ 테스트 코드 작성 (pytest)
 - ✅ Postman Collection
@@ -138,29 +138,36 @@ src/
 ├── application/              # Application Layer (유스케이스)
 │   └── services/            # 애플리케이션 서비스
 │       ├── auth_service.py       # 인증 로직
-│       ├── station_service.py    # 역 조회 로직
+│       ├── station_service.py    # 역/주차장 조회 로직
 │       ├── trip_service.py       # 여정 관리 로직
 │       ├── storage_service.py    # 파일 업로드 로직
 │       └── admin_service.py      # 관리자 로직
 │
 ├── infrastructure/           # Infrastructure Layer (외부 시스템)
-│   ├── database/            # Supabase 클라이언트
+│   ├── database/            # Supabase 클라이언트 및 SQLModel 세션
 │   └── repositories/        # 레포지토리 구현체
 │
 ├── api/                      # API Layer (프레젠테이션)
-│   ├── routes/              # FastAPI 라우터 (5개 모듈)
+│   ├── routes/              # FastAPI 라우터 (6개 모듈)
+│   │   ├── auth_routes.py        # 인증 API
+│   │   ├── station_routes.py     # 역 조회 API
+│   │   ├── parking_lot_routes.py # 주차장 조회 API
+│   │   ├── trip_routes.py        # 여정 관리 API
+│   │   ├── storage_routes.py     # 이미지 업로드 API
+│   │   └── admin_routes.py       # 관리자 API
 │   ├── schemas/             # Request/Response DTO
 │   └── dependencies/        # 의존성 주입
 │
 ├── shared/                   # Shared Kernel
 │   ├── schemas/             # 공통 스키마 (SuccessResponse, ErrorResponse)
-│   ├── utils/               # 유틸리티 함수
+│   ├── utils/               # 유틸리티 함수 (file_validation 등)
 │   └── exceptions.py        # 커스텀 예외 클래스
 │
 ├── config.py                # 환경 설정 (pydantic-settings)
 └── main.py                  # FastAPI 앱 팩토리
 
 tests/                        # 테스트 코드
+├── conftest.py              # pytest 공통 설정 및 fixture
 ├── test_auth.py             # 인증 API 테스트
 ├── test_stations.py         # 역 API 테스트
 ├── test_trips.py            # 여정 API 테스트
@@ -169,12 +176,13 @@ tests/                        # 테스트 코드
 └── test_integration.py      # 통합 테스트
 
 scripts/                      # 유틸리티 스크립트
-├── migrate_image_urls_to_signed.py  # public URL → Signed URL 마이그레이션
-└── README.md                # 스크립트 사용 가이드
+├── create_admin_user.py           # 관리자 계정 생성
+├── import_station_data.py         # 역/주차장 데이터 임포트
+└── migrate_image_urls_to_signed.py  # public URL → Signed URL 마이그레이션
 
 supabase/                     # Supabase 설정
-├── migrations/              # 데이터베이스 마이그레이션
-└── seed.sql                 # 샘플 데이터 (14개 역, 9개 주차장)
+├── migrations/              # 데이터베이스 마이그레이션 (10개)
+└── seed.sql                 # 샘플 데이터
 ```
 
 ## Architecture Principles
@@ -457,7 +465,7 @@ git push origin main
 
 프로젝트에는 포괄적인 테스트 스위트가 구현되어 있습니다:
 
-- **API 테스트**: FastAPI TestClient 사용 (5개 테스트 파일)
+- **API 테스트**: FastAPI TestClient 사용 (6개 테스트 파일)
 - **통합 테스트**: 실제 Supabase 인스턴스 연동 테스트
 - **커버리지**: `pytest-cov`로 코드 커버리지 측정
 
