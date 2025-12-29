@@ -36,10 +36,11 @@ class AdminService:
         end_date: Optional[str] = None,
         limit: int = 10,
         offset: int = 0,
-    ) -> tuple[list[Trip], int]:
+    ) -> tuple[list[dict], int]:
         """
-        전체 여정 목록 조회 (필터링 가능)
+        전체 여정 목록 조회 (필터링 가능, 사용자 정보 포함)
         상태, 사용자, 날짜 범위로 필터링 지원
+        각 여정에 사용자 정보를 포함하여 반환
         """
         trip_status = None
         if status:
@@ -65,11 +66,36 @@ class AdminService:
             end_date=end_date,
         )
 
-        return trips, total_count
+        # 각 여정에 사용자 정보 추가
+        trips_with_users = []
+        for trip in trips:
+            user_info = await self._get_user_info_safe(trip.user_id)
+            trip_dict = trip.model_dump()
+            trip_dict["user"] = user_info
+            trips_with_users.append(trip_dict)
 
-    async def get_pending_trips(self, limit: int = 10, offset: int = 0) -> tuple[list[Trip], int]:
+        return trips_with_users, total_count
+
+    async def _get_user_info_safe(self, user_id: UUID) -> Optional[dict]:
         """
-        승인 대기 중인 여정 목록 조회
+        사용자 정보 조회 (에러 발생 시 None 반환)
+        목록 조회 시 일부 사용자 조회 실패가 전체 조회를 실패시키지 않도록 함
+        """
+        try:
+            user = await self.auth_service.get_user_by_id(user_id)
+            return {
+                "id": user.id,
+                "username": user.username,
+                "vehicle_number": user.vehicle_number,
+                "total_points": user.total_points,
+            }
+        except Exception:
+            # 사용자 조회 실패 시 None 반환
+            return None
+
+    async def get_pending_trips(self, limit: int = 10, offset: int = 0) -> tuple[list[dict], int]:
+        """
+        승인 대기 중인 여정 목록 조회 (사용자 정보 포함)
         COMPLETED 상태의 여정들을 최신순으로 반환
         """
         # COMPLETED 상태의 여정 조회
@@ -82,7 +108,15 @@ class AdminService:
         # 전체 개수 조회 (페이지네이션용)
         total_count = await self.trip_repository.count_by_status(TripStatus.COMPLETED)
 
-        return trips, total_count
+        # 각 여정에 사용자 정보 추가
+        trips_with_users = []
+        for trip in trips:
+            user_info = await self._get_user_info_safe(trip.user_id)
+            trip_dict = trip.model_dump()
+            trip_dict["user"] = user_info
+            trips_with_users.append(trip_dict)
+
+        return trips_with_users, total_count
 
     async def approve_trip(self, trip_id: UUID, earned_points: Optional[int] = None) -> Trip:
         """

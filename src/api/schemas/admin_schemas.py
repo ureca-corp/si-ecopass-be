@@ -115,13 +115,72 @@ class AdminTripResponse(BaseResponse):
         }
 
 
+class AdminTripWithUserResponse(BaseResponse):
+    """
+    관리자용 여정 + 사용자 정보 응답 스키마
+    목록 조회 시 사용자 정보를 함께 반환
+    """
+
+    id: UUID
+    user_id: UUID
+
+    # 사용자 정보
+    user: Optional["UserInfoResponse"] = None
+
+    # 출발 정보
+    start_latitude: float
+    start_longitude: float
+
+    # 환승 정보
+    transfer_latitude: Optional[float] = None
+    transfer_longitude: Optional[float] = None
+    transfer_image_url: Optional[str] = None
+
+    # 도착 정보
+    arrival_latitude: Optional[float] = None
+    arrival_longitude: Optional[float] = None
+    arrival_image_url: Optional[str] = None
+
+    # 상태 및 포인트
+    status: TripStatus
+    estimated_points: Optional[int] = None
+    earned_points: Optional[int] = None
+
+    # 관리자 검토 정보
+    admin_note: Optional[str] = None
+
+    # 시간 정보
+    created_at: datetime
+    updated_at: datetime
+
+    class Config:
+        json_schema_extra = {
+            "example": {
+                "id": "550e8400-e29b-41d4-a716-446655440000",
+                "user_id": "660e8400-e29b-41d4-a716-446655440001",
+                "user": {
+                    "id": "660e8400-e29b-41d4-a716-446655440001",
+                    "username": "에코유저",
+                    "vehicle_number": "12가3456",
+                    "total_points": 500,
+                },
+                "start_latitude": 37.5665,
+                "start_longitude": 126.9780,
+                "status": "COMPLETED",
+                "estimated_points": 150,
+                "created_at": "2025-01-01T09:00:00Z",
+                "updated_at": "2025-01-01T09:30:00Z",
+            }
+        }
+
+
 class AdminTripListResponse(BaseResponse):
     """
     관리자용 여정 목록 응답 스키마
-    페이지네이션 정보 포함
+    페이지네이션 정보 포함, 각 여정에 사용자 정보 포함
     """
 
-    trips: list[AdminTripResponse]
+    trips: list[AdminTripWithUserResponse]
     total_count: int
 
     class Config:
@@ -131,6 +190,12 @@ class AdminTripListResponse(BaseResponse):
                     {
                         "id": "550e8400-e29b-41d4-a716-446655440000",
                         "user_id": "660e8400-e29b-41d4-a716-446655440001",
+                        "user": {
+                            "id": "660e8400-e29b-41d4-a716-446655440001",
+                            "username": "에코유저",
+                            "vehicle_number": "12가3456",
+                            "total_points": 500,
+                        },
                         "start_latitude": 37.5665,
                         "start_longitude": 126.9780,
                         "status": "COMPLETED",

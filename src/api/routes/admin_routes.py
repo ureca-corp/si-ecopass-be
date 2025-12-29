@@ -16,6 +16,7 @@ from src.api.schemas.admin_schemas import (
     AdminTripDetailResponse,
     AdminTripListResponse,
     AdminTripResponse,
+    AdminTripWithUserResponse,
     ApproveTripRequest,
     DashboardStatsResponse,
     RejectTripRequest,
@@ -100,11 +101,12 @@ async def get_all_trips(
     """
     전체 여정 목록 조회 엔드포인트
     상태, 사용자, 날짜 범위로 필터링 가능
+    각 여정에 사용자 정보 포함
     """
     # user_id 문자열을 UUID로 변환
     parsed_user_id = UUID(user_id) if user_id else None
 
-    trips, total_count = await admin_service.get_all_trips(
+    trips_with_users, total_count = await admin_service.get_all_trips(
         status=status,
         user_id=parsed_user_id,
         start_date=start_date,
@@ -113,7 +115,8 @@ async def get_all_trips(
         offset=offset,
     )
 
-    trip_responses = [AdminTripResponse.model_validate(trip) for trip in trips]
+    # dict를 AdminTripWithUserResponse로 변환
+    trip_responses = [AdminTripWithUserResponse(**trip) for trip in trips_with_users]
     response_data = AdminTripListResponse(
         trips=trip_responses,
         total_count=total_count,
@@ -150,10 +153,12 @@ async def get_pending_trips(
     """
     승인 대기 여정 목록 조회 엔드포인트
     COMPLETED 상태의 여정들을 최신순으로 반환
+    각 여정에 사용자 정보 포함
     """
-    trips, total_count = await admin_service.get_pending_trips(limit=limit, offset=offset)
+    trips_with_users, total_count = await admin_service.get_pending_trips(limit=limit, offset=offset)
 
-    trip_responses = [AdminTripResponse.model_validate(trip) for trip in trips]
+    # dict를 AdminTripWithUserResponse로 변환
+    trip_responses = [AdminTripWithUserResponse(**trip) for trip in trips_with_users]
     response_data = AdminTripListResponse(
         trips=trip_responses,
         total_count=total_count,
