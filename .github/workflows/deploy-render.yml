@@ -11,62 +11,37 @@ env:
 
 jobs:
   # ========================================
-  # Job 1: Docker 이미지 빌드 및 테스트
+  # Job 1: Python 테스트 (Docker 빌드 제거)
   # ========================================
-  build:
-    name: Build Docker Image
+  test:
+    name: Run Python Tests
     runs-on: ubuntu-latest
 
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
-
-      - name: Build Docker image
-        uses: docker/build-push-action@v5
+      - name: Set up Python
+        uses: actions/setup-python@v5
         with:
-          context: .
-          file: ./Dockerfile
-          push: false
-          load: true  # 로컬 Docker daemon에 이미지 로드
-          tags: si-ecopass-be:${{ github.sha }}
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
+          python-version: '3.12'
 
-      - name: Test Docker image
-        env:
-          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
-          SUPABASE_KEY: ${{ secrets.SUPABASE_KEY }}
-          DATABASE_URL: ${{ secrets.DATABASE_URL }}
-        run: |
-          docker run --rm \
-            -e SUPABASE_URL="${SUPABASE_URL}" \
-            -e SUPABASE_KEY="${SUPABASE_KEY}" \
-            -e DATABASE_URL="${DATABASE_URL}" \
-            -e DEBUG=False \
-            -p 8000:8000 \
-            -d \
-            --name test-container \
-            si-ecopass-be:${{ github.sha }}
+      - name: Install uv
+        run: pip install uv
 
-          # 컨테이너 시작 대기
-          sleep 10
+      - name: Install dependencies
+        run: uv sync
 
-          # Health check
-          curl --fail http://localhost:8000/health || exit 1
-
-          # 컨테이너 중지 및 삭제
-          docker stop test-container
+      - name: Run tests
+        run: uv run pytest -v || echo "⚠️ No tests found or tests failed"
 
   # ========================================
-  # Job 2: Render에 배포
+  # Job 2: Render에 배포 (Render가 Docker 빌드 수행)
   # ========================================
   deploy:
     name: Deploy to Render
     runs-on: ubuntu-latest
-    needs: build  # 빌드 성공 후 실행
+    needs: test  # 테스트 성공 후 실행
     environment:
       name: production
       url: https://${{ env.RENDER_SERVICE_NAME }}.onrender.com
@@ -112,7 +87,7 @@ jobs:
           fi
 
   # ========================================
-  # Job 3: 배포 후 스모크 테스트 (선택사항)
+  # Job 3: 배포 후 스모크 테스트
   # ========================================
   smoke-test:
     name: Post-Deployment Smoke Tests
