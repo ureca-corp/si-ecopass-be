@@ -32,11 +32,12 @@ class SQLModelStationRepository(IStationRepository):
     async def get_all(
         self,
         line_number: Optional[int] = None,
+        keyword: Optional[str] = None,
         limit: Optional[int] = None,
         offset: Optional[int] = None,
     ) -> list[Station]:
         """
-        모든 지하철 역 조회 (선택적으로 노선별 필터링 및 페이지네이션)
+        모든 지하철 역 조회 (선택적으로 노선별 필터링, 키워드 검색 및 페이지네이션)
         PostGIS 좌표를 latitude/longitude로 변환하여 반환
         """
         stmt = select(
@@ -50,6 +51,9 @@ class SQLModelStationRepository(IStationRepository):
 
         if line_number is not None:
             stmt = stmt.where(Station.line_number == line_number)
+
+        if keyword is not None:
+            stmt = stmt.where(Station.name.ilike(f"%{keyword}%"))
 
         stmt = stmt.order_by(Station.name)
 

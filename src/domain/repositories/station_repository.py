@@ -23,14 +23,16 @@ class IStationRepository(ABC):
     async def get_all(
         self,
         line_number: Optional[int] = None,
+        keyword: Optional[str] = None,
         limit: Optional[int] = None,
         offset: Optional[int] = None,
     ) -> list[Station]:
         """
-        모든 지하철 역 조회 (선택적으로 노선별 필터링 및 페이지네이션)
+        모든 지하철 역 조회 (선택적으로 노선별 필터링, 키워드 검색 및 페이지네이션)
 
         Args:
-            line_number: 노선 번호 (1, 2, 3) - None이면 전체 조회
+            line_number: 노선 번호 (1, 2, 3, 4) - None이면 전체 조회
+            keyword: 역 이름 검색 키워드 (부분 일치)
             limit: 반환할 결과 수
             offset: 건너뛸 결과 수
 
