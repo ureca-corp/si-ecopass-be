@@ -209,8 +209,11 @@ class AdminService:
     async def get_dashboard_stats(self) -> dict:
         """
         대시보드 통계 조회
-        상태별 여정 개수를 집계하여 반환
+        상태별 여정 개수와 전체 가입자 수를 집계하여 반환
         """
+        # 전체 가입자 수
+        total_users = await self.auth_service.count_all_users()
+
         # 전체 여정 수
         total_trips = await self.trip_repository.count_all()
 
@@ -225,6 +228,7 @@ class AdminService:
         in_progress_count = driving_count + transferred_count
 
         return {
+            "total_users": total_users,
             "total_trips": total_trips,
             "pending_count": pending_count,
             "approved_count": approved_count,

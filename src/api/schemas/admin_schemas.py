@@ -231,9 +231,10 @@ class AdminTripDetailResponse(BaseResponse):
 class DashboardStatsResponse(BaseResponse):
     """
     관리자 대시보드 통계 응답 스키마
-    상태별 여정 개수 및 최근 승인 대기 목록 포함
+    가입자 수, 상태별 여정 개수 포함
     """
 
+    total_users: int = Field(description="전체 가입자 수")
     total_trips: int = Field(description="전체 여정 수")
     pending_count: int = Field(description="승인 대기 중 (COMPLETED)")
     approved_count: int = Field(description="승인 완료 (APPROVED)")
@@ -243,6 +244,7 @@ class DashboardStatsResponse(BaseResponse):
     class Config:
         json_schema_extra = {
             "example": {
+                "total_users": 42,
                 "total_trips": 150,
                 "pending_count": 12,
                 "approved_count": 120,

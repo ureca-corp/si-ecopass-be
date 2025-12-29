@@ -195,3 +195,11 @@ class AuthService:
 
         # 업데이트된 사용자 정보 반환
         return await self.get_user_by_id(user_id)
+
+    async def count_all_users(self) -> int:
+        """
+        전체 사용자 수 조회
+        관리자 대시보드 통계용
+        """
+        response = self.db.table("users").select("*", count="exact").execute()
+        return response.count or 0
