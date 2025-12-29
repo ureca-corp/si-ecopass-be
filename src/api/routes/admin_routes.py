@@ -420,7 +420,7 @@ async def delete_parking_lot(
 async def search_address(
     query: str = Query(..., min_length=2, description="검색 키워드 (예: '대구 중구')"),
     limit: int = Query(10, ge=1, le=20, description="최대 결과 개수"),
-    admin_user: AdminUser = Depends(),
+    admin_user: AdminUser,
 ):
     """
     주소 검색 API (자동완성용)
