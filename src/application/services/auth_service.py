@@ -140,22 +140,18 @@ class AuthService:
         """
         ID로 사용자 조회
         JWT 토큰에서 추출한 user_id로 프로필 조회 시 사용
-        auth.users에서 email을 가져와 함께 반환
+        PostgreSQL function을 사용하여 auth.users의 email을 함께 가져옴
         """
-        # users 테이블에서 사용자 정보 조회
-        response = self.db.table("users").select("*").eq("id", str(user_id)).execute()
+        # PostgreSQL function 호출 (auth.users JOIN)
+        response = self.db.rpc("get_user_with_email", {"p_user_id": str(user_id)}).execute()
 
-        if not response.data:
+        if not response.data or len(response.data) == 0:
             raise NotFoundError(f"사용자를 찾을 수 없습니다 (ID: {user_id})")
 
         user_data = response.data[0]
 
-        # auth.users에서 email 가져오기
-        try:
-            auth_user = self.db.auth.admin.get_user_by_id(str(user_id))
-            user_data["email"] = auth_user.user.email if auth_user.user else ""
-        except Exception:
-            # auth.users 조회 실패 시 빈 문자열
+        # email이 없으면 빈 문자열로 설정
+        if "email" not in user_data or user_data["email"] is None:
             user_data["email"] = ""
 
         return User(**user_data)
