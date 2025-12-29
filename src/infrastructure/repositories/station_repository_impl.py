@@ -136,6 +136,80 @@ class SQLModelStationRepository(IStationRepository):
             for row in rows
         ]
 
+    async def get_all_parking_lots(
+        self,
+        limit: Optional[int] = None,
+        offset: Optional[int] = None,
+    ) -> list[ParkingLot]:
+        """전체 주차장 목록 조회 (페이지네이션 지원)"""
+        stmt = select(
+            ParkingLot.id,
+            ParkingLot.station_id,
+            ParkingLot.name,
+            ParkingLot.address,
+            ParkingLot.distance_to_station_m,
+            ParkingLot.fee_info,
+            ParkingLot.created_at,
+            ST_Y(cast(ParkingLot.location, Geometry)).label("latitude"),
+            ST_X(cast(ParkingLot.location, Geometry)).label("longitude"),
+        ).order_by(ParkingLot.name)
+
+        if limit is not None:
+            stmt = stmt.limit(limit)
+
+        if offset is not None:
+            stmt = stmt.offset(offset)
+
+        result = self.session.exec(stmt)
+        rows = result.all()
+
+        return [
+            ParkingLot(
+                id=row.id,
+                station_id=row.station_id,
+                name=row.name,
+                address=row.address,
+                latitude=row.latitude,
+                longitude=row.longitude,
+                distance_to_station_m=row.distance_to_station_m,
+                fee_info=row.fee_info,
+                created_at=row.created_at,
+            )
+            for row in rows
+        ]
+
+    async def get_parking_lot_by_id(self, parking_lot_id: UUID) -> Optional[ParkingLot]:
+        """ID로 특정 주차장 조회"""
+        stmt = select(
+            ParkingLot.id,
+            ParkingLot.station_id,
+            ParkingLot.name,
+            ParkingLot.address,
+            ParkingLot.distance_to_station_m,
+            ParkingLot.fee_info,
+            ParkingLot.created_at,
+            ST_Y(cast(ParkingLot.location, Geometry)).label("latitude"),
+            ST_X(cast(ParkingLot.location, Geometry)).label("longitude"),
+        ).where(ParkingLot.id == parking_lot_id)
+
+        result = self.session.exec(stmt)
+        row = result.first()
+
+        if not row:
+            return None
+
+        return ParkingLot(
+            id=row.id,
+            station_id=row.station_id,
+            name=row.name,
+            address=row.address,
+            latitude=row.latitude,
+            longitude=row.longitude,
+            distance_to_station_m=row.distance_to_station_m,
+            fee_info=row.fee_info,
+            created_at=row.created_at,
+        )
+
     # ========================================================================
     # 관리자용 CRUD 메서드
     # latitude/longitude 컬럼에 CRUD → 트리거가 location 자동 동기화

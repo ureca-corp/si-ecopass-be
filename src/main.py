@@ -118,7 +118,11 @@ def create_application() -> FastAPI:
             },
             {
                 "name": "Stations",
-                "description": "지하철 역 및 주차장 조회 API",
+                "description": "지하철 역 조회 API",
+            },
+            {
+                "name": "ParkingLots",
+                "description": "주차장 조회 API",
             },
             {
                 "name": "Trips",
@@ -216,12 +220,14 @@ def create_application() -> FastAPI:
 
     from src.api.routes.admin_routes import router as admin_router
     from src.api.routes.auth_routes import router as auth_router
+    from src.api.routes.parking_lot_routes import router as parking_lot_router
     from src.api.routes.station_routes import router as station_router
     from src.api.routes.storage_routes import router as storage_router
     from src.api.routes.trip_routes import router as trip_router
 
     app.include_router(admin_router, prefix=settings.api_prefix)
     app.include_router(auth_router, prefix=settings.api_prefix)
+    app.include_router(parking_lot_router, prefix=settings.api_prefix)
     app.include_router(station_router, prefix=settings.api_prefix)
     app.include_router(storage_router, prefix=settings.api_prefix)
     app.include_router(trip_router, prefix=settings.api_prefix)

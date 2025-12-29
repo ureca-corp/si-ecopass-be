@@ -65,6 +65,37 @@ class IStationRepository(ABC):
         """
         pass
 
+    @abstractmethod
+    async def get_all_parking_lots(
+        self,
+        limit: Optional[int] = None,
+        offset: Optional[int] = None,
+    ) -> list[ParkingLot]:
+        """
+        전체 주차장 목록 조회 (페이지네이션 지원)
+
+        Args:
+            limit: 반환할 결과 수
+            offset: 건너뛸 결과 수
+
+        Returns:
+            ParkingLot 엔티티 리스트
+        """
+        pass
+
+    @abstractmethod
+    async def get_parking_lot_by_id(self, parking_lot_id: UUID) -> Optional[ParkingLot]:
+        """
+        ID로 특정 주차장 조회
+
+        Args:
+            parking_lot_id: 주차장 고유 식별자
+
+        Returns:
+            ParkingLot 엔티티 또는 None
+        """
+        pass
+
     # ========================================================================
     # 관리자용 CRUD 메서드
     # ========================================================================

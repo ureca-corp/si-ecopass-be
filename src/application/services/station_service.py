@@ -79,6 +79,41 @@ class StationService:
         # 주차장 목록 조회
         return await self.repository.get_parking_lots(station_id)
 
+    async def get_all_parking_lots(
+        self,
+        limit: Optional[int] = None,
+        offset: Optional[int] = None,
+    ) -> list[ParkingLot]:
+        """
+        전체 주차장 목록 조회 (페이지네이션 지원)
+
+        Args:
+            limit: 반환할 결과 수
+            offset: 건너뛸 결과 수
+
+        Returns:
+            ParkingLot 엔티티 리스트
+        """
+        return await self.repository.get_all_parking_lots(limit=limit, offset=offset)
+
+    async def get_parking_lot_by_id(self, parking_lot_id: UUID) -> ParkingLot:
+        """
+        특정 주차장 상세 조회
+
+        Args:
+            parking_lot_id: 주차장 고유 식별자
+
+        Returns:
+            ParkingLot 엔티티
+
+        Raises:
+            NotFoundError: 주차장을 찾을 수 없을 때
+        """
+        parking_lot = await self.repository.get_parking_lot_by_id(parking_lot_id)
+        if not parking_lot:
+            raise NotFoundError(f"주차장 ID {parking_lot_id}를 찾을 수 없습니다")
+        return parking_lot
+
     # ========================================================================
     # 관리자용 CRUD 메서드
     # ========================================================================
