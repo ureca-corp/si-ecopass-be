@@ -102,6 +102,12 @@ class ArrivalTripRequest(BaseRequest):
         description="도착 증빙 이미지 URL (Supabase Signed URL 지원)",
         examples=["https://storage.supabase.co/arrivals/image.jpg"],
     )
+    points: int = Field(
+        ...,
+        ge=0,
+        description="포인트 (클라이언트에서 계산, 500m당 1포인트 기준)",
+        examples=[5],
+    )
 
     @field_validator("arrival_image_url")
     @classmethod
@@ -162,13 +168,13 @@ class TransferTripResponse(BaseResponse):
 class ArrivalTripResponse(BaseResponse):
     """
     도착 기록 응답 스키마
-    여행 ID, 상태, 도착 시각, 예상 포인트 반환
+    여행 ID, 상태, 도착 시각, 포인트 반환
     """
 
     trip_id: UUID = Field(..., description="여행 ID")
     status: TripStatus = Field(..., description="여행 상태")
     arrived_at: datetime = Field(..., description="도착 시각")
-    estimated_points: int = Field(..., description="예상 포인트")
+    points: int = Field(..., description="포인트")
 
     model_config = {
         "json_schema_extra": {
@@ -176,7 +182,7 @@ class ArrivalTripResponse(BaseResponse):
                 "trip_id": "550e8400-e29b-41d4-a716-446655440000",
                 "status": "COMPLETED",
                 "arrived_at": "2025-01-01T10:00:00Z",
-                "estimated_points": 100,
+                "points": 5,
             }
         }
     }
@@ -199,8 +205,7 @@ class TripResponse(BaseResponse):
     arrival_longitude: Optional[float] = Field(None, description="도착 위치 경도")
     arrival_image_url: Optional[str] = Field(None, description="도착 증빙 이미지 URL")
     status: TripStatus = Field(..., description="여행 상태")
-    estimated_points: Optional[int] = Field(None, description="예상 포인트")
-    earned_points: Optional[int] = Field(None, description="실제 지급 포인트")
+    points: Optional[int] = Field(None, description="포인트")
     created_at: datetime = Field(..., description="레코드 생성 시각")
     updated_at: datetime = Field(..., description="최종 수정 시각")
 
@@ -218,8 +223,7 @@ class TripResponse(BaseResponse):
                 "arrival_longitude": 127.0276,
                 "arrival_image_url": "https://storage.supabase.co/arrivals/image.jpg",
                 "status": "COMPLETED",
-                "estimated_points": 100,
-                "earned_points": None,
+                "points": 5,
                 "created_at": "2025-01-01T09:00:00Z",
                 "updated_at": "2025-01-01T10:00:00Z",
             }
@@ -246,7 +250,7 @@ class TripListResponse(BaseResponse):
                         "start_latitude": 37.5665,
                         "start_longitude": 126.9780,
                         "status": "COMPLETED",
-                        "estimated_points": 100,
+                        "points": 5,
                         "created_at": "2025-01-01T09:00:00Z",
                         "updated_at": "2025-01-01T10:00:00Z",
                     }

@@ -106,7 +106,7 @@ async def transfer_trip(
     response_model=SuccessResponse[ArrivalTripResponse],
     status_code=status.HTTP_200_OK,
     summary="도착 기록",
-    description="여행의 도착 정보를 기록합니다. 도착 위치와 증빙 이미지를 저장하고 상태를 COMPLETED로 변경하며 예상 포인트를 계산합니다. (JWT 인증 필요)",
+    description="여행의 도착 정보를 기록합니다. 도착 위치와 증빙 이미지, 클라이언트에서 계산한 예상 포인트를 저장하고 상태를 COMPLETED로 변경합니다. (JWT 인증 필요)",
 )
 async def arrive_trip(
     trip_id: str,
@@ -116,7 +116,7 @@ async def arrive_trip(
 ):
     """
     도착 기록 엔드포인트
-    도착 위치와 증빙 이미지를 받아 도착 정보 업데이트
+    도착 위치와 증빙 이미지, 예상 포인트를 받아 도착 정보 업데이트
     """
     from uuid import UUID
 
@@ -126,13 +126,14 @@ async def arrive_trip(
         latitude=request.latitude,
         longitude=request.longitude,
         image_url=request.arrival_image_url,
+        points=request.points,
     )
 
     response_data = ArrivalTripResponse(
         trip_id=trip.id,
         status=trip.status,
         arrived_at=trip.updated_at,
-        estimated_points=trip.estimated_points,
+        points=trip.points,
     )
 
     return SuccessResponse.create(

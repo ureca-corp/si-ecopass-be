@@ -119,7 +119,7 @@ class AdminService:
 
         return trips_with_users, total_count
 
-    async def approve_trip(self, trip_id: UUID, earned_points: Optional[int] = None) -> Trip:
+    async def approve_trip(self, trip_id: UUID) -> Trip:
         """
         여정 승인 및 포인트 지급
         1. 여정 조회 및 승인 가능 여부 확인
@@ -133,7 +133,7 @@ class AdminService:
 
         # 승인 가능 여부 확인 (비즈니스 로직에서 검증)
         try:
-            trip.approve(earned_points)
+            trip.approve()
         except ValueError as e:
             raise ValidationError(str(e))
 
@@ -141,11 +141,11 @@ class AdminService:
         updated_trip = await self.trip_repository.update(trip)
 
         # 사용자에게 포인트 지급
-        if updated_trip.earned_points and updated_trip.earned_points > 0:
+        if updated_trip.points and updated_trip.points > 0:
             try:
                 await self.auth_service.add_points(
                     user_id=updated_trip.user_id,
-                    points=updated_trip.earned_points,
+                    points=updated_trip.points,
                 )
             except Exception as e:
                 # 포인트 지급 실패 시 에러 로깅 (실제 환경에서는 로깅 필요)

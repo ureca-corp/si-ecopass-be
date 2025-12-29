@@ -40,8 +40,7 @@ class AdminTripResponse(BaseResponse):
 
     # 상태 및 포인트
     status: TripStatus
-    estimated_points: Optional[int] = None
-    earned_points: Optional[int] = None
+    points: Optional[int] = None
 
     # 관리자 검토 정보
     admin_note: Optional[str] = None
@@ -64,8 +63,7 @@ class AdminTripResponse(BaseResponse):
                 "arrival_longitude": 126.9850,
                 "arrival_image_url": "https://storage.example.com/arrival_123.jpg",
                 "status": "COMPLETED",
-                "estimated_points": 150,
-                "earned_points": None,
+                "points": 5,
                 "admin_note": None,
                 "created_at": "2025-01-01T09:00:00Z",
                 "updated_at": "2025-01-01T09:30:00Z",
@@ -101,8 +99,7 @@ class AdminTripWithUserResponse(BaseResponse):
 
     # 상태 및 포인트
     status: TripStatus
-    estimated_points: Optional[int] = None
-    earned_points: Optional[int] = None
+    points: Optional[int] = None
 
     # 관리자 검토 정보
     admin_note: Optional[str] = None
@@ -126,7 +123,7 @@ class AdminTripWithUserResponse(BaseResponse):
                 "start_latitude": 37.5665,
                 "start_longitude": 126.9780,
                 "status": "COMPLETED",
-                "estimated_points": 150,
+                "points": 5,
                 "created_at": "2025-01-01T09:00:00Z",
                 "updated_at": "2025-01-01T09:30:00Z",
             }
@@ -159,7 +156,7 @@ class AdminTripListResponse(BaseResponse):
                         "start_latitude": 37.5665,
                         "start_longitude": 126.9780,
                         "status": "COMPLETED",
-                        "estimated_points": 150,
+                        "points": 5,
                         "created_at": "2025-01-01T09:00:00Z",
                         "updated_at": "2025-01-01T09:30:00Z",
                     }
@@ -216,8 +213,7 @@ class AdminTripDetailResponse(BaseResponse):
                     "arrival_longitude": 128.5850,
                     "arrival_image_url": "https://storage.example.com/arrival_123.jpg",
                     "status": "COMPLETED",
-                    "estimated_points": 150,
-                    "earned_points": None,
+                    "points": 5,
                     "admin_note": None,
                     "created_at": "2025-01-01T09:00:00Z",
                     "updated_at": "2025-01-01T09:30:00Z",

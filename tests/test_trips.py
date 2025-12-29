@@ -210,8 +210,8 @@ class TestTripArrival:
         assert data["status"] == "success"
         assert data["data"]["status"] == "COMPLETED"
         assert "arrived_at" in data["data"]
-        assert "estimated_points" in data["data"]
-        assert data["data"]["estimated_points"] > 0
+        assert "points" in data["data"]
+        assert data["data"]["points"] > 0
 
     @pytest.mark.asyncio
     async def test_arrival_without_transfer(

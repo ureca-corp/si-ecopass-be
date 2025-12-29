@@ -168,6 +168,7 @@ def test_trip_arrival_data() -> dict:
         "latitude": 35.8569,  # 반월당역 위도
         "longitude": 128.5932,  # 반월당역 경도
         "arrival_image_url": "https://example.com/arrival.jpg",
+        "points": 5,  # 예상 포인트 (500m당 1포인트)
     }
 
 

@@ -94,15 +94,10 @@ class Trip(SQLModel, table=True):
         default=TripStatus.DRIVING,
         description="여행 상태",
     )
-    estimated_points: Optional[int] = Field(
+    points: Optional[int] = Field(
         default=None,
         ge=0,
-        description="예상 포인트 (도착 시 자동 계산)",
-    )
-    earned_points: Optional[int] = Field(
-        default=None,
-        ge=0,
-        description="실제 지급 포인트 (관리자 승인 후 확정)",
+        description="포인트 (도착 시 계산, 승인 시 지급)",
     )
 
     # 관리자 검토 정보
@@ -164,10 +159,10 @@ class Trip(SQLModel, table=True):
         self.status = TripStatus.TRANSFERRED
         self.updated_at = utc_now()
 
-    def arrive(self, latitude: float, longitude: float, image_url: str, estimated_points: int) -> None:
+    def arrive(self, latitude: float, longitude: float, image_url: str, points: int) -> None:
         """
         도착 정보 기록 (비즈니스 로직)
-        상태를 COMPLETED로 변경하고 도착 위치, 이미지, 예상 포인트 저장
+        상태를 COMPLETED로 변경하고 도착 위치, 이미지, 포인트 저장
         """
         if not self.can_arrive():
             raise ValueError(f"도착 불가능한 상태입니다: {self.status}")
@@ -175,7 +170,7 @@ class Trip(SQLModel, table=True):
         self.arrival_latitude = latitude
         self.arrival_longitude = longitude
         self.arrival_image_url = image_url
-        self.estimated_points = estimated_points
+        self.points = points
         self.status = TripStatus.COMPLETED
         self.updated_at = utc_now()
 
@@ -193,17 +188,15 @@ class Trip(SQLModel, table=True):
         """
         return self.status == TripStatus.COMPLETED
 
-    def approve(self, earned_points: Optional[int] = None) -> None:
+    def approve(self) -> None:
         """
         여정 승인 처리 (비즈니스 로직)
-        상태를 APPROVED로 변경하고 승인 포인트 설정
-        earned_points 미입력 시 estimated_points 사용
+        상태를 APPROVED로 변경 (포인트는 그대로 유지)
         """
         if not self.can_approve():
             raise ValueError(f"현재 상태({self.status})에서는 승인할 수 없습니다")
 
         self.status = TripStatus.APPROVED
-        self.earned_points = earned_points if earned_points is not None else self.estimated_points
         self.updated_at = utc_now()
 
     def reject(self, admin_note: Optional[str] = None) -> None:

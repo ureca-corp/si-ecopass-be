@@ -85,10 +85,11 @@ class TripService:
         latitude: float,
         longitude: float,
         image_url: str,
+        points: int,
     ) -> Trip:
         """
         도착 기록
-        소유권 확인 후 도착 정보 업데이트 및 포인트 계산
+        소유권 확인 후 도착 정보 업데이트 (포인트는 클라이언트에서 계산하여 전달)
         """
         # 여행 조회
         trip = await self.trip_repository.get_by_id(trip_id)
@@ -99,17 +100,13 @@ class TripService:
         if trip.user_id != user_id:
             raise ForbiddenError("다른 사용자의 여행을 수정할 수 없습니다")
 
-        # 포인트 계산 (임시: 100 포인트 고정)
-        # TODO: PostGIS ST_Distance RPC 함수를 사용한 실제 거리 기반 포인트 계산
-        estimated_points = 100
-
         # 상태 확인 및 도착 기록
         try:
             trip.arrive(
                 latitude=latitude,
                 longitude=longitude,
                 image_url=image_url,
-                estimated_points=estimated_points,
+                points=points,
             )
         except ValueError as e:
             raise ValidationError(str(e))

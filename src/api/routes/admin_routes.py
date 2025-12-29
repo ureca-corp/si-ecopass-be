@@ -203,7 +203,7 @@ async def get_trip_detail(
     response_model=SuccessResponse[AdminTripResponse],
     status_code=status.HTTP_200_OK,
     summary="여정 승인",
-    description="관리자 전용: 여정을 승인하고 포인트를 지급합니다. estimated_points가 earned_points로 지급됩니다. (관리자 권한 필수)",
+    description="관리자 전용: 여정을 승인하고 포인트를 지급합니다. (관리자 권한 필수)",
 )
 async def approve_trip(
     trip_id: str,
@@ -213,12 +213,11 @@ async def approve_trip(
     """
     여정 승인 엔드포인트
     COMPLETED 상태의 여정을 APPROVED로 변경하고 사용자에게 포인트 지급
-    estimated_points가 earned_points로 지급됨
     """
     trip = await admin_service.approve_trip(trip_id=UUID(trip_id))
 
     return SuccessResponse.create(
-        message=f"여정이 승인되었습니다 (지급 포인트: {trip.earned_points}점)",
+        message=f"여정이 승인되었습니다 (지급 포인트: {trip.points}점)",
         data=AdminTripResponse.model_validate(trip),
     )
 

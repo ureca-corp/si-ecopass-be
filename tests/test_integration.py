@@ -150,23 +150,22 @@ class TestFullUserJourney:
         assert arrival_result["status"] == "success"
         assert arrival_result["data"]["status"] == "COMPLETED"
 
-        estimated_points = arrival_result["data"]["estimated_points"]
-        assert estimated_points > 0
+        points = arrival_result["data"]["points"]
+        assert points > 0
 
         # ============================================================
         # Phase 5: 관리자 승인
         # ============================================================
 
         # 5-1. 관리자가 여정 승인
-        approve_data = {"points": estimated_points}
         approve_response = admin_client.post(
-            f"/api/v1/admin/trips/{trip_id}/approve", json=approve_data
+            f"/api/v1/admin/trips/{trip_id}/approve"
         )
         assert approve_response.status_code == 200
         approve_result = approve_response.json()
         assert approve_result["status"] == "success"
         assert approve_result["data"]["status"] == "APPROVED"
-        assert approve_result["data"]["actual_points"] == estimated_points
+        assert approve_result["data"]["points"] == points
 
         # ============================================================
         # Phase 6: 최종 검증
@@ -176,7 +175,7 @@ class TestFullUserJourney:
         profile_response = test_client.get("/api/v1/auth/profile", headers=auth_headers)
         assert profile_response.status_code == 200
         profile_data = profile_response.json()["data"]
-        assert profile_data["total_points"] == initial_points + estimated_points
+        assert profile_data["total_points"] == initial_points + points
 
         # 6-2. 여정 상세 정보 조회
         trip_response = test_client.get(f"/api/v1/trips/{trip_id}", headers=auth_headers)
@@ -185,13 +184,13 @@ class TestFullUserJourney:
         assert trip_data["status"] == "APPROVED"
         assert trip_data["transfer_image_url"] == transfer_image_url
         assert trip_data["arrival_image_url"] == arrival_image_url
-        assert trip_data["actual_points"] == estimated_points
+        assert trip_data["points"] == points
 
         print("\n" + "=" * 60)
         print("✅ 전체 사용자 여정 통합 테스트 성공!")
         print(f"   - 사용자 ID: {user_id}")
         print(f"   - 여정 ID: {trip_id}")
-        print(f"   - 획득 포인트: {estimated_points}")
+        print(f"   - 획득 포인트: {points}")
         print("=" * 60 + "\n")
 
 
@@ -247,12 +246,12 @@ class TestMultipleTripsScenario:
         # 도착
         arrival1 = authenticated_client.post(
             f"/api/v1/trips/{trip1_id}/arrival",
-            json={"latitude": 35.8569, "longitude": 128.5932, "arrival_image_url": image_url2},
+            json={"latitude": 35.8569, "longitude": 128.5932, "arrival_image_url": image_url2, "points": 5},
         )
-        points1 = arrival1.json()["data"]["estimated_points"]
+        points1 = arrival1.json()["data"]["points"]
 
         # 관리자 승인
-        admin_client.post(f"/api/v1/admin/trips/{trip1_id}/approve", json={"points": points1})
+        admin_client.post(f"/api/v1/admin/trips/{trip1_id}/approve")
 
         # ============================================================
         # 두 번째 여정
@@ -283,12 +282,12 @@ class TestMultipleTripsScenario:
         # 도착
         arrival2 = authenticated_client.post(
             f"/api/v1/trips/{trip2_id}/arrival",
-            json={"latitude": 35.8570, "longitude": 128.5935, "arrival_image_url": image_url4},
+            json={"latitude": 35.8570, "longitude": 128.5935, "arrival_image_url": image_url4, "points": 5},
         )
-        points2 = arrival2.json()["data"]["estimated_points"]
+        points2 = arrival2.json()["data"]["points"]
 
         # 관리자 승인
-        admin_client.post(f"/api/v1/admin/trips/{trip2_id}/approve", json={"points": points2})
+        admin_client.post(f"/api/v1/admin/trips/{trip2_id}/approve")
 
         # ============================================================
         # 최종 검증
