@@ -17,9 +17,7 @@ from src.api.schemas.admin_schemas import (
     AdminTripListResponse,
     AdminTripResponse,
     AdminTripWithUserResponse,
-    ApproveTripRequest,
     DashboardStatsResponse,
-    RejectTripRequest,
     UserInfoResponse,
 )
 from src.api.schemas.station_schemas import (
@@ -204,23 +202,19 @@ async def get_trip_detail(
     response_model=SuccessResponse[AdminTripResponse],
     status_code=status.HTTP_200_OK,
     summary="여정 승인",
-    description="관리자 전용: 여정을 승인하고 포인트를 지급합니다. (관리자 권한 필수)",
+    description="관리자 전용: 여정을 승인하고 포인트를 지급합니다. estimated_points가 earned_points로 지급됩니다. (관리자 권한 필수)",
 )
 async def approve_trip(
     trip_id: str,
-    request: ApproveTripRequest,
     admin_user: AdminUser,
     admin_service: AdminService = Depends(get_admin_service),
 ):
     """
     여정 승인 엔드포인트
     COMPLETED 상태의 여정을 APPROVED로 변경하고 사용자에게 포인트 지급
-    earned_points 미입력 시 estimated_points 사용
+    estimated_points가 earned_points로 지급됨
     """
-    trip = await admin_service.approve_trip(
-        trip_id=UUID(trip_id),
-        earned_points=request.earned_points,
-    )
+    trip = await admin_service.approve_trip(trip_id=UUID(trip_id))
 
     return SuccessResponse.create(
         message=f"여정이 승인되었습니다 (지급 포인트: {trip.earned_points}점)",
@@ -233,23 +227,19 @@ async def approve_trip(
     response_model=SuccessResponse[AdminTripResponse],
     status_code=status.HTTP_200_OK,
     summary="여정 반려",
-    description="관리자 전용: 여정을 반려하고 반려 사유를 기록합니다. (관리자 권한 필수)",
+    description="관리자 전용: 여정을 반려합니다. 포인트는 지급되지 않습니다. (관리자 권한 필수)",
 )
 async def reject_trip(
     trip_id: str,
-    request: RejectTripRequest,
     admin_user: AdminUser,
     admin_service: AdminService = Depends(get_admin_service),
 ):
     """
     여정 반려 엔드포인트
-    COMPLETED 상태의 여정을 REJECTED로 변경하고 반려 사유 기록
+    COMPLETED 상태의 여정을 REJECTED로 변경
     포인트는 지급되지 않음
     """
-    trip = await admin_service.reject_trip(
-        trip_id=UUID(trip_id),
-        admin_note=request.admin_note,
-    )
+    trip = await admin_service.reject_trip(trip_id=UUID(trip_id))
 
     return SuccessResponse.create(
         message="여정이 반려되었습니다",

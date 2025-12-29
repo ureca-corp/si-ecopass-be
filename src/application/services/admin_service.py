@@ -154,7 +154,7 @@ class AdminService:
 
         return updated_trip
 
-    async def reject_trip(self, trip_id: UUID, admin_note: str) -> Trip:
+    async def reject_trip(self, trip_id: UUID, admin_note: Optional[str] = None) -> Trip:
         """
         여정 반려 처리
         1. 여정 조회 및 반려 가능 여부 확인

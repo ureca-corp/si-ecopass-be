@@ -206,7 +206,7 @@ class Trip(SQLModel, table=True):
         self.earned_points = earned_points if earned_points is not None else self.estimated_points
         self.updated_at = utc_now()
 
-    def reject(self, admin_note: str) -> None:
+    def reject(self, admin_note: Optional[str] = None) -> None:
         """
         여정 반려 처리 (비즈니스 로직)
         상태를 REJECTED로 변경하고 반려 사유 기록

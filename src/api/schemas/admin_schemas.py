@@ -9,52 +9,10 @@ from datetime import datetime
 from typing import Optional
 from uuid import UUID
 
-from pydantic import Field, HttpUrl
+from pydantic import Field
 
 from src.domain.entities.trip import TripStatus
-from src.shared.schemas.base import BaseRequest, BaseResponse
-
-
-class ApproveTripRequest(BaseRequest):
-    """
-    여정 승인 요청 스키마
-    earned_points 미입력 시 estimated_points를 사용
-    """
-
-    earned_points: Optional[int] = Field(
-        default=None,
-        ge=0,
-        description="승인 포인트 (미입력 시 estimated_points 사용)",
-        examples=[150, 200, 100],
-    )
-
-    class Config:
-        json_schema_extra = {
-            "example": {
-                "earned_points": 150,
-            }
-        }
-
-
-class RejectTripRequest(BaseRequest):
-    """
-    여정 반려 요청 스키마
-    반려 사유를 admin_note에 기록
-    """
-
-    admin_note: str = Field(
-        min_length=1,
-        max_length=500,
-        description="반려 사유 (필수)",
-        examples=["주차 인증 사진이 명확하지 않습니다", "GPS 좌표가 정확하지 않습니다"],
-    )
-
-    class Config:
-        json_schema_extra = {
-            "example": {
-                "admin_note": "주차 인증 사진이 명확하지 않습니다",
-            }
-        }
+from src.shared.schemas.base import BaseResponse
 
 
 class AdminTripResponse(BaseResponse):
