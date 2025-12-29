@@ -201,6 +201,7 @@ class AuthService:
         """
         전체 사용자 수 조회
         관리자 대시보드 통계용
+        PostgreSQL function으로 RLS 우회
         """
-        response = self.db.table("users").select("*", count="exact").execute()
-        return response.count or 0
+        response = self.db.rpc("count_all_users").execute()
+        return response.data if response.data else 0
