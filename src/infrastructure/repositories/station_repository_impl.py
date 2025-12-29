@@ -346,3 +346,36 @@ class SQLModelStationRepository(IStationRepository):
         if parking_lot:
             self.session.delete(parking_lot)
             self.session.commit()
+
+    async def calculate_distance(
+        self, lat1: float, lng1: float, lat2: float, lng2: float
+    ) -> int:
+        """
+        두 좌표 간 거리 계산 (PostGIS ST_Distance)
+
+        PostGIS geography 타입으로 두 점 사이의 실제 거리를 계산
+        반환값은 미터 단위 (geography 타입은 구체 위의 거리 계산)
+
+        Args:
+            lat1, lng1: 첫 번째 지점 좌표
+            lat2, lng2: 두 번째 지점 좌표
+
+        Returns:
+            거리 (미터 단위, 정수)
+        """
+        from geoalchemy2 import WKTElement
+        from geoalchemy2.functions import ST_Distance
+        from geoalchemy2.types import Geography
+
+        # POINT 객체 생성 (WKT 형식: POINT(경도 위도))
+        point1 = WKTElement(f"POINT({lng1} {lat1})", srid=4326)
+        point2 = WKTElement(f"POINT({lng2} {lat2})", srid=4326)
+
+        # Geography 타입으로 실제 거리 계산 (미터 단위)
+        stmt = select(ST_Distance(cast(point1, Geography), cast(point2, Geography)))
+
+        result = self.session.exec(stmt)
+        distance_meters = result.scalar()
+
+        return int(distance_meters)
+

@@ -55,6 +55,10 @@ class Settings(BaseSettings):
         description="PostgreSQL 연결 URL (SQLModel용, 비밀번호의 @ 문자는 %40으로 인코딩)",
     )
 
+    # 네이버 클라우드 Maps API (Geocoding)
+    naver_client_id: str = Field(..., description="네이버 클라우드 플랫폼 Client ID")
+    naver_client_secret: str = Field(..., description="네이버 클라우드 플랫폼 Client Secret")
+
     # Uvicorn 서버 설정
     host: str = Field(default="0.0.0.0", description="서버 바인딩 호스트")
     port: int = Field(default=8000, description="서버 바인딩 포트")

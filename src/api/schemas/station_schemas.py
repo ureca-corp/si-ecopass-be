@@ -9,6 +9,7 @@ from uuid import UUID
 
 from pydantic import Field
 
+from src.infrastructure.external.naver_geocoding_service import AddressSearchResult
 from src.shared.schemas.base import BaseRequest, BaseResponse
 
 
@@ -36,14 +37,17 @@ class UpdateStationRequest(BaseRequest):
 
 
 class CreateParkingLotRequest(BaseRequest):
-    """주차장 생성 요청 스키마"""
+    """
+    주차장 생성 요청 스키마 (간소화)
+
+    어드민은 주소만 입력하면 백엔드에서 자동 처리:
+    1. 네이버 Geocoding API로 주소 → 좌표 변환
+    2. PostGIS로 역-주차장 거리 자동 계산
+    """
 
     station_id: UUID = Field(..., description="연계 역 ID")
     name: str = Field(..., min_length=1, max_length=100, description="주차장 이름")
-    address: str = Field(..., min_length=1, max_length=200, description="주소")
-    latitude: float = Field(..., ge=33, le=43, description="위도")
-    longitude: float = Field(..., ge=124, le=132, description="경도")
-    distance_to_station_m: Optional[int] = Field(None, ge=0, description="역까지 거리 (미터)")
+    address: str = Field(..., min_length=1, max_length=200, description="도로명 또는 지번 주소")
     fee_info: Optional[str] = Field(None, max_length=200, description="요금 정보")
 
 
@@ -206,5 +210,30 @@ class ParkingLotListResponse(BaseResponse):
                     }
                 ],
                 "total_count": 9,
+            }
+        }
+
+
+class AddressSearchResponse(BaseResponse):
+    """
+    주소 검색 결과 응답 스키마
+    자동완성용 주소 리스트 반환
+    """
+
+    results: list[AddressSearchResult]
+    total_count: int
+
+    class Config:
+        json_schema_extra = {
+            "example": {
+                "results": [
+                    {
+                        "address": "대구광역시 중구 동성로2가 123",
+                        "jibun_address": "대구광역시 중구 동성로2가 123",
+                        "latitude": 35.8580,
+                        "longitude": 128.5980,
+                    }
+                ],
+                "total_count": 5,
             }
         }

@@ -159,3 +159,19 @@ class IStationRepository(ABC):
     async def delete_parking_lot(self, parking_lot_id: UUID) -> None:
         """주차장 삭제"""
         pass
+
+    @abstractmethod
+    async def calculate_distance(
+        self, lat1: float, lng1: float, lat2: float, lng2: float
+    ) -> int:
+        """
+        두 좌표 간 거리 계산 (PostGIS ST_Distance)
+
+        Args:
+            lat1, lng1: 첫 번째 지점 좌표
+            lat2, lng2: 두 번째 지점 좌표
+
+        Returns:
+            거리 (미터 단위)
+        """
+        pass

@@ -21,6 +21,7 @@ from src.api.schemas.admin_schemas import (
     UserInfoResponse,
 )
 from src.api.schemas.station_schemas import (
+    AddressSearchResponse,
     CreateParkingLotRequest,
     CreateStationRequest,
     ParkingLotResponse,
@@ -327,12 +328,35 @@ async def delete_station(
 
 
 @router.post(
+@router.post(
     "/parking-lots",
     response_model=SuccessResponse[ParkingLotResponse],
     status_code=status.HTTP_201_CREATED,
     summary="주차장 생성",
-    description="관리자 전용: 새로운 주차장을 생성합니다.",
+    description="관리자 전용: 새로운 주차장을 생성합니다. 주소만 입력하면 좌표와 거리가 자동 계산됩니다.",
 )
+async def create_parking_lot(
+    request: CreateParkingLotRequest,
+    admin_user: AdminUser,
+    station_service: StationService = Depends(get_station_service),
+):
+    """
+    새 주차장 생성 (자동 Geocoding + 거리 계산)
+
+    어드민은 주소만 입력하면 백엔드에서 자동으로:
+    1. 네이버 API로 주소 → 좌표 변환
+    2. PostGIS로 역-주차장 거리 계산
+    """
+    parking_lot = await station_service.create_parking_lot(
+        station_id=request.station_id,
+        name=request.name,
+        address=request.address,
+        fee_info=request.fee_info,
+    )
+    return SuccessResponse.create(
+        message=f"'{parking_lot.name}' 주차장이 생성되었습니다 (거리: {parking_lot.distance_to_station_m}m)",
+        data=ParkingLotResponse.model_validate(parking_lot),
+    )
 async def create_parking_lot(
     request: CreateParkingLotRequest,
     admin_user: AdminUser,
@@ -399,3 +423,44 @@ async def delete_parking_lot(
     """주차장 삭제"""
     await station_service.delete_parking_lot(parking_lot_id)
     return SuccessResponse.create(message="주차장이 삭제되었습니다", data=None)
+
+
+# ============================================================================
+# 주소 검색 API (네이버 Geocoding)
+# ============================================================================
+
+
+@router.get(
+    "/address/search",
+    response_model=SuccessResponse[AddressSearchResponse],
+    status_code=status.HTTP_200_OK,
+    summary="주소 검색 (자동완성)",
+    description="관리자 전용: 네이버 Maps API로 주소를 검색합니다. 주차장 등록 시 정확한 주소 입력을 위해 사용.",
+)
+async def search_address(
+    query: str = Query(..., min_length=2, description="검색 키워드 (예: '대구 중구')"),
+    limit: int = Query(10, ge=1, le=20, description="최대 결과 개수"),
+    admin_user: AdminUser = Depends(),
+):
+    """
+    주소 검색 API (자동완성용)
+
+    프론트엔드에서 주소 입력 시 실시간으로 호출하여 자동완성 제공
+    선택된 주소로 주차장 생성 요청
+    """
+    from src.config import get_settings
+    from src.infrastructure.external.naver_geocoding_service import NaverGeocodingService
+
+    settings = get_settings()
+
+    geocoding_service = NaverGeocodingService(
+        client_id=settings.naver_client_id,
+        client_secret=settings.naver_client_secret,
+    )
+
+    results = await geocoding_service.search_addresses(query=query, limit=limit)
+
+    return SuccessResponse.create(
+        message=f"'{query}' 검색 완료 ({len(results)}건)",
+        data=AddressSearchResponse(results=results, total_count=len(results)),
+    )

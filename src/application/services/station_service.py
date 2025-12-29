@@ -194,35 +194,65 @@ class StationService:
         station_id: UUID,
         name: str,
         address: str,
-        latitude: float,
-        longitude: float,
-        distance_to_station_m: Optional[int] = None,
         fee_info: Optional[str] = None,
     ) -> ParkingLot:
         """
-        새 주차장 생성
+        새 주차장 생성 (자동 Geocoding + 거리 계산)
+
+        프로세스:
+        1. 네이버 API로 주소 → 좌표 변환
+        2. PostGIS로 역-주차장 거리 자동 계산
+        3. DB 저장
 
         Args:
             station_id: 연계 역 ID
             name: 주차장 이름
-            address: 주소
-            latitude, longitude: GPS 좌표
-            distance_to_station_m: 역까지 거리 (미터)
+            address: 도로명 또는 지번 주소
             fee_info: 요금 정보
 
         Returns:
             생성된 ParkingLot 엔티티
-        """
-        # 역 존재 여부 확인
-        await self.get_station_by_id(station_id)
 
+        Raises:
+            NotFoundError: 역을 찾을 수 없을 때
+            ValidationError: 주소를 좌표로 변환할 수 없을 때
+        """
+        from src.config import get_settings
+        from src.infrastructure.external.naver_geocoding_service import NaverGeocodingService
+        from src.shared.exceptions import ValidationError
+
+        # 1. 역 정보 조회 (좌표 필요)
+        station = await self.get_station_by_id(station_id)
+
+        # 2. 주소 → 좌표 변환 (네이버 Geocoding API)
+        settings = get_settings()
+        geocoding_service = NaverGeocodingService(
+            client_id=settings.naver_client_id,
+            client_secret=settings.naver_client_secret,
+        )
+
+        coords = await geocoding_service.geocode_address(address)
+        if not coords:
+            raise ValidationError(f"주소를 좌표로 변환할 수 없습니다: {address}")
+
+        latitude, longitude = coords
+
+        # 3. 거리 계산 (PostGIS)
+        distance_m = await self.repository.calculate_distance(
+            lat1=latitude,
+            lng1=longitude,
+            lat2=station.latitude,
+            lng2=station.longitude,
+        )
+
+        # 4. 주차장 생성
         return await self.repository.create_parking_lot(
             station_id=station_id,
             name=name,
             address=address,
             latitude=latitude,
             longitude=longitude,
-            distance_to_station_m=distance_to_station_m,
+            distance_to_station_m=distance_m,
             fee_info=fee_info,
         )
 
