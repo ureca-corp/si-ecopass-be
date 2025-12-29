@@ -328,7 +328,6 @@ async def delete_station(
 
 
 @router.post(
-@router.post(
     "/parking-lots",
     response_model=SuccessResponse[ParkingLotResponse],
     status_code=status.HTTP_201_CREATED,
@@ -337,7 +336,7 @@ async def delete_station(
 )
 async def create_parking_lot(
     request: CreateParkingLotRequest,
-    admin_user: AdminUser,
+    admin_user: AdminUser = Depends(get_admin_user),
     station_service: StationService = Depends(get_station_service),
 ):
     """
@@ -355,25 +354,6 @@ async def create_parking_lot(
     )
     return SuccessResponse.create(
         message=f"'{parking_lot.name}' 주차장이 생성되었습니다 (거리: {parking_lot.distance_to_station_m}m)",
-        data=ParkingLotResponse.model_validate(parking_lot),
-    )
-async def create_parking_lot(
-    request: CreateParkingLotRequest,
-    admin_user: AdminUser,
-    station_service: StationService = Depends(get_station_service),
-):
-    """새 주차장 생성"""
-    parking_lot = await station_service.create_parking_lot(
-        station_id=request.station_id,
-        name=request.name,
-        address=request.address,
-        latitude=request.latitude,
-        longitude=request.longitude,
-        distance_to_station_m=request.distance_to_station_m,
-        fee_info=request.fee_info,
-    )
-    return SuccessResponse.create(
-        message=f"'{parking_lot.name}' 주차장이 생성되었습니다",
         data=ParkingLotResponse.model_validate(parking_lot),
     )
 
