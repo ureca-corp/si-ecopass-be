@@ -20,14 +20,13 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 2. **Stations** - 대구 지하철 1/2/3호선 역 및 주변 주차장 조회 (PostGIS 기반)
 3. **Trips** - 여정 3단계 관리 (출발 → 환승 → 도착)
 4. **Storage** - Supabase Storage를 통한 인증 이미지 업로드
-5. **Admin** - 관리자 여정 승인/반려 및 포인트 지급
-6. **EcoPass** - 에코패스 관리 (추가 기능)
+5. **Admin** - 관리자 여정 승인/반려 및 포인트 지급, 역/주차장 관리
 
 ### 프로젝트 현황
 
 - ✅ 데이터베이스 스키마 완성 (Supabase migrations)
-- ✅ 5개 도메인 엔티티 정의 (User, Station, ParkingLot, Trip, EcoPass)
-- ✅ 6개 API 모듈 구현 (auth, admin, stations, trips, storage, ecopass)
+- ✅ 4개 도메인 엔티티 정의 (User, Station, ParkingLot, Trip)
+- ✅ 5개 API 모듈 구현 (auth, admin, stations, trips, storage)
 - ✅ JWT 인증 시스템
 - ✅ 테스트 코드 작성 (pytest)
 - ✅ Postman Collection
@@ -40,8 +39,8 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 **MUST FOLLOW**: 모든 요청/응답 스키마는 아래 명명 규칙을 **반드시** 따라야 합니다.
 
-- **요청 스키마**: `~~Request` (예: `CreateEcoPassRequest`, `UpdateEcoPassRequest`)
-- **응답 스키마**: `~~Response` (예: `EcoPassResponse`, `EcoPassListResponse`)
+- **요청 스키마**: `~~Request` (예: `CreateTripRequest`, `UpdateStationRequest`)
+- **응답 스키마**: `~~Response` (예: `TripResponse`, `StationListResponse`)
 - **베이스 클래스**: 모든 Request는 `BaseRequest`, 모든 Response는 `BaseResponse` 상속
 
 ```python
@@ -67,12 +66,12 @@ class SomethingResponse(BaseResponse):
 from src.shared.exceptions import NotFoundError, ValidationError
 
 # 좋은 예: 명확한 비즈니스 로직 검증
-if not ecopass:
-    raise NotFoundError(f"EcoPass {id}를 찾을 수 없습니다")
+if not trip:
+    raise NotFoundError(f"Trip {id}를 찾을 수 없습니다")
 
 # 나쁜 예: 불필요한 try-catch
 try:
-    ecopass = repository.get(id)  # 이미 예외 처리가 되어있는 경우
+    trip = repository.get(id)  # 이미 예외 처리가 되어있는 경우
 except Exception as e:
     raise InternalServerError(str(e))  # 불필요한 래핑
 ```
@@ -133,8 +132,7 @@ src/
 │   │   ├── user.py          # 사용자 엔티티
 │   │   ├── station.py       # 역 엔티티 (PostGIS)
 │   │   ├── parking_lot.py   # 주차장 엔티티
-│   │   ├── trip.py          # 여정 엔티티 (3단계 상태 관리)
-│   │   └── ecopass.py       # 에코패스 엔티티
+│   │   └── trip.py          # 여정 엔티티 (3단계 상태 관리)
 │   └── repositories/         # 레포지토리 인터페이스
 │
 ├── application/              # Application Layer (유스케이스)
@@ -143,15 +141,14 @@ src/
 │       ├── station_service.py    # 역 조회 로직
 │       ├── trip_service.py       # 여정 관리 로직
 │       ├── storage_service.py    # 파일 업로드 로직
-│       ├── admin_service.py      # 관리자 로직
-│       └── ecopass_service.py    # 에코패스 로직
+│       └── admin_service.py      # 관리자 로직
 │
 ├── infrastructure/           # Infrastructure Layer (외부 시스템)
 │   ├── database/            # Supabase 클라이언트
 │   └── repositories/        # 레포지토리 구현체
 │
 ├── api/                      # API Layer (프레젠테이션)
-│   ├── routes/              # FastAPI 라우터 (6개 모듈)
+│   ├── routes/              # FastAPI 라우터 (5개 모듈)
 │   ├── schemas/             # Request/Response DTO
 │   └── dependencies/        # 의존성 주입
 │
@@ -233,11 +230,11 @@ All API endpoints return responses in this format:
 ```json
 {
   "status": "success",
-  "message": "EcoPass created successfully",
+  "message": "Trip created successfully",
   "data": {
     "id": "550e8400-e29b-41d4-a716-446655440000",
     "user_id": "user_123",
-    "title": "Green Commuter Pass",
+    "status": "departing",
     "points": 100
   }
 }
@@ -248,7 +245,7 @@ All API endpoints return responses in this format:
 ```json
 {
   "status": "error",
-  "message": "EcoPass with id 550e8400-e29b-41d4-a716-446655440000 not found",
+  "message": "Trip with id 550e8400-e29b-41d4-a716-446655440000 not found",
   "data": null
 }
 ```
@@ -460,7 +457,7 @@ git push origin main
 
 프로젝트에는 포괄적인 테스트 스위트가 구현되어 있습니다:
 
-- **API 테스트**: FastAPI TestClient 사용 (6개 테스트 파일)
+- **API 테스트**: FastAPI TestClient 사용 (5개 테스트 파일)
 - **통합 테스트**: 실제 Supabase 인스턴스 연동 테스트
 - **커버리지**: `pytest-cov`로 코드 커버리지 측정
 
