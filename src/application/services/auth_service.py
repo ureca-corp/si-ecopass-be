@@ -140,9 +140,7 @@ class AuthService:
         """
         ID로 사용자 조회
         JWT 토큰에서 추출한 user_id로 프로필 조회 시 사용
-        
-        주의: email은 기본값("")으로 설정됩니다.
-        실제 email이 필요한 경우 호출자가 auth.users에서 가져와서 설정해야 합니다.
+        auth.users에서 email을 가져와 함께 반환
         """
         # users 테이블에서 사용자 정보 조회
         response = self.db.table("users").select("*").eq("id", str(user_id)).execute()
@@ -151,8 +149,15 @@ class AuthService:
             raise NotFoundError(f"사용자를 찾을 수 없습니다 (ID: {user_id})")
 
         user_data = response.data[0]
-        # email은 auth.users에서 관리하므로 기본값 설정
-        user_data["email"] = ""
+
+        # auth.users에서 email 가져오기
+        try:
+            auth_user = self.db.auth.admin.get_user_by_id(str(user_id))
+            user_data["email"] = auth_user.user.email if auth_user.user else ""
+        except Exception:
+            # auth.users 조회 실패 시 빈 문자열
+            user_data["email"] = ""
+
         return User(**user_data)
 
     async def update_profile(
