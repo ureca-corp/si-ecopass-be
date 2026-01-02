@@ -57,8 +57,10 @@ class StorageService:
 
         # 3. 파일 경로 구성: {user_id}_{timestamp}_{stage}.jpg
         from datetime import datetime
+        from uuid import uuid4
         timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-        file_path = f"{user_id}/{timestamp}_{stage}.jpg"
+        unique_id = str(uuid4())[:8]  # 고유성 보장 (마이크로초 단위 업로드 지원)
+        file_path = f"{user_id}/{timestamp}_{unique_id}_{stage}.jpg"
 
         # 4. 이미지 업로드
         file_bytes = await image_file.read()
