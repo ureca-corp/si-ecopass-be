@@ -376,7 +376,7 @@ class TestRejectionScenario:
         # 관리자가 반려
         reject_response = admin_client.post(
             f"/api/v1/admin/trips/{trip_id}/reject",
-            json={"reason": "증빙 이미지가 불명확합니다"},
+            json={"admin_note": "증빙 이미지가 불명확합니다"},
         )
         assert reject_response.status_code == 200
         assert reject_response.json()["data"]["status"] == "REJECTED"
