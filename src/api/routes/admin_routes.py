@@ -18,6 +18,7 @@ from src.api.schemas.admin_schemas import (
     AdminTripResponse,
     AdminTripWithUserResponse,
     DashboardStatsResponse,
+    RejectTripRequest,
     UserInfoResponse,
 )
 from src.api.schemas.station_schemas import (
@@ -231,15 +232,16 @@ async def approve_trip(
 )
 async def reject_trip(
     trip_id: str,
+    request: RejectTripRequest,
     admin_user: AdminUser,
     admin_service: AdminService = Depends(get_admin_service),
 ):
     """
     여정 반려 엔드포인트
     COMPLETED 상태의 여정을 REJECTED로 변경
-    포인트는 지급되지 않음
+    포인트는 지급되지 않으며 반려 사유를 기록
     """
-    trip = await admin_service.reject_trip(trip_id=UUID(trip_id))
+    trip = await admin_service.reject_trip(trip_id=UUID(trip_id), admin_note=request.admin_note)
 
     return SuccessResponse.create(
         message="여정이 반려되었습니다",

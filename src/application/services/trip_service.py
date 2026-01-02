@@ -93,7 +93,7 @@ class TripService:
         latitude: float,
         longitude: float,
         image_url: str,
-        points: int,
+        points: Optional[int] = None,
     ) -> Trip:
         """
         도착 기록
@@ -121,18 +121,19 @@ class TripService:
 
         server_points = calculate_points_from_distance(total_distance)
 
-        # 클라이언트 포인트 검증
-        is_valid, warning_message = validate_points_consistency(
-            calculated_points=server_points,
-            client_points=points,
-            tolerance=1,  # 1포인트 이내 GPS 오차 허용
-        )
-
-        if not is_valid:
-            logger.warning(
-                f"[Trip {trip_id}] {warning_message} "
-                f"(거리={total_distance:.2f}m, 사용자={user_id})"
+        # 클라이언트 포인트 검증 (points가 제공된 경우에만)
+        if points is not None:
+            is_valid, warning_message = validate_points_consistency(
+                calculated_points=server_points,
+                client_points=points,
+                tolerance=1,  # 1포인트 이내 GPS 오차 허용
             )
+
+            if not is_valid:
+                logger.warning(
+                    f"[Trip {trip_id}] {warning_message} "
+                    f"(거리={total_distance:.2f}m, 사용자={user_id})"
+                )
 
         # 상태 확인 및 도착 기록 (서버 계산 포인트 사용)
         try:

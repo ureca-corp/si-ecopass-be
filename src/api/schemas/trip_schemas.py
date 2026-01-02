@@ -71,9 +71,9 @@ class TransferTripRequest(BaseRequest):
     @field_validator("transfer_image_url")
     @classmethod
     def validate_url(cls, v: str) -> str:
-        """URL 형식 기본 검증 (https:// 시작)"""
-        if not v.startswith("https://"):
-            raise ValueError("URL은 https://로 시작해야 합니다")
+        """URL 형식 기본 검증 (http:// 또는 https:// 시작)"""
+        if not v.startswith("http://") and not v.startswith("https://"):
+            raise ValueError("URL은 http:// 또는 https://로 시작해야 합니다")
         return v
 
 
@@ -102,19 +102,19 @@ class ArrivalTripRequest(BaseRequest):
         description="도착 증빙 이미지 URL (Supabase Signed URL 지원)",
         examples=["https://storage.supabase.co/arrivals/image.jpg"],
     )
-    points: int = Field(
-        ...,
+    points: Optional[int] = Field(
+        default=None,
         ge=0,
-        description="포인트 (클라이언트에서 계산, 500m당 1포인트 기준)",
+        description="포인트 (선택, 서버에서 재계산하므로 무시됨, 500m당 1포인트 기준)",
         examples=[5],
     )
 
     @field_validator("arrival_image_url")
     @classmethod
     def validate_url(cls, v: str) -> str:
-        """URL 형식 기본 검증 (https:// 시작)"""
-        if not v.startswith("https://"):
-            raise ValueError("URL은 https://로 시작해야 합니다")
+        """URL 형식 기본 검증 (http:// 또는 https:// 시작)"""
+        if not v.startswith("http://") and not v.startswith("https://"):
+            raise ValueError("URL은 http:// 또는 https://로 시작해야 합니다")
         return v
 
 
@@ -174,7 +174,7 @@ class ArrivalTripResponse(BaseResponse):
     trip_id: UUID = Field(..., description="여행 ID")
     status: TripStatus = Field(..., description="여행 상태")
     arrived_at: datetime = Field(..., description="도착 시각")
-    points: int = Field(..., description="포인트")
+    points: Optional[int] = Field(..., description="포인트")
 
     model_config = {
         "json_schema_extra": {
@@ -205,7 +205,7 @@ class TripResponse(BaseResponse):
     arrival_longitude: Optional[float] = Field(None, description="도착 위치 경도")
     arrival_image_url: Optional[str] = Field(None, description="도착 증빙 이미지 URL")
     status: TripStatus = Field(..., description="여행 상태")
-    points: int = Field(..., description="포인트 (출발 시 0, 도착 후 실제 포인트)")
+    points: Optional[int] = Field(..., description="포인트 (출발 시 0, 도착 후 실제 포인트)")
     created_at: datetime = Field(..., description="레코드 생성 시각")
     updated_at: datetime = Field(..., description="최종 수정 시각")
 

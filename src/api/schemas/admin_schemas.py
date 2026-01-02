@@ -12,7 +12,26 @@ from uuid import UUID
 from pydantic import Field
 
 from src.domain.entities.trip import TripStatus
-from src.shared.schemas.base import BaseResponse
+from src.shared.schemas.base import BaseRequest, BaseResponse
+
+
+# ============================================================================
+# Request Schemas
+# ============================================================================
+
+
+class RejectTripRequest(BaseRequest):
+    """
+    여정 반려 요청 스키마
+    반려 사유(admin_note)는 필수
+    """
+
+    admin_note: str = Field(..., min_length=1, max_length=500, description="반려 사유 (필수)")
+
+
+# ============================================================================
+# Response Schemas
+# ============================================================================
 
 
 class AdminTripResponse(BaseResponse):
