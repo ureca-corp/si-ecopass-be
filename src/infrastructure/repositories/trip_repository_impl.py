@@ -48,8 +48,9 @@ class SupbaseTripRepository(ITripRepository):
     async def create(self, trip: Trip) -> Trip:
         """
         새로운 여행 생성
+        None 값은 제외하여 DB의 DEFAULT 값이 적용되도록 함
         """
-        trip_data = trip.model_dump(mode="json")
+        trip_data = trip.model_dump(mode="json", exclude_none=True)
         response = self.db.table("trips").insert(trip_data).execute()
 
         if not response.data:

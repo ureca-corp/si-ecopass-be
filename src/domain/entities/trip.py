@@ -94,10 +94,10 @@ class Trip(SQLModel, table=True):
         default=TripStatus.DRIVING,
         description="여행 상태",
     )
-    points: Optional[int] = Field(
-        default=None,
+    points: int = Field(
+        default=0,
         ge=0,
-        description="포인트 (도착 시 계산, 승인 시 지급)",
+        description="포인트 (출발 시 0, 도착 시 계산, 승인 시 지급)",
     )
 
     # 관리자 검토 정보

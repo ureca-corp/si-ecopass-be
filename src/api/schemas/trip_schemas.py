@@ -205,7 +205,7 @@ class TripResponse(BaseResponse):
     arrival_longitude: Optional[float] = Field(None, description="도착 위치 경도")
     arrival_image_url: Optional[str] = Field(None, description="도착 증빙 이미지 URL")
     status: TripStatus = Field(..., description="여행 상태")
-    points: Optional[int] = Field(None, description="포인트")
+    points: int = Field(..., description="포인트 (출발 시 0, 도착 후 실제 포인트)")
     created_at: datetime = Field(..., description="레코드 생성 시각")
     updated_at: datetime = Field(..., description="최종 수정 시각")
 
