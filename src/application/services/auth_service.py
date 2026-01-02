@@ -99,7 +99,8 @@ class AuthService:
         """
         로그인 처리
         1. Supabase Auth로 인증
-        2. users 테이블에서 사용자 정보 조회
+        2. users 테이블에서 일반 사용자 정보 조회
+        3. 관리자는 Auth 메타데이터만으로 로그인 (users 테이블 불필요)
         """
         try:
             # Supabase Auth 로그인
@@ -116,18 +117,34 @@ class AuthService:
             user_id = auth_response.user.id
             user_email = auth_response.user.email
             access_token = auth_response.session.access_token
+            user_metadata = auth_response.user.user_metadata or {}
 
-            # users 테이블에서 사용자 정보 조회
+            # users 테이블에서 일반 사용자 정보 조회
             user_response = self.db.table("users").select("*").eq("id", user_id).execute()
 
-            if not user_response.data:
-                raise NotFoundError(f"사용자 정보를 찾을 수 없습니다 (ID: {user_id})")
+            # 일반 사용자인 경우: users 테이블에 레코드가 있어야 함
+            if user_response.data:
+                user_data = user_response.data[0]
+                user_data["email"] = user_email
+                user = User(**user_data)
+                return user, access_token
 
-            # email은 auth.users에서 가져온 값을 사용
-            user_data = user_response.data[0]
-            user_data["email"] = user_email
-            user = User(**user_data)
-            return user, access_token
+            # users 테이블에 없는 경우: 관리자인지 확인
+            user_role = user_metadata.get("role", "user")
+            if user_role == "admin":
+                # 관리자는 Auth 메타데이터만으로 User 객체 생성
+                user = User(
+                    id=UUID(user_id),
+                    email=user_email or "",
+                    username=user_metadata.get("username", "admin"),
+                    vehicle_number=None,
+                    role="admin",
+                    total_points=0,
+                )
+                return user, access_token
+
+            # 일반 사용자인데 users 테이블에 없으면 에러
+            raise NotFoundError(f"사용자 정보를 찾을 수 없습니다 (ID: {user_id})")
 
         except AuthApiError as e:
             # Supabase Auth 에러 처리
