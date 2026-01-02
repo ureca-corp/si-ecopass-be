@@ -5,12 +5,20 @@ Trip Application Service
 여행 시작, 환승, 도착 및 조회 유스케이스 구현
 """
 
+import logging
 from typing import Optional
 from uuid import UUID
 
 from src.domain.entities.trip import Trip, TripStatus
 from src.domain.repositories.trip_repository import ITripRepository
 from src.shared.exceptions import ConflictError, ForbiddenError, NotFoundError, ValidationError
+from src.shared.utils.distance import (
+    calculate_points_from_distance,
+    calculate_trip_total_distance,
+    validate_points_consistency,
+)
+
+logger = logging.getLogger(__name__)
 
 
 class TripService:
@@ -89,7 +97,8 @@ class TripService:
     ) -> Trip:
         """
         도착 기록
-        소유권 확인 후 도착 정보 업데이트 (포인트는 클라이언트에서 계산하여 전달)
+        소유권 확인 후 도착 정보 업데이트
+        서버에서 거리 및 포인트를 재계산하여 클라이언트 값을 검증
         """
         # 여행 조회
         trip = await self.trip_repository.get_by_id(trip_id)
@@ -100,13 +109,38 @@ class TripService:
         if trip.user_id != user_id:
             raise ForbiddenError("다른 사용자의 여행을 수정할 수 없습니다")
 
-        # 상태 확인 및 도착 기록
+        # 서버 측 거리 및 포인트 재계산
+        total_distance = calculate_trip_total_distance(
+            start_lat=trip.start_latitude,
+            start_lon=trip.start_longitude,
+            transfer_lat=trip.transfer_latitude,
+            transfer_lon=trip.transfer_longitude,
+            arrival_lat=latitude,
+            arrival_lon=longitude,
+        )
+
+        server_points = calculate_points_from_distance(total_distance)
+
+        # 클라이언트 포인트 검증
+        is_valid, warning_message = validate_points_consistency(
+            calculated_points=server_points,
+            client_points=points,
+            tolerance=1,  # 1포인트 이내 GPS 오차 허용
+        )
+
+        if not is_valid:
+            logger.warning(
+                f"[Trip {trip_id}] {warning_message} "
+                f"(거리={total_distance:.2f}m, 사용자={user_id})"
+            )
+
+        # 상태 확인 및 도착 기록 (서버 계산 포인트 사용)
         try:
             trip.arrive(
                 latitude=latitude,
                 longitude=longitude,
                 image_url=image_url,
-                points=points,
+                points=server_points,  # 서버 계산값 사용 (보안)
             )
         except ValueError as e:
             raise ValidationError(str(e))

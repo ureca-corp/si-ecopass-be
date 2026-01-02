@@ -38,7 +38,7 @@ class TestAdminApproval:
         data = response.json()
         assert data["status"] == "success"
         assert data["data"]["status"] == "APPROVED"
-        assert data["data"]["points"] == 5
+        assert data["data"]["points"] == 9  # 서버 계산 포인트 (총 거리 ~4577m)
 
     @pytest.mark.asyncio
     async def test_approve_trip_non_admin(
@@ -132,7 +132,7 @@ class TestAdminApproval:
         assert response.status_code == 200
         data = response.json()
         assert data["status"] == "success"
-        assert data["data"]["points"] == 5
+        assert data["data"]["points"] == 9  # 서버 계산 포인트 (총 거리 ~4577m)
 
 
 class TestAdminRejection:
