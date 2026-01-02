@@ -11,8 +11,7 @@ from fastapi.testclient import TestClient
 class TestTripStart:
     """여정 시작 테스트 클래스"""
 
-    @pytest.mark.asyncio
-    async def test_start_trip_success(
+    def test_start_trip_success(
         self, authenticated_client: TestClient, test_trip_start_data: dict
     ):
         """
@@ -28,8 +27,7 @@ class TestTripStart:
         assert data["data"]["status"] == "DRIVING"
         assert "started_at" in data["data"]
 
-    @pytest.mark.asyncio
-    async def test_start_trip_duplicate(
+    def test_start_trip_duplicate(
         self, authenticated_client: TestClient, test_trip_start_data: dict
     ):
         """
@@ -58,8 +56,7 @@ class TestTripStart:
         data = response.json()
         assert "detail" in data  # HTTPBearer returns {'detail': 'Not authenticated'}
 
-    @pytest.mark.asyncio
-    async def test_start_trip_invalid_coordinates(self, authenticated_client: TestClient):
+    def test_start_trip_invalid_coordinates(self, authenticated_client: TestClient):
         """
         잘못된 좌표로 여정 시작 테스트
         유효하지 않은 위도/경도로 여정 시작 시 422 Validation Error 반환
@@ -71,8 +68,7 @@ class TestTripStart:
         data = response.json()
         assert data["status"] == "error"
 
-    @pytest.mark.asyncio
-    async def test_start_trip_missing_fields(self, authenticated_client: TestClient):
+    def test_start_trip_missing_fields(self, authenticated_client: TestClient):
         """
         필수 필드 누락 테스트
         위도 또는 경도 없이 여정 시작 시 422 Validation Error 반환
@@ -87,8 +83,7 @@ class TestTripStart:
 class TestTripTransfer:
     """환승 기록 테스트 클래스"""
 
-    @pytest.mark.asyncio
-    async def test_transfer_success(
+    def test_transfer_success(
         self,
         authenticated_client: TestClient,
         test_trip_start_data: dict,
@@ -113,8 +108,7 @@ class TestTripTransfer:
         assert data["data"]["status"] == "TRANSFERRED"
         assert "transferred_at" in data["data"]
 
-    @pytest.mark.asyncio
-    async def test_transfer_no_active_trip(
+    def test_transfer_no_active_trip(
         self, authenticated_client: TestClient, test_trip_transfer_data: dict
     ):
         """
@@ -146,8 +140,7 @@ class TestTripTransfer:
         data = response.json()
         assert "detail" in data  # HTTPBearer returns {'detail': 'Not authenticated'}
 
-    @pytest.mark.asyncio
-    async def test_transfer_invalid_state(
+    def test_transfer_invalid_state(
         self,
         authenticated_client: TestClient,
         test_trip_start_data: dict,
@@ -181,8 +174,7 @@ class TestTripTransfer:
 class TestTripArrival:
     """도착 기록 테스트 클래스"""
 
-    @pytest.mark.asyncio
-    async def test_arrival_success(
+    def test_arrival_success(
         self,
         authenticated_client: TestClient,
         test_trip_start_data: dict,
@@ -213,8 +205,7 @@ class TestTripArrival:
         assert "points" in data["data"]
         assert data["data"]["points"] > 0
 
-    @pytest.mark.asyncio
-    async def test_arrival_without_transfer(
+    def test_arrival_without_transfer(
         self,
         authenticated_client: TestClient,
         test_trip_start_data: dict,
@@ -237,8 +228,7 @@ class TestTripArrival:
         data = response.json()
         assert data["status"] == "error"
 
-    @pytest.mark.asyncio
-    async def test_arrival_duplicate(
+    def test_arrival_duplicate(
         self,
         authenticated_client: TestClient,
         test_trip_start_data: dict,
@@ -272,8 +262,7 @@ class TestTripArrival:
 class TestTripRetrieval:
     """여정 조회 테스트 클래스"""
 
-    @pytest.mark.asyncio
-    async def test_get_trip_by_id(
+    def test_get_trip_by_id(
         self, authenticated_client: TestClient, test_trip_start_data: dict
     ):
         """
@@ -293,8 +282,7 @@ class TestTripRetrieval:
         assert data["data"]["id"] == trip_id
         assert "status" in data["data"]
 
-    @pytest.mark.asyncio
-    async def test_get_my_trips(
+    def test_get_my_trips(
         self, authenticated_client: TestClient, test_trip_start_data: dict
     ):
         """
@@ -314,8 +302,7 @@ class TestTripRetrieval:
         assert "total_count" in data["data"]
         assert len(data["data"]["trips"]) > 0
 
-    @pytest.mark.asyncio
-    async def test_get_trips_with_pagination(self, authenticated_client: TestClient):
+    def test_get_trips_with_pagination(self, authenticated_client: TestClient):
         """
         페이지네이션 적용 여정 목록 조회 테스트
         limit과 offset으로 페이지네이션 적용
@@ -327,8 +314,7 @@ class TestTripRetrieval:
         assert data["status"] == "success"
         assert len(data["data"]["trips"]) <= 10
 
-    @pytest.mark.asyncio
-    async def test_get_trip_unauthorized_access(
+    def test_get_trip_unauthorized_access(
         self, authenticated_client: TestClient, test_user_data: dict, test_client: TestClient
     ):
         """
@@ -392,8 +378,7 @@ class TestTripRetrieval:
 class TestTripStatuses:
     """여정 상태 전환 테스트 클래스"""
 
-    @pytest.mark.asyncio
-    async def test_trip_status_flow(
+    def test_trip_status_flow(
         self,
         authenticated_client: TestClient,
         test_trip_start_data: dict,
@@ -421,8 +406,7 @@ class TestTripStatuses:
         )
         assert arrival_response.json()["data"]["status"] == "COMPLETED"
 
-    @pytest.mark.asyncio
-    async def test_invalid_status_transition(
+    def test_invalid_status_transition(
         self,
         authenticated_client: TestClient,
         test_trip_start_data: dict,

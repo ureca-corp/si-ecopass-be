@@ -14,8 +14,7 @@ from fastapi.testclient import TestClient
 class TestImageUpload:
     """이미지 업로드 테스트 클래스"""
 
-    @pytest.mark.asyncio
-    async def test_upload_transfer_image_success(self, authenticated_client: TestClient):
+    def test_upload_transfer_image_success(self, authenticated_client: TestClient):
         """
         환승 이미지 업로드 성공 테스트
         유효한 이미지 파일을 업로드하면 성공 응답 및 URL 반환
@@ -39,8 +38,7 @@ class TestImageUpload:
         assert data["data"]["image_url"].startswith("http")
         assert data["data"]["stage"] == "transfer"
 
-    @pytest.mark.asyncio
-    async def test_upload_arrival_image_success(self, authenticated_client: TestClient):
+    def test_upload_arrival_image_success(self, authenticated_client: TestClient):
         """
         도착 이미지 업로드 성공 테스트
         유효한 이미지 파일을 업로드하면 성공 응답 및 URL 반환
@@ -78,8 +76,7 @@ class TestImageUpload:
         data = response.json()
         assert "detail" in data  # HTTPBearer returns {'detail': 'Not authenticated'}
 
-    @pytest.mark.asyncio
-    async def test_upload_invalid_file_type(self, authenticated_client: TestClient):
+    def test_upload_invalid_file_type(self, authenticated_client: TestClient):
         """
         잘못된 파일 형식 업로드 테스트
         이미지가 아닌 파일(예: txt) 업로드 시 422 Validation Error 반환
@@ -93,8 +90,7 @@ class TestImageUpload:
         data = response.json()
         assert data["status"] == "error"
 
-    @pytest.mark.asyncio
-    async def test_upload_oversized_image(self, authenticated_client: TestClient):
+    def test_upload_oversized_image(self, authenticated_client: TestClient):
         """
         파일 크기 초과 테스트
         허용 크기(10MB)를 초과하는 이미지 업로드 시 422 Validation Error 반환
@@ -110,8 +106,7 @@ class TestImageUpload:
         assert data["status"] == "error"
         assert "크기" in data["message"] or "size" in data["message"].lower()
 
-    @pytest.mark.asyncio
-    async def test_upload_missing_file(self, authenticated_client: TestClient):
+    def test_upload_missing_file(self, authenticated_client: TestClient):
         """
         파일 누락 테스트
         파일 없이 업로드 요청 시 422 Validation Error 반환
@@ -122,8 +117,7 @@ class TestImageUpload:
         data = response.json()
         assert data["status"] == "error"
 
-    @pytest.mark.asyncio
-    async def test_upload_jpeg_image(self, authenticated_client: TestClient):
+    def test_upload_jpeg_image(self, authenticated_client: TestClient):
         """
         JPEG 이미지 업로드 테스트
         PNG 외에 JPEG 형식도 정상 업로드 가능
@@ -141,8 +135,7 @@ class TestImageUpload:
 class TestImageRetrieval:
     """이미지 조회 테스트 클래스"""
 
-    @pytest.mark.asyncio
-    async def test_get_uploaded_image_url(self, authenticated_client: TestClient):
+    def test_get_uploaded_image_url(self, authenticated_client: TestClient):
         """
         업로드된 이미지 URL 접근 테스트
         업로드 후 반환된 URL로 이미지 접근 가능
@@ -167,8 +160,7 @@ class TestImageRetrieval:
 class TestStorageIntegration:
     """스토리지 통합 테스트 클래스"""
 
-    @pytest.mark.asyncio
-    async def test_upload_and_use_in_trip(
+    def test_upload_and_use_in_trip(
         self,
         authenticated_client: TestClient,
         test_trip_start_data: dict,
@@ -206,8 +198,7 @@ class TestStorageIntegration:
         trip_data = trip_response.json()["data"]
         assert trip_data["transfer_image_url"] == image_url
 
-    @pytest.mark.asyncio
-    async def test_multiple_images_upload(self, authenticated_client: TestClient):
+    def test_multiple_images_upload(self, authenticated_client: TestClient):
         """
         여러 이미지 연속 업로드 테스트
         동일 사용자가 여러 이미지를 연속으로 업로드 가능

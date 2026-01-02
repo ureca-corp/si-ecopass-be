@@ -48,6 +48,7 @@ class Settings(BaseSettings):
     # Supabase 연결 정보
     supabase_url: str = Field(..., description="Supabase 프로젝트 URL")
     supabase_key: str = Field(..., description="Supabase anon/service 키")
+    supabase_service_role_key: str = Field(default="", description="Supabase service role 키 (Admin API용, 테스트 전용)")
 
     # Database 연결 정보 (SQLModel용)
     database_url: str = Field(

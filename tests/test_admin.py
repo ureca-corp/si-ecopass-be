@@ -11,8 +11,7 @@ from fastapi.testclient import TestClient
 class TestAdminApproval:
     """관리자 여정 승인 테스트 클래스"""
 
-    @pytest.mark.asyncio
-    async def test_approve_trip_success(
+    def test_approve_trip_success(
         self,
         authenticated_client: TestClient,
         admin_client: TestClient,
@@ -40,8 +39,7 @@ class TestAdminApproval:
         assert data["data"]["status"] == "APPROVED"
         assert data["data"]["points"] == 9  # 서버 계산 포인트 (총 거리 ~4577m)
 
-    @pytest.mark.asyncio
-    async def test_approve_trip_non_admin(
+    def test_approve_trip_non_admin(
         self,
         authenticated_client: TestClient,
         test_trip_start_data: dict,
@@ -69,8 +67,7 @@ class TestAdminApproval:
         assert data["status"] == "error"
         assert "권한" in data["message"] or "admin" in data["message"].lower()
 
-    @pytest.mark.asyncio
-    async def test_approve_incomplete_trip(
+    def test_approve_incomplete_trip(
         self,
         authenticated_client: TestClient,
         admin_client: TestClient,
@@ -91,8 +88,7 @@ class TestAdminApproval:
         data = response.json()
         assert data["status"] == "error"
 
-    @pytest.mark.asyncio
-    async def test_approve_nonexistent_trip(self, admin_client: TestClient):
+    def test_approve_nonexistent_trip(self, admin_client: TestClient):
         """
         존재하지 않는 여정 승인 시도 테스트
         잘못된 여정 ID로 승인 시도 시 404 Not Found 반환
@@ -105,8 +101,7 @@ class TestAdminApproval:
         data = response.json()
         assert data["status"] == "error"
 
-    @pytest.mark.asyncio
-    async def test_approve_with_negative_points(
+    def test_approve_with_negative_points(
         self,
         authenticated_client: TestClient,
         admin_client: TestClient,
@@ -138,8 +133,7 @@ class TestAdminApproval:
 class TestAdminRejection:
     """관리자 여정 반려 테스트 클래스"""
 
-    @pytest.mark.asyncio
-    async def test_reject_trip_success(
+    def test_reject_trip_success(
         self,
         authenticated_client: TestClient,
         admin_client: TestClient,
@@ -168,8 +162,7 @@ class TestAdminRejection:
         assert data["data"]["status"] == "REJECTED"
         # 반려 사유가 기록되었는지 확인 (스키마에 따라 다를 수 있음)
 
-    @pytest.mark.asyncio
-    async def test_reject_trip_non_admin(
+    def test_reject_trip_non_admin(
         self,
         authenticated_client: TestClient,
         test_trip_start_data: dict,
@@ -197,8 +190,7 @@ class TestAdminRejection:
         data = response.json()
         assert data["status"] == "error"
 
-    @pytest.mark.asyncio
-    async def test_reject_trip_without_reason(
+    def test_reject_trip_without_reason(
         self,
         authenticated_client: TestClient,
         admin_client: TestClient,
@@ -228,8 +220,7 @@ class TestAdminRejection:
 class TestAdminTripList:
     """관리자 여정 목록 조회 테스트 클래스"""
 
-    @pytest.mark.asyncio
-    async def test_get_pending_trips(self, admin_client: TestClient):
+    def test_get_pending_trips(self, admin_client: TestClient):
         """
         대기 중인 여정 목록 조회 테스트
         관리자가 승인 대기 중인 여정 목록 조회
@@ -242,8 +233,7 @@ class TestAdminTripList:
         assert "trips" in data["data"]
         assert "total_count" in data["data"]
 
-    @pytest.mark.asyncio
-    async def test_get_all_trips_as_admin(self, admin_client: TestClient):
+    def test_get_all_trips_as_admin(self, admin_client: TestClient):
         """
         관리자의 전체 여정 목록 조회 테스트
         관리자는 모든 사용자의 여정을 조회 가능
@@ -266,8 +256,7 @@ class TestAdminTripList:
         data = response.json()
         assert data["status"] == "error"
 
-    @pytest.mark.asyncio
-    async def test_get_trips_with_status_filter(self, admin_client: TestClient):
+    def test_get_trips_with_status_filter(self, admin_client: TestClient):
         """
         상태 필터링 여정 목록 조회 테스트
         특정 상태의 여정만 필터링하여 조회
@@ -287,8 +276,7 @@ class TestAdminTripList:
 class TestAdminStatistics:
     """관리자 통계 조회 테스트 클래스"""
 
-    @pytest.mark.asyncio
-    async def test_get_admin_dashboard_stats(self, admin_client: TestClient):
+    def test_get_admin_dashboard_stats(self, admin_client: TestClient):
         """
         관리자 대시보드 통계 조회 테스트
         전체 여정 수, 승인/반려 수 등 통계 정보 조회
@@ -326,8 +314,7 @@ class TestAdminAuthorization:
         # HTTPBearer는 토큰 없을 때 403 반환
         assert response.status_code in [401, 403]
 
-    @pytest.mark.asyncio
-    async def test_admin_role_required(self, authenticated_client: TestClient):
+    def test_admin_role_required(self, authenticated_client: TestClient):
         """
         일반 사용자의 관리자 권한 필요 API 접근 테스트
         role='admin'이 아닌 사용자가 접근 시 403 Forbidden 반환
@@ -349,8 +336,7 @@ class TestAdminAuthorization:
 class TestAdminStationCreate:
     """관리자 역 생성 테스트 클래스"""
 
-    @pytest.mark.asyncio
-    async def test_create_station_success(self, admin_client: TestClient):
+    def test_create_station_success(self, admin_client: TestClient):
         """
         역 생성 성공 테스트
         관리자가 새 역을 생성하면 201 Created 반환
@@ -377,8 +363,7 @@ class TestAdminStationCreate:
         # 정리: 생성된 역 삭제
         admin_client.delete(f"/api/v1/admin/stations/{created_id}")
 
-    @pytest.mark.asyncio
-    async def test_create_station_invalid_line(self, admin_client: TestClient):
+    def test_create_station_invalid_line(self, admin_client: TestClient):
         """
         잘못된 노선 번호로 역 생성 시 422 Validation Error 반환
         """
@@ -394,8 +379,7 @@ class TestAdminStationCreate:
         data = response.json()
         assert data["status"] == "error"
 
-    @pytest.mark.asyncio
-    async def test_create_station_non_admin(self, authenticated_client: TestClient):
+    def test_create_station_non_admin(self, authenticated_client: TestClient):
         """
         일반 사용자의 역 생성 시도 테스트
         관리자가 아닌 사용자가 역 생성 시도 시 403 Forbidden 반환
@@ -433,8 +417,7 @@ class TestAdminStationCreate:
 class TestAdminStationUpdate:
     """관리자 역 수정 테스트 클래스"""
 
-    @pytest.mark.asyncio
-    async def test_update_station_success(self, admin_client: TestClient):
+    def test_update_station_success(self, admin_client: TestClient):
         """
         역 수정 성공 테스트
         관리자가 기존 역 정보를 수정하면 200 OK 반환
@@ -466,8 +449,7 @@ class TestAdminStationUpdate:
         # 정리: 생성된 역 삭제
         admin_client.delete(f"/api/v1/admin/stations/{station_id}")
 
-    @pytest.mark.asyncio
-    async def test_update_station_not_found(self, admin_client: TestClient):
+    def test_update_station_not_found(self, admin_client: TestClient):
         """
         존재하지 않는 역 수정 시도 테스트
         잘못된 역 ID로 수정 시도 시 404 Not Found 반환
@@ -484,8 +466,7 @@ class TestAdminStationUpdate:
 class TestAdminStationDelete:
     """관리자 역 삭제 테스트 클래스"""
 
-    @pytest.mark.asyncio
-    async def test_delete_station_success(self, admin_client: TestClient):
+    def test_delete_station_success(self, admin_client: TestClient):
         """
         역 삭제 성공 테스트
         관리자가 역을 삭제하면 200 OK 반환
@@ -512,8 +493,7 @@ class TestAdminStationDelete:
         get_response = admin_client.get(f"/api/v1/stations/{station_id}")
         assert get_response.status_code == 404
 
-    @pytest.mark.asyncio
-    async def test_delete_station_not_found(self, admin_client: TestClient):
+    def test_delete_station_not_found(self, admin_client: TestClient):
         """
         존재하지 않는 역 삭제 시도 테스트
         잘못된 역 ID로 삭제 시도 시 404 Not Found 반환
@@ -534,8 +514,7 @@ class TestAdminStationDelete:
 class TestAdminParkingLotCreate:
     """관리자 주차장 생성 테스트 클래스"""
 
-    @pytest.mark.asyncio
-    async def test_create_parking_lot_success(self, admin_client: TestClient, test_client: TestClient):
+    def test_create_parking_lot_success(self, admin_client: TestClient, test_client: TestClient):
         """
         주차장 생성 성공 테스트
         관리자가 새 주차장을 생성하면 201 Created 반환
@@ -571,8 +550,7 @@ class TestAdminParkingLotCreate:
         # 정리: 생성된 주차장 삭제
         admin_client.delete(f"/api/v1/admin/parking-lots/{created_id}")
 
-    @pytest.mark.asyncio
-    async def test_create_parking_lot_invalid_station(self, admin_client: TestClient):
+    def test_create_parking_lot_invalid_station(self, admin_client: TestClient):
         """
         존재하지 않는 역에 주차장 생성 시도 테스트
         유효하지 않은 station_id로 생성 시도 시 404 Not Found 반환
@@ -591,8 +569,7 @@ class TestAdminParkingLotCreate:
         data = response.json()
         assert data["status"] == "error"
 
-    @pytest.mark.asyncio
-    async def test_create_parking_lot_non_admin(self, authenticated_client: TestClient, test_client: TestClient):
+    def test_create_parking_lot_non_admin(self, authenticated_client: TestClient, test_client: TestClient):
         """
         일반 사용자의 주차장 생성 시도 테스트
         관리자가 아닌 사용자가 주차장 생성 시도 시 403 Forbidden 반환
@@ -621,8 +598,7 @@ class TestAdminParkingLotCreate:
 class TestAdminParkingLotUpdate:
     """관리자 주차장 수정 테스트 클래스"""
 
-    @pytest.mark.asyncio
-    async def test_update_parking_lot_success(self, admin_client: TestClient, test_client: TestClient):
+    def test_update_parking_lot_success(self, admin_client: TestClient, test_client: TestClient):
         """
         주차장 수정 성공 테스트
         관리자가 기존 주차장 정보를 수정하면 200 OK 반환
@@ -665,8 +641,7 @@ class TestAdminParkingLotUpdate:
 class TestAdminParkingLotDelete:
     """관리자 주차장 삭제 테스트 클래스"""
 
-    @pytest.mark.asyncio
-    async def test_delete_parking_lot_success(self, admin_client: TestClient, test_client: TestClient):
+    def test_delete_parking_lot_success(self, admin_client: TestClient, test_client: TestClient):
         """
         주차장 삭제 성공 테스트
         관리자가 주차장을 삭제하면 200 OK 반환
@@ -700,8 +675,7 @@ class TestAdminParkingLotDelete:
 class TestAdminStationCascadeDelete:
     """역 삭제 시 연결된 주차장 CASCADE 삭제 테스트"""
 
-    @pytest.mark.asyncio
-    async def test_delete_station_cascades_parking_lots(self, admin_client: TestClient):
+    def test_delete_station_cascades_parking_lots(self, admin_client: TestClient):
         """
         역 삭제 시 연결된 주차장도 함께 삭제되는지 테스트
         CASCADE 삭제 동작 확인

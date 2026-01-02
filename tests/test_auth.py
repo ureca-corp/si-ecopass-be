@@ -143,8 +143,7 @@ class TestLogin:
 class TestProfile:
     """프로필 관리 테스트 클래스"""
 
-    @pytest.mark.asyncio
-    async def test_get_profile_success(self, authenticated_client: TestClient, test_user_data: dict):
+    def test_get_profile_success(self, authenticated_client: TestClient, test_user_data: dict):
         """
         프로필 조회 테스트
         인증된 사용자가 자신의 프로필을 조회하면 성공 응답 반환
@@ -168,8 +167,7 @@ class TestProfile:
         data = response.json()
         assert "detail" in data  # HTTPBearer returns {'detail': 'Not authenticated'}
 
-    @pytest.mark.asyncio
-    async def test_update_profile_success(self, authenticated_client: TestClient):
+    def test_update_profile_success(self, authenticated_client: TestClient):
         """
         프로필 수정 테스트
         인증된 사용자가 프로필을 수정하면 성공 응답 반환
@@ -185,8 +183,7 @@ class TestProfile:
         assert data["data"]["username"] == unique_username
         assert data["data"]["vehicle_number"] == "56나7890"
 
-    @pytest.mark.asyncio
-    async def test_update_profile_partial(self, authenticated_client: TestClient):
+    def test_update_profile_partial(self, authenticated_client: TestClient):
         """
         부분 프로필 수정 테스트
         일부 필드만 수정 시 해당 필드만 업데이트됨

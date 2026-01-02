@@ -14,8 +14,7 @@ from fastapi.testclient import TestClient
 class TestFullUserJourney:
     """전체 사용자 여정 통합 테스트"""
 
-    @pytest.mark.asyncio
-    async def test_complete_trip_lifecycle(
+    def test_complete_trip_lifecycle(
         self,
         test_client: TestClient,
         test_user_data: dict,
@@ -197,8 +196,7 @@ class TestFullUserJourney:
 class TestMultipleTripsScenario:
     """여러 여정 시나리오 테스트"""
 
-    @pytest.mark.asyncio
-    async def test_multiple_trips_by_same_user(
+    def test_multiple_trips_by_same_user(
         self, authenticated_client: TestClient, admin_client: TestClient
     ):
         """
@@ -314,8 +312,7 @@ class TestMultipleTripsScenario:
 class TestRejectionScenario:
     """여정 반려 시나리오 테스트"""
 
-    @pytest.mark.asyncio
-    async def test_trip_rejection_flow(
+    def test_trip_rejection_flow(
         self, authenticated_client: TestClient, admin_client: TestClient
     ):
         """
@@ -406,8 +403,7 @@ class TestRejectionScenario:
 class TestErrorRecoveryScenario:
     """에러 복구 시나리오 테스트"""
 
-    @pytest.mark.asyncio
-    async def test_duplicate_trip_prevention(self, authenticated_client: TestClient):
+    def test_duplicate_trip_prevention(self, authenticated_client: TestClient):
         """
         중복 여정 방지 테스트
 

@@ -178,11 +178,17 @@ tests/                        # 테스트 코드
 scripts/                      # 유틸리티 스크립트
 ├── create_admin_user.py           # 관리자 계정 생성
 ├── import_station_data.py         # 역/주차장 데이터 임포트
-└── migrate_image_urls_to_signed.py  # public URL → Signed URL 마이그레이션
+├── migrate_image_urls_to_signed.py  # public URL → Signed URL 마이그레이션
+├── cleanup_local_db.py            # 로컬 Supabase 테스트 데이터 정리
+└── cleanup_test_data.sql          # SQL 직접 실행용 정리 스크립트
 
 supabase/                     # Supabase 설정
-├── migrations/              # 데이터베이스 마이그레이션 (10개)
-└── seed.sql                 # 샘플 데이터
+├── migrations/              # 데이터베이스 마이그레이션
+│   ├── README.md           # 마이그레이션 목록 및 설명
+│   ├── _deprecated_rls/    # 폐기된 RLS 마이그레이션 백업
+│   └── *.sql               # 활성 마이그레이션 (16개)
+├── seed.sql                 # Seed 데이터 (14개 역, 9개 주차장)
+└── config.toml              # 로컬 Supabase 설정
 ```
 
 ## Architecture Principles
@@ -353,13 +359,58 @@ Authorization: Bearer <jwt_token>
 async def get_current_user(credentials: HTTPAuthorizationCredentials):
     token = credentials.credentials
     user_response = db.auth.get_user(token)  # ← Supabase Auth 검증
-    # ... user 객체 반환
+    # users 테이블에서 조회 (필수)
+    user = await auth_service.get_user_by_id(user_id)
+    return user
 
 # 3. Service에서 비즈니스 로직 검증
 async def get_my_trips(user_id: UUID):
     # 이미 get_current_user를 통과했으므로 user_id는 신뢰 가능
     trips = await db.trips.filter(user_id=user_id).all()
     return trips
+```
+
+**관리자 인증 (별도 처리):**
+
+```python
+# admin_deps.py - 관리자는 users 테이블 없어도 동작
+async def get_admin_user(credentials: HTTPAuthorizationCredentials):
+    user_response = db.auth.get_user(token)
+    user_metadata = user_response.user.user_metadata or {}
+    role = user_metadata.get("role", "user")
+
+    if role != "admin":
+        raise ForbiddenError("관리자 권한이 필요합니다")
+
+    # users 테이블 조회 시도 (선택)
+    try:
+        user = await auth_service.get_user_by_id(user_id)
+    except Exception:
+        # users 테이블에 없으면 user_metadata로 User 객체 생성
+        user = User(id=user_id, email=email, role="admin", ...)
+
+    return user
+```
+
+**signup() 보안 강화:**
+
+```python
+# auth_service.py - role 파라미터 제거 (보안)
+async def signup(email: str, password: str, username: str):
+    """
+    일반 사용자만 회원가입 가능 (role은 항상 "user")
+    관리자는 Supabase Dashboard나 스크립트로만 생성
+    """
+    auth_response = db.auth.sign_up({
+        "email": email,
+        "password": password,
+        "options": {
+            "data": {
+                "username": username,
+                "role": "user",  # 하드코딩 - 일반 사용자만
+            }
+        }
+    })
 ```
 
 **RLS 상태:**
@@ -375,21 +426,43 @@ async def get_my_trips(user_id: UUID):
 
 **마이그레이션 이력:**
 - `20251229000010_disable_all_rls.sql` - 모든 public 테이블 RLS 제거
+- `supabase/migrations/README.md` - 전체 마이그레이션 목록 및 설명
+- `supabase/migrations/_deprecated_rls/` - 폐기된 RLS 마이그레이션 백업
 
-## Supabase MCP 워크플로우
+## Supabase 워크플로우
 
-이 프로젝트는 Supabase CLI 대신 **Supabase MCP**를 사용하여 데이터베이스를 관리합니다.
+이 프로젝트는 **Supabase MCP**(프로덕션) 또는 **로컬 Supabase + psql**(테스트)을 사용합니다.
 
-### 마이그레이션 적용
+### 로컬 환경: psql 직접 사용 (권장)
+
+```bash
+# 1. psql 별칭 설정
+alias psql-local='psql "postgresql://postgres:postgres@127.0.0.1:54322/postgres"'
+
+# 2. 마이그레이션 파일 작성
+vim supabase/migrations/20260101000001_add_rewards_table.sql
+
+# 3. 로컬에서 마이그레이션 테스트
+psql-local -f supabase/migrations/20260101000001_add_rewards_table.sql
+
+# 4. 테스트 후 seed 데이터 재삽입
+psql-local -f supabase/seed.sql
+
+# 5. 데이터 확인
+psql-local -c "\dt"  # 테이블 목록
+psql-local -c "SELECT COUNT(*) FROM stations;"
+```
+
+### 프로덕션 환경: Supabase MCP
 
 ```python
-# 1. 마이그레이션 파일 작성
-vim supabase/migrations/20251227_add_rewards_table.sql
+# 1. 마이그레이션 파일 작성 (로컬에서 이미 테스트 완료)
+vim supabase/migrations/20260101000001_add_rewards_table.sql
 
-# 2. MCP로 적용
+# 2. MCP로 프로덕션 적용
 mcp__supabase__apply_migration(
     name="add_rewards_table",
-    query=open("supabase/migrations/20251227_add_rewards_table.sql").read()
+    query=open("supabase/migrations/20260101000001_add_rewards_table.sql").read()
 )
 ```
 
@@ -540,19 +613,94 @@ git push origin main
 
 ## 테스트 전략
 
-프로젝트에는 포괄적인 테스트 스위트가 구현되어 있습니다:
+프로젝트는 **로컬 Supabase Docker 환경**을 사용하여 테스트합니다:
 
 - **API 테스트**: FastAPI TestClient 사용 (6개 테스트 파일)
-- **통합 테스트**: 실제 Supabase 인스턴스 연동 테스트
+- **통합 테스트**: 로컬 Supabase 인스턴스 연동 (프로덕션과 격리)
 - **커버리지**: `pytest-cov`로 코드 커버리지 측정
+- **장점**: Rate limit 없음, 빠른 실행 속도, 프로덕션 DB 오염 방지
 
-**테스트 실행**:
+### 로컬 Supabase 테스트 환경
+
+#### 1. 로컬 Supabase 시작/종료
 
 ```bash
-uv run pytest                           # 전체 테스트
-uv run pytest tests/test_auth.py        # 특정 모듈
-uv run pytest --cov=src --cov-report=html  # 커버리지
+# Supabase Docker 시작 (최초 1회 실행)
+supabase start
+
+# 상태 확인
+supabase status
+
+# 종료
+supabase stop
+
+# 데이터베이스 리셋 (초기 상태로)
+supabase db reset
 ```
+
+**접속 정보** (supabase start 실행 후 표시):
+- **Project URL**: http://127.0.0.1:54321
+- **DB URL**: postgresql://postgres:postgres@127.0.0.1:54322/postgres
+- **Studio**: http://127.0.0.1:54323 (웹 UI)
+- **Publishable Key**: sb_publishable_... (출력 확인)
+
+#### 2. 환경 변수 설정 (.env.test)
+
+테스트 실행 시 `.env.test` 파일이 자동으로 로드됩니다:
+
+```bash
+# .env.test (로컬 Supabase 연결 정보)
+SUPABASE_URL=http://127.0.0.1:54321
+SUPABASE_KEY=sb_publishable_ACJWlzQHlZjBrEguHvfOxg_3BJgxAaH
+DATABASE_URL=postgresql://postgres:postgres@127.0.0.1:54322/postgres
+```
+
+#### 3. psql로 직접 데이터 관리
+
+```bash
+# psql 별칭 추가 (권장)
+echo 'alias psql-local="psql \"postgresql://postgres:postgres@127.0.0.1:54322/postgres\""' >> ~/.zshrc
+source ~/.zshrc
+
+# 테이블 목록 확인
+psql-local -c "\dt"
+
+# 테스트 데이터 정리 (역/주차장 유지)
+psql-local -c "DELETE FROM trips; DELETE FROM users;"
+
+# Seed 데이터 삽입
+psql-local -f supabase/seed.sql
+
+# 데이터 개수 확인
+psql-local -c "
+  SELECT 'users' as table_name, COUNT(*) FROM users
+  UNION ALL SELECT 'trips', COUNT(*) FROM trips
+  UNION ALL SELECT 'stations', COUNT(*) FROM stations
+  UNION ALL SELECT 'parking_lots', COUNT(*) FROM parking_lots;
+"
+```
+
+#### 4. 테스트 실행
+
+```bash
+# 전체 테스트 (로컬 Supabase 자동 연결)
+uv run pytest
+
+# 특정 테스트만
+uv run pytest tests/test_auth.py -v
+
+# Coverage 무시
+uv run pytest --no-cov
+
+# 빠른 실행 (병렬)
+uv run pytest -n auto
+```
+
+**테스트 격리**:
+- ✅ 프로덕션 DB와 완전 분리
+- ✅ Rate limit 없음 (로컬이므로 무제한)
+- ✅ 빠른 실행 (네트워크 레이턴시 제거)
+- ✅ 테스트 후 즉시 데이터 리셋 가능
 
 ## 체크리스트 (새 기능 추가 시)
 

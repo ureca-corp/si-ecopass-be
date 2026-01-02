@@ -38,8 +38,7 @@ class SupbaseTripRepository(ITripRepository):
             arrival_longitude=row.get("arrival_longitude"),
             arrival_image_url=row.get("arrival_image_url"),
             status=TripStatus(row.get("status")),
-            estimated_points=row.get("estimated_points"),
-            earned_points=row.get("earned_points"),
+            points=row.get("points", 0),  # 통합된 points 필드 사용
             admin_note=row.get("admin_note"),
             created_at=row.get("created_at"),
             updated_at=row.get("updated_at"),

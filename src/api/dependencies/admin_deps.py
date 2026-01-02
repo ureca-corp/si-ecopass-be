@@ -27,7 +27,8 @@ async def get_admin_user(
 ) -> User:
     """
     관리자 권한 검증 후 현재 사용자 반환
-    JWT 토큰의 user_metadata에서 role을 읽어 'admin' 여부 확인 (DB 쿼리 불필요)
+    JWT 토큰의 user_metadata에서 role을 읽어 'admin' 여부 확인
+    users 테이블이 없어도 동작 (관리자는 user_metadata만으로 User 객체 생성)
     """
     token = credentials.credentials
 
@@ -40,21 +41,31 @@ async def get_admin_user(
         user_id = UUID(user_response.user.id)
         user_email = user_response.user.email
 
-        # JWT 토큰의 user_metadata에서 role 추출 (성능 향상!)
+        # JWT 토큰의 user_metadata에서 role 추출
         user_metadata = user_response.user.user_metadata or {}
         role = user_metadata.get("role", "user")
 
-        # JWT에서 바로 관리자 여부 확인 (DB 쿼리 불필요)
+        # JWT에서 바로 관리자 여부 확인
         if role != "admin":
             raise ForbiddenError("관리자 권한이 필요합니다")
 
-        # users 테이블에서 나머지 사용자 정보 조회
-        user = await auth_service.get_user_by_id(user_id)
-
-        # JWT에서 가져온 정보로 설정
-        user.email = user_email
-        user.role = role
-        return user
+        # users 테이블 조회 시도 (있으면 사용, 없으면 user_metadata로 생성)
+        try:
+            user = await auth_service.get_user_by_id(user_id)
+            user.email = user_email
+            user.role = role
+            return user
+        except Exception:
+            # users 테이블에 없는 경우: user_metadata로 User 객체 생성
+            user = User(
+                id=user_id,
+                email=user_email or "",
+                username=user_metadata.get("username", "admin"),
+                vehicle_number=None,
+                role="admin",
+                total_points=0,
+            )
+            return user
 
     except ForbiddenError:
         raise
