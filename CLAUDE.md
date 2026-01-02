@@ -166,14 +166,24 @@ src/
 ├── config.py                # 환경 설정 (pydantic-settings)
 └── main.py                  # FastAPI 앱 팩토리
 
-tests/                        # 테스트 코드
+tests/                        # 테스트 코드 (도메인별 분리)
 ├── conftest.py              # pytest 공통 설정 및 fixture
-├── test_auth.py             # 인증 API 테스트
-├── test_stations.py         # 역 API 테스트
-├── test_trips.py            # 여정 API 테스트
-├── test_storage.py          # 스토리지 API 테스트
-├── test_admin.py            # 관리자 API 테스트
-└── test_integration.py      # 통합 테스트
+├── auth/
+│   └── test_auth.py         # 인증 API 테스트
+├── stations/
+│   ├── test_station_queries.py      # 역 조회 API 테스트
+│   └── test_admin_station_crud.py   # 관리자 역 CRUD 테스트
+├── parking_lots/
+│   ├── test_parking_lot_queries.py      # 주차장 조회 API 테스트
+│   └── test_admin_parking_lot_crud.py   # 관리자 주차장 CRUD 테스트
+├── trips/
+│   ├── test_trip_lifecycle.py      # 여정 생명주기 테스트 (시작/환승/도착)
+│   ├── test_trip_queries.py        # 여정 조회 테스트
+│   └── test_admin_trip_approval.py # 관리자 여정 승인/반려 테스트
+├── storage/
+│   └── test_storage.py      # 스토리지 API 테스트
+└── integration/
+    └── test_integration.py  # 통합 테스트
 
 scripts/                      # 유틸리티 스크립트
 ├── create_admin_user.py           # 관리자 계정 생성
@@ -185,8 +195,7 @@ scripts/                      # 유틸리티 스크립트
 supabase/                     # Supabase 설정
 ├── migrations/              # 데이터베이스 마이그레이션
 │   ├── README.md           # 마이그레이션 목록 및 설명
-│   ├── _deprecated_rls/    # 폐기된 RLS 마이그레이션 백업
-│   └── *.sql               # 활성 마이그레이션 (16개)
+│   └── *.sql               # 활성 마이그레이션 (9개, 정리됨)
 ├── seed.sql                 # Seed 데이터 (14개 역, 9개 주차장)
 └── config.toml              # 로컬 Supabase 설정
 ```
@@ -426,8 +435,8 @@ async def signup(email: str, password: str, username: str):
 
 **마이그레이션 이력:**
 - `20251229000010_disable_all_rls.sql` - 모든 public 테이블 RLS 제거
-- `supabase/migrations/README.md` - 전체 마이그레이션 목록 및 설명
-- `supabase/migrations/_deprecated_rls/` - 폐기된 RLS 마이그레이션 백업
+- `supabase/migrations/README.md` - 전체 마이그레이션 목록 및 설명 (9개 활성 마이그레이션)
+- **정리 완료**: 불필요한 함수 및 deprecated RLS 마이그레이션 제거됨
 
 ## Supabase 워크플로우
 
@@ -686,13 +695,19 @@ psql-local -c "
 # 전체 테스트 (로컬 Supabase 자동 연결)
 uv run pytest
 
-# 특정 테스트만
-uv run pytest tests/test_auth.py -v
+# 도메인별 테스트 (권장: 명확한 범위 지정)
+uv run pytest tests/auth/ -v          # 인증 API만
+uv run pytest tests/trips/ -v         # 여정 API만
+uv run pytest tests/stations/ -v      # 역 API만
+uv run pytest tests/storage/ -v       # 스토리지 API만
+
+# 특정 테스트 파일만
+uv run pytest tests/trips/test_trip_lifecycle.py -v
 
 # Coverage 무시
 uv run pytest --no-cov
 
-# 빠른 실행 (병렬)
+# 빠른 실행 (도메인별 병렬 처리)
 uv run pytest -n auto
 ```
 
@@ -701,6 +716,37 @@ uv run pytest -n auto
 - ✅ Rate limit 없음 (로컬이므로 무제한)
 - ✅ 빠른 실행 (네트워크 레이턴시 제거)
 - ✅ 테스트 후 즉시 데이터 리셋 가능
+
+#### 5. 도메인별 테스트 구조 (2026-01-02 개선)
+
+**구조화 이점:**
+- **명확한 범위**: 각 도메인이 독립적인 디렉토리를 가져 테스트 범위 명확화
+- **병렬 실행 최적화**: `pytest -n auto`로 도메인별 병렬 처리 자동화
+- **파일 크기 감소**: 715줄 test_admin.py → 3개 파일(각 100-300줄)로 분리
+- **에이전트 효율성**: 각 에이전트가 독립적인 도메인 테스트에 집중 가능
+
+**테스트 파일 분류:**
+```
+tests/
+├── auth/              # 인증 (8 tests)
+├── stations/          # 역 조회 + CRUD (7 tests)
+├── parking_lots/      # 주차장 조회 + CRUD (7 tests)
+├── trips/             # 여정 생명주기 + 조회 + 승인 (32 tests)
+├── storage/           # 스토리지 (10 tests)
+└── integration/       # 통합 시나리오 (4 tests)
+```
+
+**권장 실행 방법:**
+```bash
+# 도메인별 독립 실행 (디버깅 시)
+uv run pytest tests/trips/ -v
+
+# 전체 병렬 실행 (CI/CD)
+uv run pytest -n auto
+
+# 특정 기능만 (예: 여정 생명주기)
+uv run pytest tests/trips/test_trip_lifecycle.py -v
+```
 
 ## 체크리스트 (새 기능 추가 시)
 
