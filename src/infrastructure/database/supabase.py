@@ -22,7 +22,10 @@ def get_supabase_client() -> Client:
     if not settings.supabase_url or not settings.supabase_key:
         raise ValueError("Supabase URL과 KEY가 환경 변수에 설정되어야 합니다")
 
-    return create_client(settings.supabase_url, settings.supabase_key)
+    # Storage API는 URL 끝에 슬래시가 필요함
+    supabase_url = settings.supabase_url.rstrip("/") + "/"
+
+    return create_client(supabase_url, settings.supabase_key)
 
 
 def get_db() -> Client:

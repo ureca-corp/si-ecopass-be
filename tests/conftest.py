@@ -27,10 +27,13 @@ else:
 
 from src.config import Settings, get_settings
 from src.infrastructure.database.session import init_db, close_db, get_session
+from src.infrastructure.database.supabase import get_supabase_client
 from src.main import app
 
 # get_settings() 캐시 클리어 (테스트 환경 변수 반영)
 get_settings.cache_clear()
+# get_supabase_client() 캐시 클리어 (URL에 trailing slash 추가 반영)
+get_supabase_client.cache_clear()
 
 
 # ============================================================
@@ -73,7 +76,9 @@ def supabase_client(test_settings: Settings) -> Client:
     Supabase 클라이언트 픽스처
     테스트용 Supabase 인스턴스에 연결
     """
-    return create_client(test_settings.supabase_url, test_settings.supabase_key)
+    # Storage API는 URL 끝에 슬래시가 필요함
+    supabase_url = test_settings.supabase_url.rstrip("/") + "/"
+    return create_client(supabase_url, test_settings.supabase_key)
 
 
 # ============================================================
@@ -268,8 +273,10 @@ def admin_client(test_client: TestClient, admin_user_data: dict, test_settings: 
 
     # service_role_key로 Admin API 클라이언트 생성
     if test_settings.supabase_service_role_key:
+        # Storage API는 URL 끝에 슬래시가 필요함
+        supabase_url = test_settings.supabase_url.rstrip("/") + "/"
         admin_supabase = create_client(
-            test_settings.supabase_url,
+            supabase_url,
             test_settings.supabase_service_role_key
         )
 
