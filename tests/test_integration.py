@@ -241,10 +241,10 @@ class TestMultipleTripsScenario:
         upload2 = authenticated_client.post("/api/v1/storage/upload/arrival", files=files2)
         image_url2 = upload2.json()["data"]["image_url"]
 
-        # 도착
+        # 도착 (points 생략 - 서버에서 계산)
         arrival1 = authenticated_client.post(
             f"/api/v1/trips/{trip1_id}/arrival",
-            json={"latitude": 35.8569, "longitude": 128.5932, "arrival_image_url": image_url2, "points": 5},
+            json={"latitude": 35.8569, "longitude": 128.5932, "arrival_image_url": image_url2},
         )
         points1 = arrival1.json()["data"]["points"]
 
@@ -277,10 +277,10 @@ class TestMultipleTripsScenario:
         upload4 = authenticated_client.post("/api/v1/storage/upload/arrival", files=files4)
         image_url4 = upload4.json()["data"]["image_url"]
 
-        # 도착
+        # 도착 (points 생략 - 서버에서 계산)
         arrival2 = authenticated_client.post(
             f"/api/v1/trips/{trip2_id}/arrival",
-            json={"latitude": 35.8570, "longitude": 128.5935, "arrival_image_url": image_url4, "points": 5},
+            json={"latitude": 35.8570, "longitude": 128.5935, "arrival_image_url": image_url4},
         )
         points2 = arrival2.json()["data"]["points"]
 

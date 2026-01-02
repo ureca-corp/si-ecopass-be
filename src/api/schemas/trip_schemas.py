@@ -72,7 +72,7 @@ class TransferTripRequest(BaseRequest):
     @classmethod
     def validate_url(cls, v: str) -> str:
         """URL 형식 기본 검증 (http:// 또는 https:// 시작)"""
-        if not v.startstart("http://") and not v.startswith("https://"):
+        if not v.startswith("http://") and not v.startswith("https://"):
             raise ValueError("URL은 http:// 또는 https://로 시작해야 합니다")
         return v
 
@@ -103,7 +103,7 @@ class ArrivalTripRequest(BaseRequest):
         examples=["https://storage.supabase.co/arrivals/image.jpg"],
     )
     points: Optional[int] = Field(
-        ...,
+        default=None,
         ge=0,
         description="포인트 (선택, 서버에서 재계산하므로 무시됨, 500m당 1포인트 기준)",
         examples=[5],
@@ -113,7 +113,7 @@ class ArrivalTripRequest(BaseRequest):
     @classmethod
     def validate_url(cls, v: str) -> str:
         """URL 형식 기본 검증 (http:// 또는 https:// 시작)"""
-        if not v.startstart("http://") and not v.startswith("https://"):
+        if not v.startswith("http://") and not v.startswith("https://"):
             raise ValueError("URL은 http:// 또는 https://로 시작해야 합니다")
         return v
 
