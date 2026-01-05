@@ -153,9 +153,8 @@ class TestAdminRejection:
         authenticated_client.post(f"/api/v1/trips/{trip_id}/transfer", json=test_trip_transfer_data)
         authenticated_client.post(f"/api/v1/trips/{trip_id}/arrival", json=test_trip_arrival_data)
 
-        # 관리자가 반려
-        reject_data = {"admin_note": "증빙 이미지가 불명확합니다"}
-        response = admin_client.post(f"/api/v1/admin/trips/{trip_id}/reject", json=reject_data)
+        # 관리자가 반려 (body 없이)
+        response = admin_client.post(f"/api/v1/admin/trips/{trip_id}/reject")
 
         assert response.status_code == 200
         data = response.json()
@@ -181,17 +180,16 @@ class TestAdminRejection:
         authenticated_client.post(f"/api/v1/trips/{trip_id}/transfer", json=test_trip_transfer_data)
         authenticated_client.post(f"/api/v1/trips/{trip_id}/arrival", json=test_trip_arrival_data)
 
-        # 일반 사용자가 반려 시도
-        reject_data = {"admin_note": "반려 사유"}
+        # 일반 사용자가 반려 시도 (body 없이)
         response = authenticated_client.post(
-            f"/api/v1/admin/trips/{trip_id}/reject", json=reject_data
+            f"/api/v1/admin/trips/{trip_id}/reject"
         )
 
         assert response.status_code == 403
         data = response.json()
         assert data["status"] == "error"
 
-    def test_reject_trip_without_reason(
+    def test_reject_trip_already_rejected(
         self,
         authenticated_client: TestClient,
         admin_client: TestClient,
@@ -200,8 +198,8 @@ class TestAdminRejection:
         test_trip_arrival_data: dict,
     ):
         """
-        반려 사유 없이 반려 시도 테스트
-        반려 사유 없이 반려 시도 시 422 Validation Error 반환
+        이미 반려된 여정 다시 반려 시도 테스트
+        이미 REJECTED 상태인 여정 반려 시도 시 422 Validation Error 반환
         """
         # 여정 완료
         start_response = authenticated_client.post("/api/v1/trips/start", json=test_trip_start_data)
@@ -210,8 +208,12 @@ class TestAdminRejection:
         authenticated_client.post(f"/api/v1/trips/{trip_id}/transfer", json=test_trip_transfer_data)
         authenticated_client.post(f"/api/v1/trips/{trip_id}/arrival", json=test_trip_arrival_data)
 
-        # 사유 없이 반려 시도
-        response = admin_client.post(f"/api/v1/admin/trips/{trip_id}/reject", json={})
+        # 첫 번째 반려 (성공)
+        response = admin_client.post(f"/api/v1/admin/trips/{trip_id}/reject")
+        assert response.status_code == 200
+
+        # 두 번째 반려 시도 (실패 - 이미 REJECTED 상태)
+        response = admin_client.post(f"/api/v1/admin/trips/{trip_id}/reject")
 
         assert response.status_code == 422
         data = response.json()
