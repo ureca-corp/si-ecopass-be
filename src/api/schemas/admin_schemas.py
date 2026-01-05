@@ -257,7 +257,7 @@ class DashboardStatsResponse(BaseResponse):
     total_users: int = Field(description="전체 가입자 수")
     total_trips: int = Field(description="전체 여정 수")
     pending_count: int = Field(description="승인 대기 중 (COMPLETED)")
-    approved_count: int = Field(description="승인 완료 (APPROVED)")
+    approved_count: int = Field(description="오늘 승인된 여정 (APPROVED, KST 기준)")
     rejected_count: int = Field(description="반려 (REJECTED)")
     in_progress_count: int = Field(description="진행 중 (DRIVING + TRANSFERRED)")
 

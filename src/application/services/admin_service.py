@@ -212,6 +212,8 @@ class AdminService:
         """
         대시보드 통계 조회
         상태별 여정 개수와 전체 가입자 수를 집계하여 반환
+
+        approved_count: 오늘 승인된 여정 개수 (KST 기준)
         """
         # 전체 가입자 수
         total_users = await self.auth_service.count_all_users()
@@ -221,7 +223,7 @@ class AdminService:
 
         # 상태별 카운트
         pending_count = await self.trip_repository.count_by_status(TripStatus.COMPLETED)
-        approved_count = await self.trip_repository.count_by_status(TripStatus.APPROVED)
+        approved_count = await self.trip_repository.count_approved_today()  # 오늘 승인된 여정
         rejected_count = await self.trip_repository.count_by_status(TripStatus.REJECTED)
 
         # 진행 중 (DRIVING + TRANSFERRED)
@@ -233,7 +235,7 @@ class AdminService:
             "total_users": total_users,
             "total_trips": total_trips,
             "pending_count": pending_count,
-            "approved_count": approved_count,
+            "approved_count": approved_count,  # 오늘 승인된 여정 (KST)
             "rejected_count": rejected_count,
             "in_progress_count": in_progress_count,
         }

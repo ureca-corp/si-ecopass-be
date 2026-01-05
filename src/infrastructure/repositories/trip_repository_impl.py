@@ -4,8 +4,10 @@ Trip Repository Supabase Implementation
 Supabase를 사용한 여행 데이터 접근 구현
 """
 
+from datetime import datetime, timedelta
 from typing import Optional
 from uuid import UUID
+from zoneinfo import ZoneInfo
 
 from supabase import Client
 
@@ -253,5 +255,34 @@ class SupbaseTripRepository(ITripRepository):
         if end_date:
             query = query.lte("created_at", end_date)
 
+        response = query.execute()
+        return response.count or 0
+
+    async def count_approved_today(self) -> int:
+        """
+        오늘 승인된 여정 개수 조회 (KST 기준)
+
+        NOTE: approved_at 필드가 없어 updated_at을 사용
+        승인 후 다른 업데이트가 발생하면 부정확할 수 있음
+        향후 마이그레이션으로 approved_at 필드 추가 권장
+        """
+        # KST 시간대 기준 오늘 날짜 범위 계산
+        kst = ZoneInfo("Asia/Seoul")
+        now_kst = datetime.now(kst)
+        today_start = now_kst.replace(hour=0, minute=0, second=0, microsecond=0)
+        today_end = today_start + timedelta(days=1)
+
+        # UTC로 변환 (Supabase는 UTC로 저장)
+        today_start_utc = today_start.astimezone(ZoneInfo("UTC"))
+        today_end_utc = today_end.astimezone(ZoneInfo("UTC"))
+
+        # APPROVED 상태이고 updated_at이 오늘 범위인 여정 카운트
+        query = (
+            self.db.table("trips")
+            .select("id", count="exact")
+            .eq("status", TripStatus.APPROVED.value)
+            .gte("updated_at", today_start_utc.isoformat())
+            .lt("updated_at", today_end_utc.isoformat())
+        )
         response = query.execute()
         return response.count or 0

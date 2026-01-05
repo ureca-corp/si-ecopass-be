@@ -146,3 +146,15 @@ class ITripRepository(ABC):
         페이지네이션의 total_count 계산에 사용
         """
         pass
+
+    @abstractmethod
+    async def count_approved_today(self) -> int:
+        """
+        오늘 승인된 여정 개수 조회 (관리자 대시보드용)
+        KST(Asia/Seoul) 기준으로 오늘 승인된 여정만 카운트
+
+        NOTE: approved_at 필드가 없어 updated_at을 사용하므로
+        승인 후 다른 업데이트가 있으면 부정확할 수 있음
+        향후 approved_at 필드 추가 권장
+        """
+        pass

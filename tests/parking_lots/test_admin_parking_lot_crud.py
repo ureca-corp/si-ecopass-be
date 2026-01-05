@@ -22,14 +22,11 @@ class TestAdminParkingLotCreate:
         assert len(stations) > 0, "테스트를 위한 역이 필요합니다"
         station_id = stations[0]["id"]
 
-        # 주차장 생성
+        # 주차장 생성 (주소만 제공, 좌표는 자동 계산됨)
         parking_lot_data = {
             "station_id": station_id,
             "name": "테스트주차장_생성",
-            "address": "대구광역시 테스트구 테스트동 123",
-            "latitude": 35.8650,
-            "longitude": 128.5950,
-            "distance_to_station_m": 200,
+            "address": "대구광역시 중구 동성로2가 123",
             "fee_info": "1시간 1,000원",
         }
         response = admin_client.post("/api/v1/admin/parking-lots", json=parking_lot_data)
@@ -39,7 +36,8 @@ class TestAdminParkingLotCreate:
         assert data["status"] == "success"
         assert data["data"]["name"] == "테스트주차장_생성"
         assert data["data"]["station_id"] == station_id
-        assert data["data"]["distance_to_station_m"] == 200
+        # distance_to_station_m은 자동 계산됨 (PostGIS)
+        assert data["data"]["distance_to_station_m"] is not None
 
         # 생성된 주차장 ID 저장 (정리용)
         created_id = data["data"]["id"]
@@ -56,9 +54,7 @@ class TestAdminParkingLotCreate:
         parking_lot_data = {
             "station_id": fake_station_id,
             "name": "잘못된주차장",
-            "address": "없는 주소",
-            "latitude": 35.8650,
-            "longitude": 128.5950,
+            "address": "대구광역시 중구 동성로2가 123",
         }
         response = admin_client.post("/api/v1/admin/parking-lots", json=parking_lot_data)
 
